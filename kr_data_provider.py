@@ -1,0 +1,591 @@
+# -*- coding: utf-8 -*-
+"""
+KR Data Provider - 한국 주식 데이터 추상화 레이어
+pykrx + FinanceDataReader + OpenDartReader 통합
+
+yfinance 호환 인터페이스로 한국 데이터 제공
+"""
+
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+import time
+import warnings
+warnings.filterwarnings('ignore')
+
+# pykrx
+try:
+    from pykrx import stock as krx
+    PYKRX_AVAILABLE = True
+except ImportError:
+    PYKRX_AVAILABLE = False
+    print("⚠️ pykrx 미설치: pip install pykrx")
+
+# FinanceDataReader
+try:
+    import FinanceDataReader as fdr
+    FDR_AVAILABLE = True
+except ImportError:
+    FDR_AVAILABLE = False
+    print("⚠️ FinanceDataReader 미설치: pip install FinanceDataReader")
+
+# OpenDartReader
+try:
+    import OpenDartReader
+    DART_AVAILABLE = True
+except ImportError:
+    DART_AVAILABLE = False
+    print("ℹ️ OpenDartReader 미설치 (DART 재무제표 미사용)")
+
+
+class KRDataProvider:
+    """한국 주식 데이터 통합 제공자
+
+    pykrx: OHLCV, PER/PBR/DIV, 시가총액
+    FinanceDataReader: 종목 리스트, Sector/Industry
+    OpenDartReader: ROE, OPM, 매출성장률 (DART 재무제표)
+    """
+
+    def __init__(self, dart_api_key=None):
+        self._fundamental_cache = {}   # {date_str: DataFrame}
+        self._market_cap_cache = {}    # {date_str: DataFrame}
+        self._stock_listing_cache = {} # {'KOSPI': df, 'KOSDAQ': df}
+        self._dart = None
+        self._dart_cache = {}          # {code: {roe, opm, revenue_growth}}
+
+        if dart_api_key and DART_AVAILABLE:
+            try:
+                self._dart = OpenDartReader.OpenDartReader(dart_api_key)
+                print("✅ DART API 연결 완료")
+            except Exception as e:
+                print(f"⚠️ DART API 연결 실패: {e}")
+
+    # ================================================================
+    # 영업일 탐색
+    # ================================================================
+    def _find_latest_trading_date(self, max_lookback=10):
+        """가장 최근 영업일 찾기 (주말/공휴일/장 시작 전 대응)"""
+        today = datetime.now()
+        for i in range(max_lookback):
+            date = today - timedelta(days=i)
+            date_str = date.strftime('%Y%m%d')
+            try:
+                df = krx.get_market_ohlcv(date_str, market='KOSPI')
+                # 데이터가 있고, 실제 거래가 발생한 날짜인지 확인 (종가 합 > 0)
+                if df is not None and not df.empty and df['종가'].sum() > 0:
+                    return date_str
+            except Exception:
+                continue
+        # fallback: 어제
+        return (today - timedelta(days=1)).strftime('%Y%m%d')
+
+    # ================================================================
+    # 유니버스 (종목 리스트)
+    # ================================================================
+    def get_universe(self, kosdaq_top_n=100):
+        """KOSPI 200 + KOSDAQ 시총 상위 N개 유니버스
+
+        Returns:
+            list of dict: [{code, name, market, sector, industry}, ...]
+        """
+        if not PYKRX_AVAILABLE:
+            print("❌ pykrx 필요")
+            return []
+
+        date_str = self._find_latest_trading_date()
+        universe = []
+
+        # --- KOSPI 200 ---
+        try:
+            kospi200_codes = krx.get_index_portfolio_deposit_file('1028')
+            print(f"✅ KOSPI 200: {len(kospi200_codes)}개 로드")
+            for code in kospi200_codes:
+                name = krx.get_market_ticker_name(code)
+                universe.append({
+                    'code': code,
+                    'name': name or code,
+                    'market': 'KOSPI',
+                })
+        except Exception as e:
+            print(f"⚠️ KOSPI 200 로드 실패: {e}")
+
+        # --- KOSDAQ 시총 상위 ---
+        try:
+            kosdaq_cap = krx.get_market_cap(date_str, market='KOSDAQ')
+            if kosdaq_cap is not None and not kosdaq_cap.empty:
+                kosdaq_top = kosdaq_cap.nlargest(kosdaq_top_n, '시가총액')
+                print(f"✅ KOSDAQ 시총 상위 {len(kosdaq_top)}개 로드")
+                for code in kosdaq_top.index:
+                    name = krx.get_market_ticker_name(code)
+                    universe.append({
+                        'code': code,
+                        'name': name or code,
+                        'market': 'KOSDAQ',
+                    })
+        except Exception as e:
+            print(f"⚠️ KOSDAQ 로드 실패: {e}")
+
+        # --- Sector/Industry 매핑 (KRX 업종 인덱스) ---
+        self._enrich_sector_info(universe)
+
+        print(f"📊 전체 유니버스: {len(universe)}개 종목")
+        return universe
+
+    # KRX 업종 인덱스 → 섹터명 매핑
+    KRX_SECTOR_INDICES = {
+        '1005': '음식료품',
+        '1006': '섬유의류',
+        '1007': '종이목재',
+        '1008': '화학',
+        '1009': '의약품',
+        '1010': '비금속',
+        '1011': '금속',
+        '1012': '기계장비',
+        '1013': '전기전자',
+        '1014': '의료정밀기기',
+        '1015': '운수장비',
+        '1016': '유통업',
+        '1017': '전기가스업',
+        '1018': '건설업',
+        '1019': '운수창고',
+        '1020': '통신업',
+        '1021': '금융업',
+        '1024': '증권',
+        '1025': '보험',
+        '1026': '서비스업',
+    }
+
+    def _build_sector_map(self):
+        """KRX 업종 인덱스에서 종목코드→섹터 매핑 구축"""
+        if hasattr(self, '_sector_map') and self._sector_map:
+            return self._sector_map
+
+        self._sector_map = {}
+        for idx_code, sector_name in self.KRX_SECTOR_INDICES.items():
+            try:
+                codes = krx.get_index_portfolio_deposit_file(idx_code)
+                if codes:
+                    for code in codes:
+                        self._sector_map[code] = sector_name
+            except Exception:
+                continue
+
+        return self._sector_map
+
+    def _enrich_sector_info(self, universe):
+        """KRX 업종 인덱스로 섹터 정보 보강"""
+        try:
+            sector_map = self._build_sector_map()
+            for item in universe:
+                code = item['code']
+                sector = sector_map.get(code, '')
+                item['sector'] = sector
+                item['industry'] = sector  # KRX는 sector=industry
+        except Exception as e:
+            print(f"⚠️ 섹터 정보 보강 실패: {e}")
+            for item in universe:
+                item.setdefault('sector', '')
+                item.setdefault('industry', '')
+
+    # ================================================================
+    # 벌크 데이터 (캐시)
+    # ================================================================
+    def _get_bulk_fundamentals(self, date_str):
+        """벌크 PER/PBR/DIV 데이터 (캐시)"""
+        if date_str not in self._fundamental_cache:
+            try:
+                df_kospi = krx.get_market_fundamental(date_str, market='KOSPI')
+                df_kosdaq = krx.get_market_fundamental(date_str, market='KOSDAQ')
+                combined = pd.concat([df_kospi, df_kosdaq])
+                self._fundamental_cache[date_str] = combined
+            except Exception as e:
+                print(f"⚠️ 펀더멘털 벌크 로드 실패: {e}")
+                self._fundamental_cache[date_str] = pd.DataFrame()
+        return self._fundamental_cache[date_str]
+
+    def _get_bulk_market_cap(self, date_str):
+        """벌크 시가총액 데이터 (캐시)"""
+        if date_str not in self._market_cap_cache:
+            try:
+                df_kospi = krx.get_market_cap(date_str, market='KOSPI')
+                df_kosdaq = krx.get_market_cap(date_str, market='KOSDAQ')
+                combined = pd.concat([df_kospi, df_kosdaq])
+                self._market_cap_cache[date_str] = combined
+            except Exception as e:
+                print(f"⚠️ 시총 벌크 로드 실패: {e}")
+                self._market_cap_cache[date_str] = pd.DataFrame()
+        return self._market_cap_cache[date_str]
+
+    # ================================================================
+    # 개별 종목 정보 (yfinance ticker.info 호환)
+    # ================================================================
+    def get_info(self, code, date_str=None):
+        """종목 정보 (yfinance info 호환 딕셔너리)
+
+        Returns:
+            dict with keys: currentPrice, marketCap, averageVolume,
+                           PER, PBR, dividendYield, returnOnEquity,
+                           operatingMargins, revenueGrowth,
+                           sector, industry, shortName
+        """
+        if date_str is None:
+            date_str = self._find_latest_trading_date()
+
+        info = {
+            'currentPrice': 0,
+            'regularMarketPrice': 0,
+            'marketCap': 0,
+            'averageVolume': 0,
+            'trailingPE': 0,
+            'forwardPE': 0,
+            'priceToBook': 0,
+            'dividendYield': 0,
+            'returnOnEquity': None,
+            'operatingMargins': None,
+            'revenueGrowth': None,
+            'sector': '',
+            'industry': '',
+            'shortName': '',
+            'previousClose': 0,
+        }
+
+        try:
+            # 이름
+            name = krx.get_market_ticker_name(code)
+            info['shortName'] = name or code
+
+            # 시가총액 + 거래량
+            cap_df = self._get_bulk_market_cap(date_str)
+            if not cap_df.empty and code in cap_df.index:
+                row = cap_df.loc[code]
+                info['marketCap'] = int(row.get('시가총액', 0))
+                info['averageVolume'] = int(row.get('거래량', 0))
+
+            # PER/PBR/DIV
+            fund_df = self._get_bulk_fundamentals(date_str)
+            if not fund_df.empty and code in fund_df.index:
+                row = fund_df.loc[code]
+                per = row.get('PER', 0)
+                pbr = row.get('PBR', 0)
+                div_yield = row.get('DIV', 0)
+
+                info['trailingPE'] = float(per) if per and per > 0 else 0
+                info['forwardPE'] = float(per) if per and per > 0 else 0
+                info['priceToBook'] = float(pbr) if pbr and pbr > 0 else 0
+                info['dividendYield'] = float(div_yield) / 100 if div_yield and div_yield > 0 else 0
+
+            # 현재가
+            try:
+                ohlcv = krx.get_market_ohlcv(date_str, date_str, code)
+                if ohlcv is not None and not ohlcv.empty:
+                    info['currentPrice'] = int(ohlcv['종가'].iloc[-1])
+                    info['regularMarketPrice'] = info['currentPrice']
+                    info['previousClose'] = int(ohlcv['시가'].iloc[-1])
+            except Exception:
+                pass
+
+            # 섹터/업종 (KRX 업종 인덱스)
+            self._fill_sector_info(code, info)
+
+            # DART 재무제표 (ROE, OPM, 매출성장률)
+            self._fill_dart_financials(code, info)
+
+        except Exception as e:
+            print(f"⚠️ {code} info 로드 실패: {e}")
+
+        return info
+
+    def _fill_sector_info(self, code, info):
+        """KRX 업종 인덱스에서 섹터 정보 채우기"""
+        try:
+            sector_map = self._build_sector_map()
+            sector = sector_map.get(code, '')
+            if sector:
+                info['sector'] = sector
+                info['industry'] = sector
+        except Exception:
+            pass
+
+    def _fill_dart_financials(self, code, info):
+        """DART 재무제표에서 ROE, OPM, 매출성장률 계산"""
+        # 캐시 확인
+        if code in self._dart_cache:
+            cached = self._dart_cache[code]
+            info['returnOnEquity'] = cached.get('roe')
+            info['operatingMargins'] = cached.get('opm')
+            info['revenueGrowth'] = cached.get('revenue_growth')
+            return
+
+        roe = None
+        opm = None
+        revenue_growth = None
+
+        if self._dart is not None:
+            try:
+                # 최근 사업보고서 (연간)
+                current_year = datetime.now().year
+                fs = None
+
+                # 최근 연도부터 시도
+                for yr in [current_year - 1, current_year - 2]:
+                    try:
+                        fs = self._dart.finstate(code, yr, reprt_code='11011')  # 사업보고서
+                        if fs is not None and not fs.empty:
+                            break
+                    except Exception:
+                        continue
+
+                if fs is not None and not fs.empty:
+                    # 매출액 찾기 (다양한 계정명 대응)
+                    revenue_names = ['매출액', '수익(매출액)', '영업수익', '매출', '순매출액']
+                    revenue = self._find_account(fs, revenue_names)
+
+                    # 영업이익
+                    op_names = ['영업이익', '영업이익(손실)']
+                    operating_profit = self._find_account(fs, op_names)
+
+                    # 당기순이익
+                    ni_names = ['당기순이익', '당기순이익(손실)', '분기순이익']
+                    net_income = self._find_account(fs, ni_names)
+
+                    # 자본총계
+                    equity_names = ['자본총계', '자본 총계']
+                    equity = self._find_account(fs, equity_names)
+
+                    # ROE 계산
+                    if net_income and equity and equity != 0:
+                        roe = net_income / equity
+                        info['returnOnEquity'] = roe
+
+                    # OPM 계산
+                    if operating_profit and revenue and revenue != 0:
+                        opm = operating_profit / revenue
+                        info['operatingMargins'] = opm
+
+                    # 매출성장률 (전년도 대비)
+                    try:
+                        fs_prev = None
+                        for yr in [current_year - 2, current_year - 3]:
+                            try:
+                                fs_prev = self._dart.finstate(code, yr, reprt_code='11011')
+                                if fs_prev is not None and not fs_prev.empty:
+                                    break
+                            except Exception:
+                                continue
+
+                        if fs_prev is not None and not fs_prev.empty:
+                            prev_revenue = self._find_account(fs_prev, revenue_names)
+                            if prev_revenue and prev_revenue != 0 and revenue:
+                                revenue_growth = (revenue - prev_revenue) / abs(prev_revenue)
+                                info['revenueGrowth'] = revenue_growth
+                    except Exception:
+                        pass
+
+            except Exception as e:
+                # DART 실패 시 조용히 넘어감
+                pass
+
+        # pykrx에서 PER/PBR로 대략적 추정 (DART 실패 시)
+        if roe is None and info.get('trailingPE', 0) > 0 and info.get('priceToBook', 0) > 0:
+            # ROE ≈ PBR / PER (근사치)
+            per = info['trailingPE']
+            pbr = info['priceToBook']
+            if per > 0:
+                roe_approx = pbr / per
+                info['returnOnEquity'] = roe_approx
+                roe = roe_approx
+
+        # 캐시 저장
+        self._dart_cache[code] = {
+            'roe': roe,
+            'opm': opm,
+            'revenue_growth': revenue_growth,
+        }
+
+    def _find_account(self, fs, account_names):
+        """재무제표에서 계정 찾기 (fuzzy match)"""
+        try:
+            # account_nm 컬럼명 확인
+            name_col = None
+            for col in ['account_nm', 'sj_nm', 'account_nm']:
+                if col in fs.columns:
+                    name_col = col
+                    break
+            if name_col is None:
+                return None
+
+            # 금액 컬럼
+            amount_col = None
+            for col in ['thstrm_amount', 'thstrm_dt', 'amount']:
+                if col in fs.columns:
+                    amount_col = col
+                    break
+            if amount_col is None:
+                return None
+
+            for name in account_names:
+                matches = fs[fs[name_col].str.contains(name, na=False, regex=False)]
+                if not matches.empty:
+                    # 연결재무제표 우선
+                    for _, row in matches.iterrows():
+                        val = row[amount_col]
+                        if val and str(val).strip() and str(val).strip() != '':
+                            try:
+                                return float(str(val).replace(',', ''))
+                            except (ValueError, TypeError):
+                                continue
+        except Exception:
+            pass
+        return None
+
+    # ================================================================
+    # OHLCV 히스토리 (yfinance history 호환)
+    # ================================================================
+    def get_history(self, code, period='1y'):
+        """OHLCV DataFrame (yfinance history 호환)
+
+        Args:
+            code: 종목코드 (6자리)
+            period: '1y', '2y', '6mo', '3mo'
+
+        Returns:
+            DataFrame with columns: Open, High, Low, Close, Volume
+        """
+        if not PYKRX_AVAILABLE:
+            return pd.DataFrame()
+
+        end_date = datetime.now()
+        period_map = {
+            '3mo': 90,
+            '6mo': 180,
+            '1y': 365,
+            '2y': 730,
+            '3y': 1095,
+        }
+        days = period_map.get(period, 365)
+        start_date = end_date - timedelta(days=days)
+
+        start_str = start_date.strftime('%Y%m%d')
+        end_str = end_date.strftime('%Y%m%d')
+
+        try:
+            df = krx.get_market_ohlcv(start_str, end_str, code)
+            if df is None or df.empty:
+                return pd.DataFrame()
+
+            # 한글 컬럼명 → 영문 변환
+            df = df.rename(columns={
+                '시가': 'Open',
+                '고가': 'High',
+                '저가': 'Low',
+                '종가': 'Close',
+                '거래량': 'Volume',
+            })
+
+            # 필요한 컬럼만
+            cols = ['Open', 'High', 'Low', 'Close', 'Volume']
+            available_cols = [c for c in cols if c in df.columns]
+            df = df[available_cols]
+
+            # 0 거래량 행 제거 (거래정지일)
+            df = df[df['Volume'] > 0]
+
+            return df
+
+        except Exception as e:
+            print(f"⚠️ {code} 히스토리 로드 실패: {e}")
+            return pd.DataFrame()
+
+    # ================================================================
+    # 시장 지수 (KOSPI)
+    # ================================================================
+    def get_market_index(self, period='1y'):
+        """KOSPI 지수 OHLCV (시장 레짐 감지용)
+
+        Returns:
+            DataFrame with columns: Open, High, Low, Close, Volume
+        """
+        if not PYKRX_AVAILABLE:
+            return pd.DataFrame()
+
+        end_date = datetime.now()
+        period_map = {'6mo': 180, '1y': 365, '2y': 730}
+        days = period_map.get(period, 365)
+        start_date = end_date - timedelta(days=days)
+
+        start_str = start_date.strftime('%Y%m%d')
+        end_str = end_date.strftime('%Y%m%d')
+
+        try:
+            # KOSPI 지수 (1001)
+            df = krx.get_index_ohlcv(start_str, end_str, '1001')
+            if df is None or df.empty:
+                return pd.DataFrame()
+
+            df = df.rename(columns={
+                '시가': 'Open',
+                '고가': 'High',
+                '저가': 'Low',
+                '종가': 'Close',
+                '거래량': 'Volume',
+            })
+
+            cols = ['Open', 'High', 'Low', 'Close', 'Volume']
+            available_cols = [c for c in cols if c in df.columns]
+            return df[available_cols]
+
+        except Exception as e:
+            print(f"⚠️ KOSPI 지수 로드 실패: {e}")
+            return pd.DataFrame()
+
+
+# ================================================================
+# 테스트
+# ================================================================
+if __name__ == "__main__":
+    import sys
+    sys.stdout.reconfigure(encoding='utf-8')
+
+    print("=" * 60)
+    print("🇰🇷 KR Data Provider 테스트")
+    print("=" * 60)
+
+    provider = KRDataProvider()
+
+    # 1. 삼성전자 테스트
+    print("\n--- 삼성전자 (005930) 정보 ---")
+    info = provider.get_info('005930')
+    print(f"  이름: {info['shortName']}")
+    print(f"  현재가: ₩{info['currentPrice']:,}")
+    print(f"  시가총액: ₩{info['marketCap']:,}")
+    print(f"  PER: {info['trailingPE']:.1f}")
+    print(f"  PBR: {info['priceToBook']:.2f}")
+    print(f"  배당률: {info['dividendYield']*100:.1f}%")
+    if info['returnOnEquity']:
+        print(f"  ROE: {info['returnOnEquity']*100:.1f}%")
+    if info['operatingMargins']:
+        print(f"  OPM: {info['operatingMargins']*100:.1f}%")
+    print(f"  섹터: {info['sector']}")
+    print(f"  업종: {info['industry']}")
+
+    # 2. 히스토리 테스트
+    print("\n--- 삼성전자 1년 히스토리 ---")
+    hist = provider.get_history('005930', '1y')
+    if not hist.empty:
+        print(f"  기간: {hist.index[0]} ~ {hist.index[-1]}")
+        print(f"  데이터: {len(hist)}일")
+        print(f"  최근 종가: ₩{int(hist['Close'].iloc[-1]):,}")
+
+    # 3. KOSPI 지수
+    print("\n--- KOSPI 지수 ---")
+    kospi = provider.get_market_index('1y')
+    if not kospi.empty:
+        print(f"  기간: {kospi.index[0]} ~ {kospi.index[-1]}")
+        print(f"  현재: {kospi['Close'].iloc[-1]:,.2f}")
+
+    # 4. 유니버스
+    print("\n--- 유니버스 (상위 5개) ---")
+    universe = provider.get_universe(kosdaq_top_n=50)
+    for item in universe[:5]:
+        print(f"  {item['code']} {item['name']} ({item['market']}) - {item.get('sector', 'N/A')}")
+    print(f"  ... 총 {len(universe)}개")

@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+*.onnx
+*.html
+!scoring_system_kr.html
