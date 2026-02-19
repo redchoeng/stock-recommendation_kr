@@ -561,7 +561,13 @@ def train_and_predict(codes, save_models=True, value_mode=False):
             else:
                 signal, confidence = "❓ Unknown", 0
 
-            current_price = df['Close'].iloc[-1]
+            # 실시간 가격 (info에서 가져오기, 없으면 히스토리 마지막 종가)
+            try:
+                provider = get_kr_provider()
+                info = predictor.ticker_info if value_mode and predictor.ticker_info else provider.get_info(code)
+                current_price = info.get('currentPrice') or info.get('regularMarketPrice') or df['Close'].iloc[-1]
+            except Exception:
+                current_price = df['Close'].iloc[-1]
 
             result = {
                 'ticker': code,

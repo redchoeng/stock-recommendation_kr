@@ -385,7 +385,21 @@ class KRDataProvider:
                 # DART 실패 시 조용히 넘어감
                 pass
 
-        # pykrx에서 PER/PBR로 대략적 추정 (DART 실패 시)
+        # NAVER Finance 스크래핑 (DART 실패 시 대안)
+        if roe is None or opm is None or revenue_growth is None:
+            naver_data = self._fetch_naver_financials(code)
+            if naver_data:
+                if roe is None and naver_data.get('roe') is not None:
+                    roe = naver_data['roe']
+                    info['returnOnEquity'] = roe
+                if opm is None and naver_data.get('opm') is not None:
+                    opm = naver_data['opm']
+                    info['operatingMargins'] = opm
+                if revenue_growth is None and naver_data.get('revenue_growth') is not None:
+                    revenue_growth = naver_data['revenue_growth']
+                    info['revenueGrowth'] = revenue_growth
+
+        # pykrx에서 PER/PBR로 대략적 추정 (DART + NAVER 모두 실패 시)
         if roe is None and info.get('trailingPE', 0) > 0 and info.get('priceToBook', 0) > 0:
             # ROE ≈ PBR / PER (근사치)
             per = info['trailingPE']
@@ -401,6 +415,83 @@ class KRDataProvider:
             'opm': opm,
             'revenue_growth': revenue_growth,
         }
+
+    def _fetch_naver_financials(self, code):
+        """NAVER Finance에서 재무지표 스크래핑 (DART API 없을 때 대안)
+
+        Returns:
+            dict: {roe, opm, revenue_growth} or None
+        """
+        try:
+            import requests
+
+            url = f"https://finance.naver.com/item/main.naver?code={code}"
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+            resp = requests.get(url, headers=headers, timeout=5)
+            resp.encoding = 'euc-kr'
+
+            tables = pd.read_html(resp.text, encoding='euc-kr')
+            if not tables:
+                return None
+
+            result = {}
+
+            for table in tables:
+                table_str = table.to_string()
+
+                # 재무비율 테이블 (영업이익률, ROE 포함)
+                if '영업이익률' in table_str or 'ROE' in table_str:
+                    for idx, row in table.iterrows():
+                        row_label = str(row.iloc[0]) if len(row) > 0 else ''
+
+                        if '영업이익률' in row_label and 'opm' not in result:
+                            val = self._extract_naver_number(row)
+                            if val is not None:
+                                result['opm'] = val / 100
+
+                        if 'ROE' in row_label.upper() and 'roe' not in result:
+                            val = self._extract_naver_number(row)
+                            if val is not None:
+                                result['roe'] = val / 100
+
+                # 매출액 테이블에서 성장률 계산
+                if '매출액' in table_str and 'revenue_growth' not in result:
+                    for idx, row in table.iterrows():
+                        row_label = str(row.iloc[0]) if len(row) > 0 else ''
+                        if '매출액' in row_label and '증가' not in row_label and '률' not in row_label:
+                            revenues = []
+                            for val in row.iloc[1:]:
+                                try:
+                                    v = float(str(val).replace(',', ''))
+                                    if not pd.isna(v) and v != 0:
+                                        revenues.append(v)
+                                except (ValueError, TypeError):
+                                    continue
+                            if len(revenues) >= 2 and revenues[-2] != 0:
+                                result['revenue_growth'] = (revenues[-1] - revenues[-2]) / abs(revenues[-2])
+                            break
+
+            return result if result else None
+
+        except Exception:
+            return None
+
+    def _extract_naver_number(self, row):
+        """NAVER 테이블 row에서 가장 최근 유효 숫자 추출"""
+        # 뒤에서부터 탐색 (최신 데이터 우선, 단 추정치(E) 제외)
+        for val in reversed(list(row.iloc[1:])):
+            try:
+                s = str(val).replace(',', '').replace('%', '').strip()
+                if s == '' or s == 'nan' or s == 'N/A':
+                    continue
+                v = float(s)
+                if not pd.isna(v):
+                    return v
+            except (ValueError, TypeError):
+                continue
+        return None
 
     def _find_account(self, fs, account_names):
         """재무제표에서 계정 찾기 (fuzzy match)"""

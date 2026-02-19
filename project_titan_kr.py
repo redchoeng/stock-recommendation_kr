@@ -213,16 +213,6 @@ class TitanKRAnalyzer:
     SCORE_BUY = 60
     SCORE_HOLD = 40
 
-    # 펀더멘털 점수 가중치
-    SCORE_ROE_EXCELLENT = 15
-    SCORE_ROE_GOOD = 5
-    SCORE_OPM_EXCELLENT = 15
-    SCORE_OPM_GOOD = 5
-
-    # 매출 성장률 점수
-    SCORE_REVENUE_GROWTH_HIGH = 10
-    SCORE_REVENUE_GROWTH_GOOD = 5
-
     # 섹터별 점수 - 성장주 (10pt 만점)
     SCORE_SECTOR_TIER1 = 10  # 반도체/AI, 2차전지
     SCORE_SECTOR_TIER2 = 8   # 바이오, K-플랫폼, 방산, 조선
@@ -290,7 +280,6 @@ class TitanKRAnalyzer:
     SECTOR_REVENUE_GROWTH_THRESHOLDS = {
         '전기,전자': (20, 10),
         '전기전자': (20, 10),
-        '반도체': (25, 10),
         '금융업': (8, 3),
         '은행': (8, 3),
         '유틸리티': (5, 2),
@@ -403,62 +392,56 @@ class TitanKRAnalyzer:
             sector = info.get('sector', '') or ''
             industry = info.get('industry', '') or ''
 
-            # 1. ROE (섹터별 차등)
+            # 1. ROE (섹터별 차등, 선형 보간)
             roe = info.get('returnOnEquity')
             roe_excellent, roe_good = self._get_sector_threshold(
                 sector, self.SECTOR_ROE_THRESHOLDS, self.DEFAULT_ROE_THRESHOLD)
             if roe:
                 roe_pct = roe * 100
                 breakdown['roe_value'] = roe_pct
-                if roe_pct > roe_excellent:
-                    score += self.SCORE_ROE_EXCELLENT
-                    breakdown['roe_score'] = self.SCORE_ROE_EXCELLENT
-                    comments.append(f"ROE:{roe_pct:.1f}%")
-                elif roe_pct > roe_good:
-                    score += self.SCORE_ROE_GOOD
-                    breakdown['roe_score'] = self.SCORE_ROE_GOOD
+                roe_score = self._calc_gradient_score(roe_pct, roe_excellent, roe_good, 15)
+                score += roe_score
+                breakdown['roe_score'] = roe_score
+                if roe_score > 0:
                     comments.append(f"ROE:{roe_pct:.1f}%")
 
-            # 2. OPM (섹터별 차등)
+            # 2. OPM (섹터별 차등, 선형 보간)
             opm = info.get('operatingMargins')
             opm_excellent, opm_good = self._get_sector_threshold(
                 sector, self.SECTOR_OPM_THRESHOLDS, self.DEFAULT_OPM_THRESHOLD)
             if opm:
                 opm_pct = opm * 100
                 breakdown['opm_value'] = opm_pct
-                if opm_pct > opm_excellent:
-                    score += self.SCORE_OPM_EXCELLENT
-                    breakdown['opm_score'] = self.SCORE_OPM_EXCELLENT
+                opm_score = self._calc_gradient_score(opm_pct, opm_excellent, opm_good, 15)
+                score += opm_score
+                breakdown['opm_score'] = opm_score
+                if opm_score > 0:
                     comments.append(f"OPM:{opm_pct:.1f}%")
-                elif opm_pct > opm_good:
-                    score += self.SCORE_OPM_GOOD
-                    breakdown['opm_score'] = self.SCORE_OPM_GOOD
 
-            # 3. 매출성장률 (섹터별 차등)
+            # 3. 매출성장률 (섹터별 차등, 선형 보간)
             revenue_growth = info.get('revenueGrowth')
             rg_high, rg_good = self._get_sector_threshold(
                 sector, self.SECTOR_REVENUE_GROWTH_THRESHOLDS, self.DEFAULT_REVENUE_GROWTH_THRESHOLD)
             if revenue_growth:
                 rg_pct = revenue_growth * 100
                 breakdown['revenue_growth_value'] = rg_pct
-                if rg_pct > rg_high:
-                    score += self.SCORE_REVENUE_GROWTH_HIGH
-                    breakdown['revenue_growth_score'] = self.SCORE_REVENUE_GROWTH_HIGH
-                elif rg_pct > rg_good:
-                    score += self.SCORE_REVENUE_GROWTH_GOOD
-                    breakdown['revenue_growth_score'] = self.SCORE_REVENUE_GROWTH_GOOD
+                rg_score = self._calc_gradient_score(rg_pct, rg_high, rg_good, 10)
+                score += rg_score
+                breakdown['revenue_growth_score'] = rg_score
 
             # 3-1. 고성장 투자기업 보정 (매출 30%+ & ROE/OPM 적자)
             if revenue_growth and revenue_growth > 0.30:
                 roe_val = roe * 100 if roe else 0
                 opm_val = opm * 100 if opm else 0
                 if roe_val < 0 and breakdown['roe_score'] == 0:
-                    score += self.SCORE_ROE_GOOD
-                    breakdown['roe_score'] = self.SCORE_ROE_GOOD
+                    bonus = round(15 * 0.4)  # 40% of max (6점)
+                    score += bonus
+                    breakdown['roe_score'] = bonus
                     comments.append("성장투자")
                 if opm_val < 0 and breakdown['opm_score'] == 0:
-                    score += self.SCORE_OPM_GOOD
-                    breakdown['opm_score'] = self.SCORE_OPM_GOOD
+                    bonus = round(15 * 0.4)  # 40% of max (6점)
+                    score += bonus
+                    breakdown['opm_score'] = bonus
 
             # 4. 섹터 & 정책 보너스
             breakdown['sector_name'] = sector or industry or '기타'
@@ -498,6 +481,37 @@ class TitanKRAnalyzer:
             pass
 
         return score, comments, breakdown
+
+    @staticmethod
+    def _calc_gradient_score(value, excellent, good, max_pts):
+        """선형 보간 점수 계산
+        - value > excellent*1.3: max_pts (만점)
+        - excellent ~ excellent*1.3: 80%~100% 보간
+        - good ~ excellent: 40%~80% 보간
+        - good*0.5 ~ good: 5%~40% 보간
+        - < good*0.5: 0점
+        """
+        if value is None:
+            return 0
+        if excellent == 0 and good == 0:
+            return 0
+
+        top = excellent * 1.3
+        bottom = good * 0.5
+
+        if value >= top:
+            return max_pts
+        elif value >= excellent:
+            ratio = 0.8 + 0.2 * (value - excellent) / (top - excellent) if top != excellent else 1.0
+            return round(max_pts * ratio, 1)
+        elif value >= good:
+            ratio = 0.4 + 0.4 * (value - good) / (excellent - good) if excellent != good else 0.8
+            return round(max_pts * ratio, 1)
+        elif value >= bottom:
+            ratio = 0.05 + 0.35 * (value - bottom) / (good - bottom) if good != bottom else 0.05
+            return round(max_pts * ratio, 1)
+        else:
+            return 0
 
     def _get_sector_threshold(self, sector, threshold_dict, default):
         """섹터명으로 임계값 찾기 (부분 매칭)"""
@@ -565,8 +579,8 @@ class TitanKRAnalyzer:
         if any(kw in s+i for kw in ['섬유', '의류', '패션']):
             return self.SCORE_SECTOR_TIER4, "섬유/의류", "섬유/의류"
 
-        # 기타
-        return 5, sector or '기타', sector or ''
+        # 기타 (최소 1점 보장)
+        return 1, sector or '기타', sector or ''
 
     # ================================================================
     # 가치주 섹터 점수
@@ -601,7 +615,8 @@ class TitanKRAnalyzer:
         if any(kw in s+i for kw in ['전자', '반도체', 'it', '소프트웨어', '게임']):
             return self.VALUE_SECTOR_TIER4, "기술주", "기술주"
 
-        return 5, sector or '기타', sector or ''
+        # 기타 (최소 1점 보장)
+        return 1, sector or '기타', sector or ''
 
     # ================================================================
     # 한국 정책 보너스/페널티
@@ -626,36 +641,36 @@ class TitanKRAnalyzer:
         # === 수혜 ===
         # K-반도체
         if any(kw in n for kw in ['삼성전자', 'sk하이닉스', '한미반도체', 'hpsp', '리노공업']):
-            return self.POLICY_BONUS, "🇰🇷K-반도체 정책수혜"
+            return self.POLICY_BONUS, "[Policy]K-반도체 정책수혜"
         if any(kw in s+i for kw in ['반도체']) and '장비' not in s+i:
-            return self.POLICY_BONUS, "🇰🇷K-반도체 정책수혜"
+            return self.POLICY_BONUS, "[Policy]K-반도체 정책수혜"
 
         # K-배터리
         if any(kw in n for kw in ['에너지솔루션', '삼성sdi', '에코프로', '포스코퓨처엠']):
-            return self.POLICY_BONUS, "🇰🇷K-배터리 정책수혜"
+            return self.POLICY_BONUS, "[Policy]K-배터리 정책수혜"
         if any(kw in s+i+n for kw in ['2차전지', '배터리']):
-            return self.POLICY_BONUS, "🇰🇷K-배터리 정책수혜"
+            return self.POLICY_BONUS, "[Policy]K-배터리 정책수혜"
 
         # K-방산
         if any(kw in n for kw in ['한화에어로', 'lig넥스원', '한국항공우주', '한화시스템', '현대로템', '풍산']):
-            return self.POLICY_BONUS, "🇰🇷K-방산 수출호조"
+            return self.POLICY_BONUS, "[Policy]K-방산 수출호조"
         if any(kw in s+i for kw in ['방산', '항공우주']):
-            return self.POLICY_BONUS, "🇰🇷K-방산 수출호조"
+            return self.POLICY_BONUS, "[Policy]K-방산 수출호조"
 
         # 조선
         if any(kw in n for kw in ['한국조선', 'hd현대중공업', '한화오션', 'hd현대미포']):
-            return self.POLICY_BONUS, "🇰🇷조선 친환경전환"
+            return self.POLICY_BONUS, "[Policy]조선 친환경전환"
         if any(kw in s+i for kw in ['조선']):
-            return self.POLICY_BONUS, "🇰🇷조선 친환경전환"
+            return self.POLICY_BONUS, "[Policy]조선 친환경전환"
 
         # 밸류업 (금융주)
         if any(kw in s+i for kw in ['금융', '은행', '보험', '증권']):
-            return self.POLICY_BONUS, "🇰🇷밸류업 프로그램"
+            return self.POLICY_BONUS, "[Policy]밸류업 프로그램"
 
         # === 역풍 ===
         # 중국 의존
         if any(kw in n for kw in ['아모레', '이니스프리', '면세']):
-            return self.POLICY_PENALTY, "⚠️중국 의존도 리스크"
+            return self.POLICY_PENALTY, "[Warning]중국 의존도 리스크"
 
         return 0, ""
 
