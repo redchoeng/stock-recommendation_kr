@@ -1,7 +1,5 @@
 # Korean market data
 pykrx>=1.0.45
-FinanceDataReader>=0.9.50
-OpenDartReader>=0.7.12
 
 # Technical analysis
 ta>=0.11.0
