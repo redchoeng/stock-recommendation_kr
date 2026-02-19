@@ -1,5 +1,14 @@
+# ML 관련 파일 (로컬 전용)
+ml_predictor.py
+run_ml_portfolio.py
+requirements_ml.txt
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+
+# 기타
+nul
+output.txt
 *.onnx
-*.html
-!scoring_system_kr.html

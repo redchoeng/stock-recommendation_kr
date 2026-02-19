@@ -1,0 +1,87 @@
+name: Auto Deploy KR Stock Reports
+
+on:
+  # 한국시간 08:30, 09:30, 11:00, 13:00, 14:30, 15:30 실행
+  # UTC 시간: 23:30(전일), 00:30, 02:00, 04:00, 05:30, 06:30
+  # 월-금 (한국장 개장일) 실행
+  schedule:
+    - cron: '30 23 * * 0-4'  # 08:30 KST (다음날)
+    - cron: '30 0 * * 1-5'   # 09:30 KST
+    - cron: '0 2 * * 1-5'    # 11:00 KST
+    - cron: '0 4 * * 1-5'    # 13:00 KST
+    - cron: '30 5 * * 1-5'   # 14:30 KST
+    - cron: '30 6 * * 1-5'   # 15:30 KST
+
+  # 푸시할 때도 실행
+  push:
+    branches:
+      - main
+
+  # 수동 실행도 가능
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Check if KR Market is Open
+        id: market_check
+        run: |
+          python -c "
+          from datetime import datetime
+          import pytz
+
+          kst_tz = pytz.timezone('Asia/Seoul')
+          now_kst = datetime.now(kst_tz)
+          weekday = now_kst.weekday()  # 0=Mon, 6=Sun
+
+          # 월-금만 거래일
+          is_trading_day = weekday < 5
+          print(f'Trading day: {is_trading_day}, KST: {now_kst.strftime(\"%Y-%m-%d %H:%M\")}')
+
+          import os
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f'is_open={str(is_trading_day).lower()}\n')
+          "
+
+      - name: Generate Growth Stocks Report
+        if: steps.market_check.outputs.is_open == 'true' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          python project_titan_kr.py growth
+
+      - name: Generate Value Stocks Report
+        if: steps.market_check.outputs.is_open == 'true' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          python project_titan_kr.py value
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+
+          # 변경사항이 있을 때만 커밋
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto update reports with Titan KR - $(date -u '+%Y-%m-%d %H:%M') UTC"
+            git push
+          fi
