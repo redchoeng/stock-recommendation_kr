@@ -23,6 +23,9 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PYTHONUNBUFFERED: "1"
     permissions:
       contents: write
 
@@ -64,11 +67,13 @@ jobs:
 
       - name: Generate Growth Stocks Report
         if: steps.market_check.outputs.is_open == 'true' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        timeout-minutes: 15
         run: |
           python project_titan_kr.py growth
 
       - name: Generate Value Stocks Report
         if: steps.market_check.outputs.is_open == 'true' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        timeout-minutes: 15
         run: |
           python project_titan_kr.py value
 

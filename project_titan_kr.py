@@ -1607,7 +1607,7 @@ class TitanKRAnalyzer:
 # 메인 실행
 # ============================================================================
 if __name__ == "__main__":
-    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stdout.reconfigure(encoding='utf-8', line_buffering=True)
 
     print("""
     ╔═══════════════════════════════════════════════════════════╗

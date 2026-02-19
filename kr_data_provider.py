@@ -52,6 +52,8 @@ class KRDataProvider:
         self._stock_listing_cache = {} # {'KOSPI': df, 'KOSDAQ': df}
         self._dart = None
         self._dart_cache = {}          # {code: {roe, opm, revenue_growth}}
+        self._naver_enabled = True     # NAVER 스크래핑 활성 (실패 시 자동 비활성)
+        self._naver_fail_count = 0
 
         if dart_api_key and DART_AVAILABLE:
             try:
@@ -65,19 +67,26 @@ class KRDataProvider:
     # ================================================================
     def _find_latest_trading_date(self, max_lookback=10):
         """가장 최근 영업일 찾기 (주말/공휴일/장 시작 전 대응)"""
+        if hasattr(self, '_cached_trading_date') and self._cached_trading_date:
+            return self._cached_trading_date
+
         today = datetime.now()
         for i in range(max_lookback):
             date = today - timedelta(days=i)
+            # 주말 건너뛰기 (API 호출 절약)
+            if date.weekday() >= 5:
+                continue
             date_str = date.strftime('%Y%m%d')
             try:
                 df = krx.get_market_ohlcv(date_str, market='KOSPI')
-                # 데이터가 있고, 실제 거래가 발생한 날짜인지 확인 (종가 합 > 0)
                 if df is not None and not df.empty and df['종가'].sum() > 0:
+                    self._cached_trading_date = date_str
                     return date_str
             except Exception:
                 continue
-        # fallback: 어제
-        return (today - timedelta(days=1)).strftime('%Y%m%d')
+        fallback = (today - timedelta(days=1)).strftime('%Y%m%d')
+        self._cached_trading_date = fallback
+        return fallback
 
     # ================================================================
     # 유니버스 (종목 리스트)
@@ -274,15 +283,25 @@ class KRDataProvider:
                 info['priceToBook'] = float(pbr) if pbr and pbr > 0 else 0
                 info['dividendYield'] = float(div_yield) / 100 if div_yield and div_yield > 0 else 0
 
-            # 현재가
-            try:
-                ohlcv = krx.get_market_ohlcv(date_str, date_str, code)
-                if ohlcv is not None and not ohlcv.empty:
-                    info['currentPrice'] = int(ohlcv['종가'].iloc[-1])
+            # 현재가 (벌크 시총 데이터에서 종가 추출, 개별 API 호출 회피)
+            if not cap_df.empty and code in cap_df.index:
+                row = cap_df.loc[code]
+                close_price = row.get('종가', 0)
+                if close_price and close_price > 0:
+                    info['currentPrice'] = int(close_price)
                     info['regularMarketPrice'] = info['currentPrice']
-                    info['previousClose'] = int(ohlcv['시가'].iloc[-1])
-            except Exception:
-                pass
+                    info['previousClose'] = info['currentPrice']  # 근사치
+
+            # 벌크에 종가 없으면 개별 호출 (fallback)
+            if info['currentPrice'] == 0:
+                try:
+                    ohlcv = krx.get_market_ohlcv(date_str, date_str, code)
+                    if ohlcv is not None and not ohlcv.empty:
+                        info['currentPrice'] = int(ohlcv['종가'].iloc[-1])
+                        info['regularMarketPrice'] = info['currentPrice']
+                        info['previousClose'] = int(ohlcv['시가'].iloc[-1])
+                except Exception:
+                    pass
 
             # 섹터/업종 (KRX 업종 인덱스)
             self._fill_sector_info(code, info)
@@ -296,13 +315,18 @@ class KRDataProvider:
         return info
 
     def _fill_sector_info(self, code, info):
-        """KRX 업종 인덱스에서 섹터 정보 채우기"""
+        """종목의 섹터 정보 채우기 (캐시된 sector_map 또는 이름 기반)"""
         try:
-            sector_map = self._build_sector_map()
-            sector = sector_map.get(code, '')
-            if sector:
-                info['sector'] = sector
-                info['industry'] = sector
+            # sector_map이 이미 구축되어 있으면 사용 (get_universe 경로)
+            if hasattr(self, '_sector_map') and self._sector_map:
+                sector = self._sector_map.get(code, '')
+                if sector:
+                    info['sector'] = sector
+                    info['industry'] = sector
+                    return
+            # sector_map 없으면 (개별 종목 분석 경로) → 이름 기반 추론
+            # project_titan_kr.py의 _get_growth_sector_score()가 이름으로 매칭하므로
+            # 여기서는 빈 값으로 두어도 됨 (API 16회 호출 회피)
         except Exception:
             pass
 
@@ -385,8 +409,8 @@ class KRDataProvider:
                 # DART 실패 시 조용히 넘어감
                 pass
 
-        # NAVER Finance 스크래핑 (DART 실패 시 대안)
-        if roe is None or opm is None or revenue_growth is None:
+        # NAVER Finance 스크래핑 (DART 실패 시 대안, 자동 비활성화 지원)
+        if (roe is None or opm is None or revenue_growth is None) and self._naver_enabled:
             naver_data = self._fetch_naver_financials(code)
             if naver_data:
                 if roe is None and naver_data.get('roe') is not None:
@@ -419,6 +443,8 @@ class KRDataProvider:
     def _fetch_naver_financials(self, code):
         """NAVER Finance에서 재무지표 스크래핑 (DART API 없을 때 대안)
 
+        연속 3회 실패 시 자동 비활성화 (GitHub Actions 등 해외 서버 대응)
+
         Returns:
             dict: {roe, opm, revenue_growth} or None
         """
@@ -429,8 +455,11 @@ class KRDataProvider:
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
             }
-            resp = requests.get(url, headers=headers, timeout=5)
+            resp = requests.get(url, headers=headers, timeout=3)
             resp.encoding = 'euc-kr'
+
+            if resp.status_code != 200:
+                raise Exception(f"HTTP {resp.status_code}")
 
             tables = pd.read_html(resp.text, encoding='euc-kr')
             if not tables:
@@ -473,9 +502,15 @@ class KRDataProvider:
                                 result['revenue_growth'] = (revenues[-1] - revenues[-2]) / abs(revenues[-2])
                             break
 
+            if result:
+                self._naver_fail_count = 0  # 성공 시 카운터 리셋
             return result if result else None
 
         except Exception:
+            self._naver_fail_count += 1
+            if self._naver_fail_count >= 3:
+                self._naver_enabled = False
+                print("   NAVER Finance 스크래핑 비활성화 (연속 실패, PBR/PER 추정 사용)", flush=True)
             return None
 
     def _extract_naver_number(self, row):
