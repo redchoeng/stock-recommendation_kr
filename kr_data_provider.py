@@ -40,6 +40,8 @@ except ImportError:
 # yfinance (한국 종목 재무제표 조회용 .KS/.KQ)
 try:
     import yfinance as yf
+    import logging
+    logging.getLogger('yfinance').setLevel(logging.CRITICAL)
     YF_AVAILABLE = True
 except ImportError:
     YF_AVAILABLE = False
@@ -61,6 +63,8 @@ class KRDataProvider:
         self._dart_cache = {}          # {code: {roe, opm, revenue_growth}}
         self._naver_enabled = True     # NAVER 스크래핑 활성 (실패 시 자동 비활성)
         self._naver_fail_count = 0
+        self._yf_enabled = True        # yfinance 활성 (연속 실패 시 자동 비활성)
+        self._yf_fail_count = 0
 
         if dart_api_key and DART_AVAILABLE:
             try:
@@ -417,9 +421,10 @@ class KRDataProvider:
                 # DART 실패 시 조용히 넘어감
                 pass
 
-        # yfinance 한국 종목 (.KS/.KQ) - DART 실패 시 기본 대안
-        if (roe is None or opm is None or revenue_growth is None) and YF_AVAILABLE:
+        # yfinance 한국 종목 (.KS/.KQ) - DART 실패 시 기본 대안 (연속 3회 실패 시 자동 비활성)
+        if (roe is None or opm is None or revenue_growth is None) and YF_AVAILABLE and self._yf_enabled:
             try:
+                got_data = False
                 for suffix in ['.KS', '.KQ']:
                     yf_ticker = yf.Ticker(f"{code}{suffix}")
                     yf_info = yf_ticker.info
@@ -428,15 +433,25 @@ class KRDataProvider:
                     if roe is None and yf_info.get('returnOnEquity') is not None:
                         roe = yf_info['returnOnEquity']
                         info['returnOnEquity'] = roe
+                        got_data = True
                     if opm is None and yf_info.get('operatingMargins') is not None:
                         opm = yf_info['operatingMargins']
                         info['operatingMargins'] = opm
+                        got_data = True
                     if revenue_growth is None and yf_info.get('revenueGrowth') is not None:
                         revenue_growth = yf_info['revenueGrowth']
                         info['revenueGrowth'] = revenue_growth
+                        got_data = True
                     break
+                if got_data:
+                    self._yf_fail_count = 0
+                else:
+                    self._yf_fail_count += 1
             except Exception:
-                pass
+                self._yf_fail_count += 1
+            if self._yf_fail_count >= 3:
+                self._yf_enabled = False
+                print("   yfinance 자동 비활성화 (연속 실패, PBR/PER 추정 사용)", flush=True)
 
         # NAVER Finance 스크래핑 (yfinance도 실패 시 대안, 자동 비활성화 지원)
         if (roe is None or opm is None or revenue_growth is None) and self._naver_enabled:
