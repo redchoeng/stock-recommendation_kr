@@ -331,6 +331,47 @@
             50% { transform: rotate(5deg); }
         }
 
+        /* 마켓 스위처 */
+        .market-switcher {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 20px;
+        }
+        .market-btn {
+            padding: 12px 28px;
+            font-size: 1em;
+            font-weight: 800;
+            font-family: inherit;
+            border: 3px solid #5D4E37;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: #5D4E37;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .market-btn:first-child {
+            border-radius: 20px 0 0 20px;
+            border-right: none;
+        }
+        .market-btn:last-child {
+            border-radius: 0 20px 20px 0;
+        }
+        .market-btn.active {
+            background: linear-gradient(135deg, #5D4E37, #7B6B4F);
+            color: white;
+            box-shadow: 0 4px 0 #3D2E17;
+        }
+        .market-btn:not(.active) {
+            background: white;
+        }
+        .market-btn:not(.active):hover {
+            background: #FFF8DC;
+            transform: translateY(-2px);
+        }
+
         @media (max-width: 768px) {
             .cards {
                 grid-template-columns: 1fr;
@@ -349,6 +390,10 @@
             }
             .stat {
                 padding: 5px 10px;
+            }
+            .market-btn {
+                padding: 10px 18px;
+                font-size: 0.9em;
             }
         }
     </style>
@@ -371,6 +416,11 @@
     <div class="deco-right">🍀</div>
 
     <div class="container">
+        <div class="market-switcher">
+            <a href="https://redchoeng.github.io/stock-recommendation_2.0/" class="market-btn">🇺🇸 미국장</a>
+            <span class="market-btn active">🇰🇷 한국장</span>
+        </div>
+
         <div class="header-bubble">
             <div class="emoji-icon">🇰🇷📈</div>
             <h1>PROJECT TITAN KR</h1>
