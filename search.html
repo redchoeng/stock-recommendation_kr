@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>종목 검색 - Project Titan KR</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    font-family: 'Noto Sans KR', -apple-system, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #87CEEB 0%, #98D8C8 30%, #F7DC6F 70%, #FADBD8 100%);
+    background-attachment: fixed;
+    padding: 20px;
+}
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding-top: 20px;
+}
+.back-btn {
+    display: inline-block;
+    padding: 8px 20px;
+    background: white;
+    color: #5D4E37;
+    text-decoration: none;
+    border-radius: 20px;
+    border: 3px solid #5D4E37;
+    font-weight: 700;
+    font-size: 0.9em;
+    margin-bottom: 20px;
+    transition: all 0.2s;
+}
+.back-btn:hover { transform: translateY(-2px); }
+
+.search-box {
+    background: white;
+    border-radius: 25px;
+    padding: 30px;
+    border: 4px solid #5D4E37;
+    box-shadow: 0 8px 0 #C4A35A, 0 12px 20px rgba(0,0,0,0.15);
+    margin-bottom: 25px;
+    text-align: center;
+}
+.search-box h1 {
+    font-size: 1.6em;
+    color: #5D4E37;
+    margin-bottom: 5px;
+}
+.search-box .subtitle {
+    color: #7B6B4F;
+    font-size: 0.9em;
+    margin-bottom: 20px;
+}
+.search-input {
+    width: 100%;
+    padding: 14px 24px;
+    border: 3px solid #5D4E37;
+    border-radius: 20px;
+    font-size: 1.1em;
+    font-family: inherit;
+    background: #FAFAFA;
+    outline: none;
+    transition: all 0.2s;
+}
+.search-input:focus {
+    border-color: #3498DB;
+    box-shadow: 0 0 15px rgba(52,152,219,0.2);
+}
+.search-info {
+    margin-top: 12px;
+    font-size: 0.82em;
+    color: #999;
+}
+.stock-count { color: #5D4E37; font-weight: 700; }
+
+/* 결과 카드 */
+.results { display: flex; flex-direction: column; gap: 15px; }
+.no-result {
+    text-align: center;
+    padding: 40px;
+    color: #7B6B4F;
+    font-size: 1.1em;
+    background: white;
+    border-radius: 20px;
+    border: 3px solid #ddd;
+}
+
+.stock-card {
+    background: white;
+    border-radius: 20px;
+    padding: 20px 25px;
+    border: 3px solid #5D4E37;
+    box-shadow: 0 4px 0 #C4A35A;
+    transition: all 0.2s;
+}
+.stock-card:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #C4A35A; }
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.ticker {
+    font-size: 1.4em;
+    font-weight: 900;
+    color: #5D4E37;
+}
+.company-name {
+    font-size: 0.9em;
+    color: #7B6B4F;
+    flex: 1;
+}
+.score-badge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 900;
+    font-size: 1.1em;
+    color: white;
+    white-space: nowrap;
+}
+.score-strong { background: linear-gradient(135deg, #1b5e20, #2e7d32); }
+.score-buy { background: linear-gradient(135deg, #0d47a1, #1565c0); }
+.score-hold { background: linear-gradient(135deg, #e65100, #f57c00); }
+.score-low { background: linear-gradient(135deg, #616161, #9e9e9e); }
+
+.verdict-badge {
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.78em;
+    color: white;
+}
+.verdict-strong-buy { background: #2e7d32; }
+.verdict-buy { background: #1565c0; }
+.verdict-hold { background: #f57c00; }
+
+.card-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+}
+.info-item {
+    background: #F8F9FA;
+    border-radius: 12px;
+    padding: 10px 14px;
+    text-align: center;
+}
+.info-label {
+    font-size: 0.75em;
+    color: #999;
+    margin-bottom: 3px;
+}
+.info-value {
+    font-size: 1em;
+    font-weight: 700;
+    color: #5D4E37;
+}
+.info-value.buy { color: #2e7d32; }
+.info-value.target { color: #1565c0; }
+.info-value.stop { color: #E74C3C; }
+
+.card-footer {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.tag {
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-size: 0.78em;
+    font-weight: 600;
+    background: #F0F0F0;
+    color: #5D4E37;
+}
+.tag-sector { background: #E8F5E9; color: #2e7d32; }
+.tag-strategy { background: #E3F2FD; color: #0d47a1; }
+.tag-liq { background: #FFF3E0; color: #e65100; }
+.tag-mode { background: #F3E5F5; color: #6a1b9a; }
+
+.comment {
+    margin-top: 10px;
+    padding: 8px 14px;
+    background: #FFFDE7;
+    border-radius: 10px;
+    font-size: 0.85em;
+    color: #5D4E37;
+    border-left: 3px solid #F5B041;
+}
+
+@media (max-width: 600px) {
+    .card-body { grid-template-columns: repeat(2, 1fr); }
+    .card-header { flex-wrap: wrap; }
+    .ticker { font-size: 1.2em; }
+    .search-box { padding: 20px; }
+    body { padding: 10px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <a href="index.html" class="back-btn">&larr; 메인으로</a>
+
+    <div class="search-box">
+        <h1>🔍 종목 검색</h1>
+        <p class="subtitle">분석 대상 종목의 상세 정보를 확인하세요</p>
+        <input type="text" class="search-input" id="searchInput" placeholder="종목코드 또는 기업명 검색 (예: 005930, 삼성전자)" autocomplete="off">
+        <div class="search-info">
+            Growth <span class="stock-count" id="growthCount">0</span>개 + Value <span class="stock-count" id="valueCount">0</span>개 = 총 <span class="stock-count" id="totalCount">0</span>개 분석 대상
+        </div>
+    </div>
+
+    <div class="results" id="results"></div>
+</div>
+
+<script>
+let allStocks = [];
+
+async function loadData() {
+    try {
+        const [gRes, vRes] = await Promise.all([
+            fetch('titan_kr_scores_growth.json').then(r => r.json()).catch(() => ({})),
+            fetch('titan_kr_scores_value.json').then(r => r.json()).catch(() => ({}))
+        ]);
+
+        const gCount = Object.keys(gRes).length;
+        const vCount = Object.keys(vRes).length;
+
+        for (const [ticker, data] of Object.entries(gRes)) {
+            allStocks.push({ ...data, ticker, mode: 'Growth' });
+        }
+        for (const [ticker, data] of Object.entries(vRes)) {
+            if (!gRes[ticker]) {
+                allStocks.push({ ...data, ticker, mode: 'Value' });
+            }
+        }
+
+        allStocks.sort((a, b) => b.score - a.score);
+
+        document.getElementById('growthCount').textContent = gCount;
+        document.getElementById('valueCount').textContent = vCount;
+        document.getElementById('totalCount').textContent = allStocks.length;
+    } catch (e) {
+        console.error('Data load error:', e);
+    }
+}
+
+function search(query) {
+    if (!query || query.length < 1) return [];
+    const q = query.toLowerCase();
+    return allStocks
+        .filter(s =>
+            s.ticker.toLowerCase().includes(q) ||
+            (s.company_name && s.company_name.toLowerCase().includes(q))
+        )
+        .map(s => {
+            const t = s.ticker.toLowerCase();
+            const n = (s.company_name || '').toLowerCase();
+            let relevance = 0;
+            if (t === q) relevance = 100;
+            else if (t.startsWith(q)) relevance = 80;
+            else if (n.split(/\s+/).some(w => w.startsWith(q))) relevance = 60;
+            else if (t.includes(q)) relevance = 40;
+            else relevance = 20;
+            return { ...s, _relevance: relevance };
+        })
+        .sort((a, b) => b._relevance - a._relevance || b.score - a.score)
+        .slice(0, 20);
+}
+
+function renderResults(stocks) {
+    const container = document.getElementById('results');
+    if (!stocks.length) {
+        const q = document.getElementById('searchInput').value.trim();
+        container.innerHTML = q ? '<div class="no-result">검색 결과가 없습니다</div>' : '';
+        return;
+    }
+
+    container.innerHTML = stocks.map(s => {
+        const scoreClass = s.score >= 80 ? 'score-strong' : s.score >= 60 ? 'score-buy' : s.score >= 40 ? 'score-hold' : 'score-low';
+        const verdictText = s.verdict || (s.score >= 80 ? 'Strong Buy' : s.score >= 60 ? 'Buy' : 'Hold');
+        const verdictClass = s.score >= 80 ? 'verdict-strong-buy' : s.score >= 60 ? 'verdict-buy' : 'verdict-hold';
+
+        const price = s.price ? `₩${Number(s.price).toLocaleString()}` : '-';
+        const buy = s.buy_price ? `₩${Number(s.buy_price).toLocaleString()}` : '-';
+        const target = s.target_price ? `₩${Number(s.target_price).toLocaleString()}` : '-';
+        const stop = s.stop_loss ? `₩${Number(s.stop_loss).toLocaleString()}` : '-';
+
+        const roe = s.roe_value != null ? `ROE ${s.roe_value.toFixed(1)}%` : '';
+        const opm = s.opm_value != null ? `OPM ${s.opm_value.toFixed(1)}%` : '';
+        const rsi = s.rsi_value != null ? `RSI ${s.rsi_value.toFixed(0)}` : '';
+
+        const tags = [];
+        if (s.sector_name) tags.push(`<span class="tag tag-sector">${s.sector_name}</span>`);
+        if (s.mode) tags.push(`<span class="tag tag-mode">${s.mode}</span>`);
+        if (s.strategy) tags.push(`<span class="tag tag-strategy">${s.strategy}</span>`);
+        if (s.trading_tier) tags.push(`<span class="tag tag-liq">${s.trading_tier}</span>`);
+
+        const fundamentals = [roe, opm].filter(Boolean).join(' · ');
+        const commentHtml = s.comment ? `<div class="comment">💡 ${s.comment}</div>` : '';
+
+        return `
+        <div class="stock-card">
+            <div class="card-header">
+                <span class="ticker">${s.ticker}</span>
+                <span class="company-name">${s.company_name || ''}</span>
+                <span class="verdict-badge ${verdictClass}">${verdictText}</span>
+                <span class="score-badge ${scoreClass}">${s.score}점</span>
+            </div>
+            <div class="card-body">
+                <div class="info-item">
+                    <div class="info-label">현재가</div>
+                    <div class="info-value">${price}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">매수가</div>
+                    <div class="info-value buy">${buy}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">목표가</div>
+                    <div class="info-value target">${target}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">손절가</div>
+                    <div class="info-value stop">${stop}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">펀더멘털</div>
+                    <div class="info-value">${s.fund_score}점</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">기술적</div>
+                    <div class="info-value">${s.tech_score}점</div>
+                </div>
+            </div>
+            <div class="card-footer">
+                ${tags.join('')}
+                ${fundamentals ? `<span class="tag">${fundamentals}</span>` : ''}
+                ${rsi ? `<span class="tag">${rsi}</span>` : ''}
+            </div>
+            ${commentHtml}
+        </div>`;
+    }).join('');
+}
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+    const results = search(e.target.value.trim());
+    renderResults(results);
+});
+
+loadData();
+</script>
+</body>
+</html>

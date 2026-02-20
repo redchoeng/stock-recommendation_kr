@@ -1280,7 +1280,7 @@ class TitanKRAnalyzer:
             all_comments.append(f"유동성:{trading_tier}({'+' if trading_bonus > 0 else ''}{trading_bonus})")
         comment = ", ".join(all_comments[:4]) if all_comments else "-"
 
-        return {
+        result = {
             'ticker': code,
             'company_name': info.get('shortName', ''),
             'score': total_score,
@@ -1302,6 +1302,131 @@ class TitanKRAnalyzer:
             'stop_loss': stop_loss,
             'comment': comment
         }
+
+        # 애널리스트 코멘트 생성
+        result['analyst_comment'] = self._generate_analyst_comment(result)
+
+        return result
+
+    def _generate_analyst_comment(self, stock_data):
+        """Titan 분석 데이터 기반 애널리스트 톤 코멘트 생성"""
+        parts = []
+        fund_bd = stock_data.get('fund_breakdown', {})
+        tech_bd = stock_data.get('tech_breakdown', {})
+
+        # 1) 펀더멘털 요약
+        roe = fund_bd.get('roe_value', 0)
+        opm = fund_bd.get('opm_value', 0)
+        rev_growth = fund_bd.get('revenue_growth_value')
+
+        fund_parts = []
+        if roe >= 20:
+            fund_parts.append(f"ROE {roe:.1f}%로 수익성 최상위권")
+        elif roe >= 10:
+            fund_parts.append(f"ROE {roe:.1f}%로 양호한 수익성")
+        elif roe > 0:
+            fund_parts.append(f"ROE {roe:.1f}%로 수익성 보통")
+
+        if opm >= 25:
+            fund_parts.append(f"영업이익률 {opm:.1f}%의 고마진 구조")
+        elif opm >= 15:
+            fund_parts.append(f"영업이익률 {opm:.1f}%로 안정적")
+
+        if rev_growth is not None:
+            if rev_growth >= 30:
+                fund_parts.append(f"매출 YoY +{rev_growth:.0f}% 고성장")
+            elif rev_growth >= 10:
+                fund_parts.append(f"매출 YoY +{rev_growth:.0f}% 성장세")
+
+        if fund_parts:
+            parts.append(". ".join(fund_parts) + ".")
+
+        # 2) 기술적 요약
+        rsi = tech_bd.get('rsi_value', 50)
+        ma20 = tech_bd.get('ma20', 0)
+        ma60 = tech_bd.get('ma60', 0)
+        price = stock_data.get('price', 0)
+
+        tech_parts = []
+        if ma20 and ma60:
+            if ma20 > ma60 and price > ma20:
+                tech_parts.append("MA20>MA60 정배열 상태로 상승 추세 진행 중")
+            elif ma20 > ma60:
+                tech_parts.append("MA20>MA60 정배열이나 단기 조정 구간")
+            elif ma20 < ma60 and price < ma20:
+                tech_parts.append("MA20<MA60 역배열로 약세 흐름")
+            else:
+                tech_parts.append("이동평균 수렴 구간으로 방향성 탐색 중")
+
+        if rsi <= 30:
+            tech_parts.append(f"RSI {rsi:.0f}으로 과매도 영역 → 반등 가능성")
+        elif rsi >= 70:
+            tech_parts.append(f"RSI {rsi:.0f}으로 과매수 영역 → 단기 조정 유의")
+        elif rsi >= 50:
+            tech_parts.append(f"RSI {rsi:.0f}으로 매수세 우위")
+        else:
+            tech_parts.append(f"RSI {rsi:.0f}으로 매도세 우위")
+
+        if tech_parts:
+            parts.append(". ".join(tech_parts) + ".")
+
+        # 3) 전략 제안
+        strategy = stock_data.get('buy_strategy', '')
+        contrarian = stock_data.get('contrarian_adjustment', 0)
+
+        if contrarian > 0:
+            parts.append("역발상 매수 시그널 감지 → 저가 매수 기회로 판단.")
+        elif '추세추종' in strategy:
+            parts.append("상승 추세 지속 중으로 추세 추종 매매가 유효.")
+        elif '풀백매수' in strategy:
+            parts.append("상승 추세 내 조정 구간으로 분할 매수 접근 권장.")
+        elif '박스권' in strategy:
+            parts.append("횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토.")
+        elif '반등대기' in strategy:
+            parts.append("하락 추세로 반등 신호 확인 전까지 관망 권장.")
+        elif '⚠️' in strategy:
+            parts.append("과열 구간으로 신규 진입보다 조정 후 재진입 권장.")
+
+        return " ".join(parts) if parts else ""
+
+    def _save_score_cache(self, results, report_type):
+        """Titan 분석 점수를 JSON 캐시로 저장 (검색 기능용)"""
+        import json
+        cache_type = 'growth' if 'Growth' in report_type else 'value'
+        cache_file = f"titan_kr_scores_{cache_type}.json"
+        cache = {}
+        for r in results:
+            fund_bd = r.get('fund_breakdown', {})
+            tech_bd = r.get('tech_breakdown', {})
+            cache[r['ticker']] = {
+                'score': r.get('score', 0),
+                'fund_score': r.get('fund_score', 0),
+                'tech_score': r.get('tech_score', 0),
+                'price': r.get('price', 0),
+                'company_name': r.get('company_name', ''),
+                'verdict': r.get('verdict', ''),
+                'buy_price': r.get('buy_price'),
+                'target_price': r.get('target'),
+                'stop_loss': r.get('stop_loss'),
+                'strategy': r.get('buy_strategy', ''),
+                'comment': r.get('comment', ''),
+                'contrarian_adjustment': r.get('contrarian_adjustment', 0),
+                'trading_bonus': r.get('trading_bonus', 0),
+                'trading_tier': r.get('trading_tier', ''),
+                'sector_name': fund_bd.get('sector_name', ''),
+                'roe_value': fund_bd.get('roe_value'),
+                'opm_value': fund_bd.get('opm_value'),
+                'revenue_growth_value': fund_bd.get('revenue_growth_value'),
+                'rsi_value': tech_bd.get('rsi_value'),
+                'ma5': tech_bd.get('ma5'),
+                'ma20': tech_bd.get('ma20'),
+                'ma60': tech_bd.get('ma60'),
+                'ma120': tech_bd.get('ma120'),
+                'analyst_comment': r.get('analyst_comment', ''),
+            }
+        with open(cache_file, 'w', encoding='utf-8') as f:
+            json.dump(cache, f, indent=2, ensure_ascii=False)
+        print(f"💾 Titan KR 점수 캐시 저장: {cache_file} ({len(cache)}개 종목)")
 
     # ================================================================
     # 2단계: 정밀 분석
@@ -1490,7 +1615,23 @@ class TitanKRAnalyzer:
         .back-link:hover {{ color: {primary_color}; }}
         .footer {{ background: rgba(255,255,255,0.9); border-radius: 20px; padding: 20px; text-align: center; color: #7B6B4F; margin-top: 30px; }}
         .titan-badge {{ display: inline-block; background: linear-gradient(135deg, #E85D75 0%, #FF6B35 100%); color: white; padding: 5px 15px; border-radius: 15px; font-size: 0.8em; margin-left: 10px; font-weight: bold; }}
-        .score-breakdown {{ margin: 15px 0; padding: 15px; background: #F8F9FA; border-radius: 10px; border: 2px solid #E0E0E0; }}
+        .score-breakdown {{ margin: 15px 0; padding: 15px; background: #F8F9FA; border-radius: 10px; border: 2px solid #E0E0E0; display: none; }}
+        .score-breakdown.open {{ display: block; }}
+        .detail-toggle {{
+            display: inline-block;
+            margin-top: 10px;
+            padding: 6px 18px;
+            background: linear-gradient(135deg, #F8F9FA, #E8E8E8);
+            color: #5D4E37;
+            border: 2px solid #C4A35A;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }}
+        .detail-toggle:hover {{ background: #FFF8DC; transform: translateY(-1px); }}
         .score-breakdown h3 {{ color: #5D4E37; margin-bottom: 12px; font-size: 1em; }}
         .breakdown-section {{ margin-bottom: 12px; }}
         .breakdown-title {{ font-weight: bold; color: {primary_color}; margin-bottom: 8px; font-size: 0.95em; }}
@@ -1507,6 +1648,30 @@ class TitanKRAnalyzer:
         .scoring-modal iframe {{ width: 100%; height: 100%; border: none; }}
         .scoring-close {{ position: absolute; top: 12px; right: 16px; width: 36px; height: 36px; background: rgba(0,0,0,0.7); color: #fff; border: none; border-radius: 50%; font-size: 1.3em; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }}
         .scoring-close:hover {{ background: rgba(200,0,0,0.8); }}
+        .analyst-view {{
+            margin-top: 14px;
+            padding: 18px 20px;
+            background: linear-gradient(135deg, #FAFBFC 0%, #EDF1F5 100%);
+            border: 2px solid #D5DDE5;
+            border-radius: 14px;
+        }}
+        .analyst-header {{
+            font-weight: 800;
+            font-size: 0.95em;
+            color: #2C3E50;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #E0E6ED;
+        }}
+        .analyst-comment {{
+            font-size: 0.88em;
+            color: #34495E;
+            line-height: 1.85;
+            padding: 12px 14px;
+            background: white;
+            border-radius: 10px;
+            border-left: 3px solid #667eea;
+        }}
     </style>
 </head>
 <body>
@@ -1568,7 +1733,8 @@ class TitanKRAnalyzer:
             <h2><span class="ticker">{stock['ticker']}</span> <span style="font-size:0.7em; color:#7B6B4F; font-weight:normal;">{stock.get('company_name', '')}</span></h2>
             <span class="verdict {verdict_class}">{stock['verdict']}</span>
 
-            <div class="score-breakdown">
+            <button class="detail-toggle" onclick="toggleDetail({idx})">상세 분석 ▼</button>
+            <div class="score-breakdown" id="detail-{idx}">
                 <h3>📊 점수 상세 분석</h3>
                 <div class="breakdown-section">
                     <div class="breakdown-title">펀더멘털 점수: {stock.get('fund_score', 0)}점 / 50점</div>
@@ -1720,9 +1886,18 @@ class TitanKRAnalyzer:
                     <div class="info-value" style="color: #F44336;">₩{int(stock['stop_loss']):,}</div>
                 </div>'''
 
+            analyst_comment = stock.get('analyst_comment', '')
+            analyst_view_html = ''
+            if analyst_comment:
+                analyst_view_html = f'''
+            <div class="analyst-view">
+                <div class="analyst-header">📝 Titan 애널리스트 뷰</div>
+                <div class="analyst-comment">{analyst_comment}</div>
+            </div>'''
+
             html += f'''
             </div>
-            <div class="comment">{stock['comment']}</div>
+            <div class="comment">{stock['comment']}</div>{analyst_view_html}
         </div>
 '''
 
@@ -1732,6 +1907,19 @@ class TitanKRAnalyzer:
             <p style="margin-top: 5px; font-size: 0.85em;">⚠️ 본 분석은 투자 참고용이며, 투자 책임은 본인에게 있습니다.</p>
         </div>
     </div>
+    <script>
+    function toggleDetail(id) {{
+        var el = document.getElementById('detail-' + id);
+        var btn = el.previousElementSibling;
+        if (el.classList.contains('open')) {{
+            el.classList.remove('open');
+            btn.textContent = '상세 분석 ▼';
+        }} else {{
+            el.classList.add('open');
+            btn.textContent = '상세 분석 ▲';
+        }}
+    }}
+    </script>
 </body>
 </html>'''
 
@@ -1792,6 +1980,8 @@ if __name__ == "__main__":
 
     report_path = analyzer.generate_html_report(
         results, report_type=report_type, filename=filename, min_score=50)
+
+    analyzer._save_score_cache(results, report_type)
 
     print(f"\n✅ 분석 완료!")
     print(f"📄 리포트: {report_path}")
