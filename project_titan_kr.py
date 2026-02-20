@@ -1676,6 +1676,10 @@ class TitanKRAnalyzer:
 </head>
 <body>
     <div class="container">
+        <div style="display:flex;justify-content:center;gap:0;margin-bottom:15px;">
+            <a href="https://redchoeng.github.io/stock-recommendation_2.0/" style="padding:10px 24px;font-size:0.95em;font-weight:800;border:3px solid #5D4E37;text-decoration:none;color:#5D4E37;display:flex;align-items:center;gap:8px;border-radius:20px 0 0 20px;border-right:none;background:white;">🇺🇸 미국장</a>
+            <span style="padding:10px 24px;font-size:0.95em;font-weight:800;border:3px solid #5D4E37;display:flex;align-items:center;gap:8px;border-radius:0 20px 20px 0;background:linear-gradient(135deg,#5D4E37,#7B6B4F);color:white;box-shadow:0 4px 0 #3D2E17;">🇰🇷 한국장</span>
+        </div>
         <a href="index.html" class="back-link">&larr; 메인으로</a>
         <div class="header">
             <div style="font-size: 3em;">{emoji}</div>
