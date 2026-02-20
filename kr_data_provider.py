@@ -37,6 +37,13 @@ except ImportError:
     DART_AVAILABLE = False
     print("ℹ️ OpenDartReader 미설치 (DART 재무제표 미사용)")
 
+# yfinance (한국 종목 재무제표 조회용 .KS/.KQ)
+try:
+    import yfinance as yf
+    YF_AVAILABLE = True
+except ImportError:
+    YF_AVAILABLE = False
+
 
 class KRDataProvider:
     """한국 주식 데이터 통합 제공자
@@ -269,6 +276,7 @@ class KRDataProvider:
                 row = cap_df.loc[code]
                 info['marketCap'] = int(row.get('시가총액', 0))
                 info['averageVolume'] = int(row.get('거래량', 0))
+                info['tradingValue'] = int(row.get('거래대금', 0))
 
             # PER/PBR/DIV
             fund_df = self._get_bulk_fundamentals(date_str)
@@ -409,7 +417,28 @@ class KRDataProvider:
                 # DART 실패 시 조용히 넘어감
                 pass
 
-        # NAVER Finance 스크래핑 (DART 실패 시 대안, 자동 비활성화 지원)
+        # yfinance 한국 종목 (.KS/.KQ) - DART 실패 시 기본 대안
+        if (roe is None or opm is None or revenue_growth is None) and YF_AVAILABLE:
+            try:
+                for suffix in ['.KS', '.KQ']:
+                    yf_ticker = yf.Ticker(f"{code}{suffix}")
+                    yf_info = yf_ticker.info
+                    if not yf_info or yf_info.get('regularMarketPrice', 0) == 0:
+                        continue
+                    if roe is None and yf_info.get('returnOnEquity') is not None:
+                        roe = yf_info['returnOnEquity']
+                        info['returnOnEquity'] = roe
+                    if opm is None and yf_info.get('operatingMargins') is not None:
+                        opm = yf_info['operatingMargins']
+                        info['operatingMargins'] = opm
+                    if revenue_growth is None and yf_info.get('revenueGrowth') is not None:
+                        revenue_growth = yf_info['revenueGrowth']
+                        info['revenueGrowth'] = revenue_growth
+                    break
+            except Exception:
+                pass
+
+        # NAVER Finance 스크래핑 (yfinance도 실패 시 대안, 자동 비활성화 지원)
         if (roe is None or opm is None or revenue_growth is None) and self._naver_enabled:
             naver_data = self._fetch_naver_financials(code)
             if naver_data:
