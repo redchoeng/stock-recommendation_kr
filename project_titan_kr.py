@@ -438,10 +438,19 @@ class TitanKRAnalyzer:
             # ===== 가치주 모드: 배당/저평가/안정성 중심 (50점) =====
             if self.analysis_mode == 'value':
                 # 1. 배당수익률 (12점)
-                div_yield = info.get('dividendYield')
-                if div_yield and div_yield > 0:
-                    div_pct = div_yield if div_yield >= 1 else div_yield * 100
-                    breakdown['dividend_yield_value'] = div_pct
+                # dividendYield 포맷 불일치 문제 회피: dividendRate / 현재가로 직접 계산
+                div_pct = None
+                div_rate = info.get('dividendRate')
+                price_now = info.get('currentPrice') or info.get('regularMarketPrice') or info.get('previousClose')
+                if div_rate and div_rate > 0 and price_now and price_now > 0:
+                    div_pct = div_rate / price_now * 100
+                else:
+                    div_yield = info.get('dividendYield') or info.get('trailingAnnualDividendYield')
+                    if div_yield and div_yield > 0:
+                        div_pct = div_yield if div_yield <= 15 else div_yield / 100
+
+                if div_pct and div_pct > 0:
+                    breakdown['dividend_yield_value'] = round(div_pct, 2)
                     dy_exc, dy_good = self._get_sector_threshold(
                         sector, self.VALUE_DIVIDEND_THRESHOLDS, self.DEFAULT_VALUE_DIVIDEND_THRESHOLD)
                     dy_pts = self._calc_gradient_score(div_pct, dy_exc, dy_good, 12)
