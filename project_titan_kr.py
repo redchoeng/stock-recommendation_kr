@@ -2008,6 +2008,7 @@ class TitanKRAnalyzer:
             opm_display = f"{opm_value:.1f}%" if opm_value is not None else "N/A"
             rg_value = fund_bd.get('revenue_growth_value')
             rg_display = f"{rg_value:.1f}%" if rg_value is not None else "N/A"
+            is_value_mode = fund_bd.get('dividend_yield_value') is not None or 'Value' in report_type
 
             html += f'''
         <div class="stock-card">
@@ -2021,7 +2022,27 @@ class TitanKRAnalyzer:
                 <h3>📊 점수 상세 분석</h3>
                 <div class="breakdown-section">
                     <div class="breakdown-title">펀더멘털 점수: {stock.get('fund_score', 0)}점 / 50점</div>
-                    <div class="breakdown-items">
+                    <div class="breakdown-items">''' + (f'''
+                        <div class="breakdown-item">
+                            <span class="criterion">배당수익률</span>
+                            <span class="criterion-value">{fund_bd.get('dividend_yield_value', 0):.2f}%</span>
+                            <span class="criterion-score">+{fund_bd.get('dividend_yield_score', 0)}점</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="criterion">PER (저평가)</span>
+                            <span class="criterion-value">{fund_bd.get('per_value', 0):.1f}x</span>
+                            <span class="criterion-score">+{fund_bd.get('per_score', 0)}점</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="criterion">ROE (수익성)</span>
+                            <span class="criterion-value">{roe_display}</span>
+                            <span class="criterion-score">+{fund_bd.get('roe_score', 0)}점</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="criterion">부채비율 (D/E)</span>
+                            <span class="criterion-value">{"N/A" if fund_bd.get('debt_equity_value') is None else f"{fund_bd.get('debt_equity_value', 0):.0f}%"}</span>
+                            <span class="criterion-score">+{fund_bd.get('debt_equity_score', 0)}점</span>
+                        </div>''' if is_value_mode else f'''
                         <div class="breakdown-item">
                             <span class="criterion">ROE (자기자본이익률)</span>
                             <span class="criterion-value">{roe_display}</span>
@@ -2033,6 +2054,11 @@ class TitanKRAnalyzer:
                             <span class="criterion-score">+{fund_bd.get('opm_score', 0)}점</span>
                         </div>
                         <div class="breakdown-item">
+                            <span class="criterion">매출성장률</span>
+                            <span class="criterion-value">{rg_display}</span>
+                            <span class="criterion-score">+{fund_bd.get('revenue_growth_score', 0)}점</span>
+                        </div>''') + f'''
+                        <div class="breakdown-item">
                             <span class="criterion">섹터</span>
                             <span class="criterion-value">{fund_bd.get('sector_name', 'N/A')}</span>
                             <span class="criterion-score">+{fund_bd.get('sector_score', 0)}점</span>
@@ -2042,11 +2068,6 @@ class TitanKRAnalyzer:
                             <span class="criterion-value">{'수혜' if fund_bd.get('policy_bonus',0) > 0 else '역풍'}</span>
                             <span class="criterion-score">{'+' if fund_bd.get('policy_bonus',0) > 0 else ''}{fund_bd.get('policy_bonus',0)}점</span>
                         </div>"""}
-                        <div class="breakdown-item">
-                            <span class="criterion">매출성장률</span>
-                            <span class="criterion-value">{rg_display}</span>
-                            <span class="criterion-score">+{fund_bd.get('revenue_growth_score', 0)}점</span>
-                        </div>
                     </div>
                 </div>
                 <div class="breakdown-section">
