@@ -440,7 +440,7 @@ class TitanKRAnalyzer:
                 # 1. 배당수익률 (12점)
                 div_yield = info.get('dividendYield')
                 if div_yield and div_yield > 0:
-                    div_pct = div_yield * 100
+                    div_pct = div_yield if div_yield >= 1 else div_yield * 100
                     breakdown['dividend_yield_value'] = div_pct
                     dy_exc, dy_good = self._get_sector_threshold(
                         sector, self.VALUE_DIVIDEND_THRESHOLDS, self.DEFAULT_VALUE_DIVIDEND_THRESHOLD)
@@ -486,6 +486,11 @@ class TitanKRAnalyzer:
                     breakdown['debt_equity_score'] = de_pts
                     if de_pts >= 4:
                         comments.append(f"D/E:{de:.0f}")
+                elif sector and any(kw in sector for kw in ['금융', '은행', '보험', '증권', 'Financial']):
+                    # 금융주: yfinance D/E 데이터 없는 경우 중간 점수 부여
+                    de_pts = round(8 * 0.5)
+                    score += de_pts
+                    breakdown['debt_equity_score'] = de_pts
 
                 # 5. 섹터 (10점)
                 breakdown['sector_name'] = sector or industry or '기타'
