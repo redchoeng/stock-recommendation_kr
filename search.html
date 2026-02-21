@@ -4,231 +4,458 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>종목 검색 - Project Titan KR</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body {
-    font-family: 'Noto Sans KR', -apple-system, sans-serif;
-    min-height: 100vh;
-    background: linear-gradient(180deg, #87CEEB 0%, #98D8C8 30%, #F7DC6F 70%, #FADBD8 100%);
-    background-attachment: fixed;
-    padding: 20px;
-}
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding-top: 20px;
-}
-.back-btn {
-    display: inline-block;
-    padding: 8px 20px;
-    background: white;
-    color: #5D4E37;
-    text-decoration: none;
-    border-radius: 20px;
-    border: 3px solid #5D4E37;
-    font-weight: 700;
-    font-size: 0.9em;
-    margin-bottom: 20px;
-    transition: all 0.2s;
-}
-.back-btn:hover { transform: translateY(-2px); }
 
+:root {
+    --bg: #f7f8fa;
+    --surface: #ffffff;
+    --text: #191f28;
+    --text-sub: #8b95a1;
+    --text-muted: #b0b8c1;
+    --border: #e5e8eb;
+    --accent: #4263eb;
+    --accent-light: #edf2ff;
+    --green: #20c997;
+    --green-bg: #e6fcf5;
+    --red: #f06595;
+    --red-bg: #fff0f6;
+    --orange: #fd7e14;
+    --orange-bg: #fff4e6;
+    --radius: 16px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-hover: 0 8px 24px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+}
+
+body {
+    font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+}
+
+.container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 20px 40px;
+}
+
+/* 마켓 스위처 */
+.market-switcher {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 24px;
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 4px;
+    box-shadow: var(--shadow);
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+.market-btn {
+    padding: 10px 24px;
+    font-size: 0.9em;
+    font-weight: 600;
+    font-family: inherit;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: var(--text-sub);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+}
+.market-btn.active {
+    background: var(--accent);
+    color: white;
+}
+.market-btn:not(.active):hover {
+    background: var(--accent-light);
+    color: var(--accent);
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-sub);
+    text-decoration: none;
+    font-size: 0.88em;
+    font-weight: 500;
+    margin-bottom: 20px;
+    transition: color 0.2s;
+}
+.back-link:hover { color: var(--text); }
+
+/* 검색 박스 */
 .search-box {
-    background: white;
-    border-radius: 25px;
-    padding: 30px;
-    border: 4px solid #5D4E37;
-    box-shadow: 0 8px 0 #C4A35A, 0 12px 20px rgba(0,0,0,0.15);
-    margin-bottom: 25px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
     text-align: center;
 }
 .search-box h1 {
-    font-size: 1.6em;
-    color: #5D4E37;
-    margin-bottom: 5px;
+    font-size: 1.4em;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
 }
 .search-box .subtitle {
-    color: #7B6B4F;
-    font-size: 0.9em;
+    color: var(--text-sub);
+    font-size: 0.88em;
     margin-bottom: 20px;
 }
 .search-input {
     width: 100%;
-    padding: 14px 24px;
-    border: 3px solid #5D4E37;
-    border-radius: 20px;
-    font-size: 1.1em;
+    padding: 14px 20px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-size: 1em;
     font-family: inherit;
-    background: #FAFAFA;
+    background: var(--bg);
     outline: none;
     transition: all 0.2s;
+    color: var(--text);
 }
 .search-input:focus {
-    border-color: #3498DB;
-    box-shadow: 0 0 15px rgba(52,152,219,0.2);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(66,99,235,0.1);
+    background: var(--surface);
 }
+.search-input::placeholder { color: var(--text-muted); }
 .search-info {
     margin-top: 12px;
-    font-size: 0.82em;
-    color: #999;
+    font-size: 0.8em;
+    color: var(--text-muted);
 }
-.stock-count { color: #5D4E37; font-weight: 700; }
+.stock-count { color: var(--accent); font-weight: 700; }
 
-/* 결과 카드 */
-.results { display: flex; flex-direction: column; gap: 15px; }
-.no-result {
-    text-align: center;
-    padding: 40px;
-    color: #7B6B4F;
-    font-size: 1.1em;
-    background: white;
-    border-radius: 20px;
-    border: 3px solid #ddd;
-}
-
-.stock-card {
-    background: white;
-    border-radius: 20px;
-    padding: 20px 25px;
-    border: 3px solid #5D4E37;
-    box-shadow: 0 4px 0 #C4A35A;
-    transition: all 0.2s;
-}
-.stock-card:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #C4A35A; }
-
-.card-header {
+/* 섹션 헤더 */
+.section-header {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     margin-bottom: 12px;
+    padding: 0 4px;
+}
+.section-title {
+    font-size: 1em;
+    font-weight: 700;
+    color: var(--text);
+}
+.section-count {
+    font-size: 0.82em;
+    color: var(--text-muted);
+}
+.section-clear {
+    margin-left: auto;
+    font-size: 0.8em;
+    color: var(--red);
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+.section-clear:hover { background: var(--red-bg); }
+
+/* 결과 */
+.results { display: flex; flex-direction: column; gap: 12px; }
+.no-result {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-size: 0.95em;
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+/* 종목 카드 */
+.stock-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    transition: all 0.25s ease;
+    position: relative;
+}
+.stock-card:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+}
+.stock-card.watchlisted {
+    border-left: 3px solid var(--accent);
+}
+
+.card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
 }
 .ticker {
-    font-size: 1.4em;
-    font-weight: 900;
-    color: #5D4E37;
+    font-size: 1.2em;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.01em;
 }
 .company-name {
-    font-size: 0.9em;
-    color: #7B6B4F;
+    font-size: 0.88em;
+    color: var(--text-sub);
     flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .score-badge {
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-weight: 900;
-    font-size: 1.1em;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 0.95em;
     color: white;
     white-space: nowrap;
 }
-.score-strong { background: linear-gradient(135deg, #1b5e20, #2e7d32); }
-.score-buy { background: linear-gradient(135deg, #0d47a1, #1565c0); }
-.score-hold { background: linear-gradient(135deg, #e65100, #f57c00); }
-.score-low { background: linear-gradient(135deg, #616161, #9e9e9e); }
+.score-strong { background: var(--green); }
+.score-buy { background: var(--accent); }
+.score-hold { background: var(--orange); }
+.score-low { background: var(--text-muted); }
 
 .verdict-badge {
-    padding: 3px 10px;
-    border-radius: 10px;
+    padding: 3px 8px;
+    border-radius: 6px;
     font-weight: 700;
-    font-size: 0.78em;
-    color: white;
+    font-size: 0.75em;
 }
-.verdict-strong-buy { background: #2e7d32; }
-.verdict-buy { background: #1565c0; }
-.verdict-hold { background: #f57c00; }
+.verdict-strong-buy { background: var(--green-bg); color: #0ca678; }
+.verdict-buy { background: var(--accent-light); color: var(--accent); }
+.verdict-hold { background: var(--orange-bg); color: #e67700; }
 
-.card-body {
+/* 워치리스트 버튼 */
+.watchlist-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    font-size: 1.2em;
+    line-height: 1;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.watchlist-btn:hover { color: var(--accent); background: var(--accent-light); }
+.watchlist-btn.active { color: var(--accent); }
+
+/* 가격 그리드 */
+.price-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
     margin-bottom: 12px;
 }
-.info-item {
-    background: #F8F9FA;
-    border-radius: 12px;
-    padding: 10px 14px;
+.price-item {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 10px 8px;
     text-align: center;
 }
-.info-label {
-    font-size: 0.75em;
-    color: #999;
+.price-label {
+    font-size: 0.72em;
+    color: var(--text-muted);
     margin-bottom: 3px;
 }
-.info-value {
-    font-size: 1em;
+.price-value {
+    font-size: 0.92em;
     font-weight: 700;
-    color: #5D4E37;
+    color: var(--text);
 }
-.info-value.buy { color: #2e7d32; }
-.info-value.target { color: #1565c0; }
-.info-value.stop { color: #E74C3C; }
+.price-value.buy { color: #0ca678; }
+.price-value.target { color: var(--accent); }
+.price-value.stop { color: var(--red); }
 
-.card-footer {
+/* 점수 바 */
+.score-bar {
     display: flex;
     gap: 8px;
+    margin-bottom: 12px;
+}
+.score-item {
+    flex: 1;
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+}
+.score-item .label {
+    font-size: 0.72em;
+    color: var(--text-muted);
+    margin-bottom: 3px;
+}
+.score-item .value {
+    font-size: 0.92em;
+    font-weight: 700;
+    color: var(--text);
+}
+
+/* 태그 */
+.card-tags {
+    display: flex;
+    gap: 6px;
     flex-wrap: wrap;
-    align-items: center;
 }
 .tag {
     padding: 3px 10px;
-    border-radius: 10px;
-    font-size: 0.78em;
+    border-radius: 6px;
+    font-size: 0.75em;
     font-weight: 600;
-    background: #F0F0F0;
-    color: #5D4E37;
+    background: var(--bg);
+    color: var(--text-sub);
 }
-.tag-sector { background: #E8F5E9; color: #2e7d32; }
-.tag-strategy { background: #E3F2FD; color: #0d47a1; }
-.tag-liq { background: #FFF3E0; color: #e65100; }
-.tag-mode { background: #F3E5F5; color: #6a1b9a; }
+.tag-sector { background: var(--green-bg); color: #0ca678; }
+.tag-strategy { background: var(--accent-light); color: var(--accent); }
+.tag-liq { background: var(--orange-bg); color: #e67700; }
+.tag-mode { background: #f3f0ff; color: #7c3aed; }
 
 .comment {
     margin-top: 10px;
-    padding: 8px 14px;
-    background: #FFFDE7;
+    padding: 10px 14px;
+    background: #fffbeb;
     border-radius: 10px;
-    font-size: 0.85em;
-    color: #5D4E37;
-    border-left: 3px solid #F5B041;
+    font-size: 0.82em;
+    color: var(--text-sub);
+    border-left: 3px solid #fbbf24;
+    line-height: 1.5;
 }
 
-@media (max-width: 600px) {
-    .card-body { grid-template-columns: repeat(2, 1fr); }
-    .card-header { flex-wrap: wrap; }
-    .ticker { font-size: 1.2em; }
-    .search-box { padding: 20px; }
-    body { padding: 10px; }
+/* 빈 워치리스트 */
+.watchlist-empty {
+    text-align: center;
+    padding: 24px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    color: var(--text-muted);
+    font-size: 0.88em;
+    line-height: 1.6;
+}
+
+/* 푸터 */
+.footer {
+    text-align: center;
+    padding: 24px 20px;
+    color: var(--text-muted);
+    font-size: 0.78em;
+    line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+    .price-grid { grid-template-columns: repeat(2, 1fr); }
+    .score-bar { flex-wrap: wrap; }
+    .score-item { min-width: calc(50% - 4px); }
+    .card-top { flex-wrap: wrap; }
+    .ticker { font-size: 1.1em; }
+    .search-box { padding: 20px 16px; }
+    .container { padding: 16px 16px 32px; }
 }
 </style>
 </head>
 <body>
 <div class="container">
-    <div style="display:flex;justify-content:center;gap:0;margin-bottom:15px;">
-        <a href="https://redchoeng.github.io/stock-recommendation_2.0/" style="padding:10px 24px;font-size:0.95em;font-weight:800;border:3px solid #5D4E37;text-decoration:none;color:#5D4E37;display:flex;align-items:center;gap:8px;border-radius:20px 0 0 20px;border-right:none;background:white;">🇺🇸 미국장</a>
-        <span style="padding:10px 24px;font-size:0.95em;font-weight:800;border:3px solid #5D4E37;display:flex;align-items:center;gap:8px;border-radius:0 20px 20px 0;background:linear-gradient(135deg,#5D4E37,#7B6B4F);color:white;box-shadow:0 4px 0 #3D2E17;">🇰🇷 한국장</span>
+    <div class="market-switcher">
+        <a href="https://redchoeng.github.io/stock-recommendation_2.0/" class="market-btn">US</a>
+        <span class="market-btn active">KR</span>
     </div>
-    <a href="index.html" class="back-btn">&larr; 메인으로</a>
+
+    <a href="index.html" class="back-link">&larr; 메인으로</a>
 
     <div class="search-box">
-        <h1>🔍 종목 검색</h1>
-        <p class="subtitle">분석 대상 종목의 상세 정보를 확인하세요</p>
+        <h1>종목 검색</h1>
+        <p class="subtitle">분석 대상 종목의 매수가 / 목표가 / 손절가를 확인하세요</p>
         <input type="text" class="search-input" id="searchInput" placeholder="종목코드 또는 기업명 검색 (예: 005930, 삼성전자)" autocomplete="off">
         <div class="search-info">
             Growth <span class="stock-count" id="growthCount">0</span>개 + Value <span class="stock-count" id="valueCount">0</span>개 = 총 <span class="stock-count" id="totalCount">0</span>개 분석 대상
         </div>
     </div>
 
-    <div class="results" id="results"></div>
+    <!-- 내 종목 (워치리스트) -->
+    <div id="watchlistSection" style="display:none; margin-bottom: 20px;">
+        <div class="section-header">
+            <span class="section-title">내 종목</span>
+            <span class="section-count" id="watchlistCount"></span>
+            <button class="section-clear" id="clearWatchlist">전체 삭제</button>
+        </div>
+        <div class="results" id="watchlistResults"></div>
+    </div>
+
+    <!-- 검색 결과 -->
+    <div id="searchSection" style="display:none;">
+        <div class="section-header">
+            <span class="section-title">검색 결과</span>
+        </div>
+        <div class="results" id="results"></div>
+    </div>
+
+    <div class="footer">
+        리포트에서 빠진 종목도 검색으로 매수가/목표가/손절가를 확인할 수 있습니다.<br>
+        별표를 눌러 내 종목에 저장하면 다음에 바로 확인 가능합니다.
+    </div>
 </div>
 
 <script>
 let allStocks = [];
+const WATCHLIST_KEY = 'titan_watchlist_kr';
+
+function getWatchlist() {
+    try { return JSON.parse(localStorage.getItem(WATCHLIST_KEY)) || []; }
+    catch { return []; }
+}
+function saveWatchlist(list) {
+    localStorage.setItem(WATCHLIST_KEY, JSON.stringify(list));
+}
+function isWatchlisted(ticker) {
+    return getWatchlist().includes(ticker);
+}
+function toggleWatchlist(ticker) {
+    let list = getWatchlist();
+    if (list.includes(ticker)) {
+        list = list.filter(t => t !== ticker);
+    } else {
+        list.push(ticker);
+    }
+    saveWatchlist(list);
+    renderWatchlist();
+    // 검색 결과의 별 상태도 업데이트
+    document.querySelectorAll('.watchlist-btn').forEach(btn => {
+        if (btn.dataset.ticker === ticker) {
+            btn.classList.toggle('active', list.includes(ticker));
+            btn.innerHTML = list.includes(ticker) ? '&#9733;' : '&#9734;';
+        }
+    });
+}
 
 async function loadData() {
     try {
         const [gRes, vRes] = await Promise.all([
-            fetch('titan_kr_scores_growth.json').then(r => r.json()).catch(() => ({})),
-            fetch('titan_kr_scores_value.json').then(r => r.json()).catch(() => ({}))
+            fetch('titan_kr_scores_growth.json?' + Date.now()).then(r => r.json()).catch(() => ({})),
+            fetch('titan_kr_scores_value.json?' + Date.now()).then(r => r.json()).catch(() => ({}))
         ]);
 
         const gCount = Object.keys(gRes).length;
@@ -248,6 +475,8 @@ async function loadData() {
         document.getElementById('growthCount').textContent = gCount;
         document.getElementById('valueCount').textContent = vCount;
         document.getElementById('totalCount').textContent = allStocks.length;
+
+        renderWatchlist();
     } catch (e) {
         console.error('Data load error:', e);
     }
@@ -276,84 +505,138 @@ function search(query) {
         .slice(0, 20);
 }
 
-function renderResults(stocks) {
-    const container = document.getElementById('results');
-    if (!stocks.length) {
-        const q = document.getElementById('searchInput').value.trim();
-        container.innerHTML = q ? '<div class="no-result">검색 결과가 없습니다</div>' : '';
+function renderCard(s, isWatchlistCard) {
+    const scoreClass = s.score >= 80 ? 'score-strong' : s.score >= 60 ? 'score-buy' : s.score >= 40 ? 'score-hold' : 'score-low';
+    const verdictText = s.verdict || (s.score >= 80 ? 'Strong Buy' : s.score >= 60 ? 'Buy' : 'Hold');
+    const verdictClass = s.score >= 80 ? 'verdict-strong-buy' : s.score >= 60 ? 'verdict-buy' : 'verdict-hold';
+
+    const price = s.price ? `₩${Number(s.price).toLocaleString()}` : '-';
+    const buy = s.buy_price ? `₩${Number(s.buy_price).toLocaleString()}` : '-';
+    const target = s.target_price ? `₩${Number(s.target_price).toLocaleString()}` : '-';
+    const stop = s.stop_loss ? `₩${Number(s.stop_loss).toLocaleString()}` : '-';
+
+    const watched = isWatchlisted(s.ticker);
+    const starHtml = watched ? '&#9733;' : '&#9734;';
+    const starClass = watched ? 'active' : '';
+
+    const roe = s.roe_value != null ? `ROE ${s.roe_value.toFixed(1)}%` : '';
+    const opm = s.opm_value != null ? `OPM ${s.opm_value.toFixed(1)}%` : '';
+    const rsi = s.rsi_value != null ? `RSI ${s.rsi_value.toFixed(0)}` : '';
+
+    const tags = [];
+    if (s.sector_name) tags.push(`<span class="tag tag-sector">${s.sector_name}</span>`);
+    if (s.mode) tags.push(`<span class="tag tag-mode">${s.mode}</span>`);
+    if (s.strategy) tags.push(`<span class="tag tag-strategy">${s.strategy}</span>`);
+    if (s.trading_tier) tags.push(`<span class="tag tag-liq">${s.trading_tier}</span>`);
+    if (roe) tags.push(`<span class="tag">${roe}</span>`);
+    if (opm) tags.push(`<span class="tag">${opm}</span>`);
+    if (rsi) tags.push(`<span class="tag">${rsi}</span>`);
+
+    const commentHtml = s.comment ? `<div class="comment">${s.comment}</div>` : '';
+
+    return `
+    <div class="stock-card${watched && isWatchlistCard ? ' watchlisted' : ''}">
+        <div class="card-top">
+            <span class="ticker">${s.ticker}</span>
+            <span class="company-name">${s.company_name || ''}</span>
+            <span class="verdict-badge ${verdictClass}">${verdictText}</span>
+            <span class="score-badge ${scoreClass}">${s.score}점</span>
+            <button class="watchlist-btn ${starClass}" data-ticker="${s.ticker}" onclick="toggleWatchlist('${s.ticker}')" title="${watched ? '내 종목에서 제거' : '내 종목에 추가'}">${starHtml}</button>
+        </div>
+        <div class="price-grid">
+            <div class="price-item">
+                <div class="price-label">현재가</div>
+                <div class="price-value">${price}</div>
+            </div>
+            <div class="price-item">
+                <div class="price-label">매수가</div>
+                <div class="price-value buy">${buy}</div>
+            </div>
+            <div class="price-item">
+                <div class="price-label">목표가</div>
+                <div class="price-value target">${target}</div>
+            </div>
+            <div class="price-item">
+                <div class="price-label">손절가</div>
+                <div class="price-value stop">${stop}</div>
+            </div>
+        </div>
+        <div class="score-bar">
+            <div class="score-item">
+                <div class="label">펀더멘털</div>
+                <div class="value">${s.fund_score}점</div>
+            </div>
+            <div class="score-item">
+                <div class="label">기술적</div>
+                <div class="value">${s.tech_score}점</div>
+            </div>
+        </div>
+        <div class="card-tags">${tags.join('')}</div>
+        ${commentHtml}
+    </div>`;
+}
+
+function renderWatchlist() {
+    const list = getWatchlist();
+    const section = document.getElementById('watchlistSection');
+    const container = document.getElementById('watchlistResults');
+    const countEl = document.getElementById('watchlistCount');
+
+    if (!list.length) {
+        section.style.display = 'none';
         return;
     }
 
-    container.innerHTML = stocks.map(s => {
-        const scoreClass = s.score >= 80 ? 'score-strong' : s.score >= 60 ? 'score-buy' : s.score >= 40 ? 'score-hold' : 'score-low';
-        const verdictText = s.verdict || (s.score >= 80 ? 'Strong Buy' : s.score >= 60 ? 'Buy' : 'Hold');
-        const verdictClass = s.score >= 80 ? 'verdict-strong-buy' : s.score >= 60 ? 'verdict-buy' : 'verdict-hold';
+    section.style.display = 'block';
+    countEl.textContent = `${list.length}개`;
 
-        const price = s.price ? `₩${Number(s.price).toLocaleString()}` : '-';
-        const buy = s.buy_price ? `₩${Number(s.buy_price).toLocaleString()}` : '-';
-        const target = s.target_price ? `₩${Number(s.target_price).toLocaleString()}` : '-';
-        const stop = s.stop_loss ? `₩${Number(s.stop_loss).toLocaleString()}` : '-';
+    const watchStocks = list
+        .map(t => allStocks.find(s => s.ticker === t))
+        .filter(Boolean);
 
-        const roe = s.roe_value != null ? `ROE ${s.roe_value.toFixed(1)}%` : '';
-        const opm = s.opm_value != null ? `OPM ${s.opm_value.toFixed(1)}%` : '';
-        const rsi = s.rsi_value != null ? `RSI ${s.rsi_value.toFixed(0)}` : '';
+    if (!watchStocks.length) {
+        container.innerHTML = '<div class="watchlist-empty">저장된 종목의 데이터를 불러오는 중...</div>';
+        return;
+    }
 
-        const tags = [];
-        if (s.sector_name) tags.push(`<span class="tag tag-sector">${s.sector_name}</span>`);
-        if (s.mode) tags.push(`<span class="tag tag-mode">${s.mode}</span>`);
-        if (s.strategy) tags.push(`<span class="tag tag-strategy">${s.strategy}</span>`);
-        if (s.trading_tier) tags.push(`<span class="tag tag-liq">${s.trading_tier}</span>`);
+    container.innerHTML = watchStocks.map(s => renderCard(s, true)).join('');
+}
 
-        const fundamentals = [roe, opm].filter(Boolean).join(' · ');
-        const commentHtml = s.comment ? `<div class="comment">💡 ${s.comment}</div>` : '';
+function renderResults(stocks) {
+    const section = document.getElementById('searchSection');
+    const container = document.getElementById('results');
+    const q = document.getElementById('searchInput').value.trim();
 
-        return `
-        <div class="stock-card">
-            <div class="card-header">
-                <span class="ticker">${s.ticker}</span>
-                <span class="company-name">${s.company_name || ''}</span>
-                <span class="verdict-badge ${verdictClass}">${verdictText}</span>
-                <span class="score-badge ${scoreClass}">${s.score}점</span>
-            </div>
-            <div class="card-body">
-                <div class="info-item">
-                    <div class="info-label">현재가</div>
-                    <div class="info-value">${price}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">매수가</div>
-                    <div class="info-value buy">${buy}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">목표가</div>
-                    <div class="info-value target">${target}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">손절가</div>
-                    <div class="info-value stop">${stop}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">펀더멘털</div>
-                    <div class="info-value">${s.fund_score}점</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">기술적</div>
-                    <div class="info-value">${s.tech_score}점</div>
-                </div>
-            </div>
-            <div class="card-footer">
-                ${tags.join('')}
-                ${fundamentals ? `<span class="tag">${fundamentals}</span>` : ''}
-                ${rsi ? `<span class="tag">${rsi}</span>` : ''}
-            </div>
-            ${commentHtml}
-        </div>`;
-    }).join('');
+    if (!q) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+
+    if (!stocks.length) {
+        container.innerHTML = '<div class="no-result">검색 결과가 없습니다</div>';
+        return;
+    }
+
+    container.innerHTML = stocks.map(s => renderCard(s, false)).join('');
 }
 
 document.getElementById('searchInput').addEventListener('input', (e) => {
     const results = search(e.target.value.trim());
     renderResults(results);
+});
+
+document.getElementById('clearWatchlist').addEventListener('click', () => {
+    if (confirm('내 종목을 모두 삭제하시겠습니까?')) {
+        saveWatchlist([]);
+        renderWatchlist();
+        // 검색 결과의 별 상태도 업데이트
+        document.querySelectorAll('.watchlist-btn').forEach(btn => {
+            btn.classList.remove('active');
+            btn.innerHTML = '&#9734;';
+        });
+    }
 });
 
 loadData();
