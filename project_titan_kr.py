@@ -1545,148 +1545,206 @@ class TitanKRAnalyzer:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{report_type} - Titan KR - {now.strftime("%Y-%m-%d")}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
     <style>
+        :root {{
+            --bg: #f7f8fa;
+            --surface: #ffffff;
+            --text: #191f28;
+            --text-sub: #8b95a1;
+            --text-muted: #b0b8c1;
+            --border: #e5e8eb;
+            --accent: {primary_color};
+            --accent-light: {('#edf2ff' if 'E85D75' in primary_color else '#fff8e1' if 'E8A838' in primary_color else '#f3f0ff')};
+            --green: #20c997;
+            --red: #f06595;
+            --radius: 16px;
+            --shadow: 0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-hover: 0 8px 24px rgba(0,0,0,0.08);
+        }}
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         body {{
-            font-family: 'Noto Sans KR', sans-serif;
-            background: linear-gradient(180deg, #87CEEB 0%, #98D8C8 30%, #F7DC6F 70%, #FADBD8 100%);
-            background-attachment: fixed;
+            font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
             padding: 20px;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }}
-        .container {{ max-width: 1200px; margin: 0 auto; }}
+        .container {{ max-width: 960px; margin: 0 auto; }}
+        .market-switcher {{
+            display: flex; justify-content: center; gap: 4px; margin-bottom: 20px;
+            background: var(--surface); border-radius: 12px; padding: 4px;
+            box-shadow: var(--shadow); width: fit-content; margin-left: auto; margin-right: auto;
+        }}
+        .market-btn {{
+            padding: 10px 24px; font-size: 0.9em; font-weight: 600; font-family: inherit;
+            border: none; border-radius: 10px; cursor: pointer; transition: all 0.2s;
+            text-decoration: none; color: var(--text-sub); display: flex; align-items: center; gap: 6px; background: transparent;
+        }}
+        .market-btn.active {{ background: var(--accent); color: white; }}
+        .market-btn:not(.active):hover {{ background: var(--accent-light); color: var(--accent); }}
+        .back-link {{
+            display: block; text-align: center; margin-bottom: 16px;
+            color: var(--text-sub); text-decoration: none; font-weight: 600; font-size: 0.9em;
+        }}
+        .back-link:hover {{ color: var(--accent); }}
         .header {{
-            background: white;
-            border-radius: 30px;
-            padding: 35px;
-            margin-bottom: 25px;
-            box-shadow: 0 8px 0 {primary_color};
-            border: 4px solid #5D4E37;
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 32px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }}
-        .header h1 {{ color: #5D4E37; font-size: 2em; margin-top: 10px; }}
-        .header .subtitle {{ color: {primary_color}; margin-top: 10px; font-size: 1.1em; }}
-        .header .date {{ color: #7B6B4F; margin-top: 10px; font-size: 0.9em; }}
+        .header::before {{
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, var(--accent), {('#7c3aed' if 'E85D75' in primary_color else '#f59f00' if 'E8A838' in primary_color else '#9775fa')});
+        }}
+        .header h1 {{ color: var(--text); font-size: 1.6em; font-weight: 800; margin-top: 8px; letter-spacing: -0.02em; }}
+        .header .subtitle {{ color: var(--text-sub); margin-top: 8px; font-size: 0.95em; }}
+        .header .date {{ color: var(--text-muted); margin-top: 8px; font-size: 0.85em; }}
+        .titan-badge {{
+            display: inline-block; background: var(--accent); color: white;
+            padding: 4px 12px; border-radius: 8px; font-size: 0.7em; margin-left: 8px; font-weight: 700;
+        }}
         .summary {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px; margin-bottom: 20px;
         }}
         .summary-card {{
-            background: linear-gradient(180deg, #FFF8DC, #FAEBD7);
-            border-radius: 20px;
-            padding: 20px;
-            border: 3px solid #5D4E37;
-            text-align: center;
+            background: var(--surface); border-radius: var(--radius); padding: 18px;
+            box-shadow: var(--shadow); text-align: center;
         }}
-        .summary-card .label {{ color: #7B6B4F; margin-bottom: 8px; }}
-        .summary-card .value {{ color: #FF6B35; font-size: 1.8em; font-weight: bold; }}
+        .summary-card .label {{ color: var(--text-sub); margin-bottom: 6px; font-size: 0.85em; }}
+        .summary-card .value {{ color: var(--accent); font-size: 1.5em; font-weight: 700; }}
         .stock-card {{
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 15px;
-            border: 3px solid #5D4E37;
-            box-shadow: 0 5px 0 {primary_color};
-            position: relative;
+            background: var(--surface); border-radius: var(--radius); padding: 24px;
+            margin-bottom: 12px; box-shadow: var(--shadow); position: relative;
+            transition: box-shadow 0.2s;
         }}
+        .stock-card:hover {{ box-shadow: var(--shadow-hover); }}
         .stock-card .rank {{
-            position: absolute; top: 10px; left: 10px;
-            background: #FFD700; color: #5D4E37;
-            width: 40px; height: 40px; border-radius: 50%;
+            position: absolute; top: 12px; left: 12px;
+            background: var(--accent); color: white;
+            width: 36px; height: 36px; border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 1.2em; border: 2px solid #5D4E37;
+            font-weight: 700; font-size: 0.9em;
         }}
-        .stock-card h2 {{ color: #5D4E37; margin-bottom: 10px; padding-left: 50px; }}
-        .stock-card .ticker {{ color: {primary_color}; font-weight: bold; font-size: 1.1em; }}
-        .stock-card .info {{ margin-top: 15px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }}
-        .stock-card .info-item {{ padding: 8px; background: #F5F5F5; border-radius: 10px; }}
-        .stock-card .info-label {{ font-size: 0.85em; color: #7B6B4F; }}
-        .stock-card .info-value {{ font-weight: bold; color: #5D4E37; margin-top: 3px; }}
-        .score-badge {{ background: {primary_color}; color: white; padding: 8px 20px; border-radius: 20px; float: right; font-weight: bold; font-size: 1.1em; }}
-        .score-badge.high {{ background: #4CAF50; }}
-        .score-badge.strong {{ background: #FF6B35; }}
-        .verdict {{ display: inline-block; padding: 5px 15px; border-radius: 15px; font-size: 0.9em; font-weight: bold; margin-top: 10px; }}
-        .verdict.strong-buy {{ background: #4CAF50; color: white; }}
-        .verdict.buy {{ background: #8BC34A; color: white; }}
-        .verdict.hold {{ background: #FFC107; color: #5D4E37; }}
-        .comment {{ margin-top: 10px; padding: 10px; background: #FFF9E6; border-left: 4px solid {primary_color}; border-radius: 5px; font-size: 0.9em; color: #5D4E37; }}
-        .back-link {{ display: block; text-align: center; margin-bottom: 20px; color: #5D4E37; text-decoration: none; font-weight: bold; }}
-        .back-link:hover {{ color: {primary_color}; }}
-        .footer {{ background: rgba(255,255,255,0.9); border-radius: 20px; padding: 20px; text-align: center; color: #7B6B4F; margin-top: 30px; }}
-        .titan-badge {{ display: inline-block; background: linear-gradient(135deg, #E85D75 0%, #FF6B35 100%); color: white; padding: 5px 15px; border-radius: 15px; font-size: 0.8em; margin-left: 10px; font-weight: bold; }}
-        .score-breakdown {{ margin: 15px 0; padding: 15px; background: #F8F9FA; border-radius: 10px; border: 2px solid #E0E0E0; display: none; }}
-        .score-breakdown.open {{ display: block; }}
+        .stock-card h2 {{ color: var(--text); margin-bottom: 8px; padding-left: 48px; font-size: 1.2em; font-weight: 700; }}
+        .stock-card .ticker {{ color: var(--accent); font-weight: 700; font-size: 1.05em; }}
+        .stock-card .info {{ margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }}
+        .stock-card .info-item {{ padding: 10px; background: var(--bg); border-radius: 12px; }}
+        .stock-card .info-label {{ font-size: 0.8em; color: var(--text-sub); }}
+        .stock-card .info-value {{ font-weight: 700; color: var(--text); margin-top: 2px; }}
+        .score-badge {{
+            background: var(--accent); color: white; padding: 6px 16px; border-radius: 10px;
+            float: right; font-weight: 700; font-size: 1em;
+        }}
+        .score-badge.high {{ background: var(--green); }}
+        .score-badge.strong {{ background: #f76707; }}
+        .verdict {{
+            display: inline-block; padding: 4px 14px; border-radius: 8px;
+            font-size: 0.85em; font-weight: 700; margin-top: 8px;
+        }}
+        .verdict.strong-buy {{ background: #e6fcf5; color: #0ca678; }}
+        .verdict.buy {{ background: #e6fcf5; color: var(--green); }}
+        .verdict.hold {{ background: #fff9db; color: #e67700; }}
+        .comment {{
+            margin-top: 12px; padding: 12px 14px; background: var(--bg);
+            border-left: 3px solid var(--accent); border-radius: 8px;
+            font-size: 0.88em; color: var(--text); line-height: 1.6;
+        }}
         .detail-toggle {{
-            display: inline-block;
-            margin-top: 10px;
-            padding: 6px 18px;
-            background: linear-gradient(135deg, #F8F9FA, #E8E8E8);
-            color: #5D4E37;
-            border: 2px solid #C4A35A;
-            border-radius: 15px;
-            font-size: 0.85em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
+            display: inline-block; margin-top: 10px; padding: 6px 16px;
+            background: var(--bg); color: var(--text-sub); border: 1px solid var(--border);
+            border-radius: 10px; font-size: 0.84em; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; font-family: inherit;
         }}
-        .detail-toggle:hover {{ background: #FFF8DC; transform: translateY(-1px); }}
-        .score-breakdown h3 {{ color: #5D4E37; margin-bottom: 12px; font-size: 1em; }}
+        .detail-toggle:hover {{ background: var(--accent-light); color: var(--accent); border-color: var(--accent); }}
+        .score-breakdown {{ margin: 14px 0; padding: 16px; background: var(--bg); border-radius: 12px; border: 1px solid var(--border); display: none; }}
+        .score-breakdown.open {{ display: block; }}
+        .score-breakdown h3 {{ color: var(--text); margin-bottom: 12px; font-size: 0.95em; }}
         .breakdown-section {{ margin-bottom: 12px; }}
-        .breakdown-title {{ font-weight: bold; color: {primary_color}; margin-bottom: 8px; font-size: 0.95em; }}
-        .breakdown-items {{ display: grid; gap: 6px; }}
-        .breakdown-item {{ display: grid; grid-template-columns: 1fr auto auto; gap: 10px; padding: 6px 10px; background: white; border-radius: 6px; align-items: center; font-size: 0.85em; }}
-        .breakdown-item .criterion {{ color: #5D4E37; font-weight: 500; }}
-        .breakdown-item .criterion-value {{ color: #7B6B4F; text-align: right; }}
-        .breakdown-item .criterion-score {{ color: {primary_color}; font-weight: bold; text-align: right; min-width: 50px; }}
-        .scoring-btn {{ display: inline-block; margin-top: 12px; padding: 8px 22px; background: linear-gradient(135deg, #5D4E37, #7B6B4F); color: #FFF8DC; border: 2px solid #5D4E37; border-radius: 20px; font-size: 0.9em; font-weight: 600; cursor: pointer; transition: all 0.3s; }}
-        .scoring-btn:hover {{ background: linear-gradient(135deg, #7B6B4F, #9B8B6F); transform: translateY(-1px); }}
-        .scoring-overlay {{ display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center; }}
+        .breakdown-title {{ font-weight: 700; color: var(--accent); margin-bottom: 8px; font-size: 0.9em; }}
+        .breakdown-items {{ display: grid; gap: 4px; }}
+        .breakdown-item {{
+            display: grid; grid-template-columns: 1fr auto auto; gap: 10px;
+            padding: 8px 12px; background: var(--surface); border-radius: 8px;
+            align-items: center; font-size: 0.84em;
+        }}
+        .breakdown-item .criterion {{ color: var(--text); font-weight: 500; }}
+        .breakdown-item .criterion-value {{ color: var(--text-sub); text-align: right; }}
+        .breakdown-item .criterion-score {{ color: var(--accent); font-weight: 700; text-align: right; min-width: 50px; }}
+        .scoring-btn {{
+            display: inline-block; margin-top: 12px; padding: 8px 20px;
+            background: var(--text); color: white; border: none; border-radius: 10px;
+            font-size: 0.85em; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit;
+        }}
+        .scoring-btn:hover {{ opacity: 0.85; transform: translateY(-1px); }}
+        .scoring-overlay {{ display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(4px); }}
         .scoring-overlay.active {{ display: flex; }}
-        .scoring-modal {{ width: 95%; max-width: 1400px; height: 92vh; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); position: relative; }}
+        .scoring-modal {{ width: 95%; max-width: 1200px; height: 90vh; border-radius: var(--radius); overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; }}
         .scoring-modal iframe {{ width: 100%; height: 100%; border: none; }}
-        .scoring-close {{ position: absolute; top: 12px; right: 16px; width: 36px; height: 36px; background: rgba(0,0,0,0.7); color: #fff; border: none; border-radius: 50%; font-size: 1.3em; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }}
-        .scoring-close:hover {{ background: rgba(200,0,0,0.8); }}
+        .scoring-close {{ position: absolute; top: 12px; right: 16px; width: 36px; height: 36px; background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 10px; font-size: 1.2em; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }}
+        .scoring-close:hover {{ background: rgba(240,101,149,0.8); }}
         .analyst-view {{
-            margin-top: 14px;
-            padding: 18px 20px;
-            background: linear-gradient(135deg, #FAFBFC 0%, #EDF1F5 100%);
-            border: 2px solid #D5DDE5;
-            border-radius: 14px;
+            margin-top: 14px; padding: 18px 20px;
+            background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
         }}
         .analyst-header {{
-            font-weight: 800;
-            font-size: 0.95em;
-            color: #2C3E50;
-            margin-bottom: 14px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #E0E6ED;
+            font-weight: 700; font-size: 0.92em; color: var(--text);
+            margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
         }}
         .analyst-comment {{
-            font-size: 0.88em;
-            color: #34495E;
-            line-height: 1.85;
-            padding: 12px 14px;
-            background: white;
-            border-radius: 10px;
-            border-left: 3px solid #667eea;
+            font-size: 0.86em; color: var(--text); line-height: 1.8;
+            padding: 12px 14px; background: var(--surface); border-radius: 10px;
+            border-left: 3px solid var(--accent);
+        }}
+        .footer {{
+            background: var(--surface); border-radius: var(--radius); padding: 20px;
+            text-align: center; color: var(--text-muted); margin-top: 24px;
+            box-shadow: var(--shadow); font-size: 0.85em; line-height: 1.7;
+        }}
+        @media (max-width: 768px) {{
+            body {{ padding: 12px; }}
+            .header {{ padding: 24px 16px; }}
+            .header h1 {{ font-size: 1.25em; }}
+            .titan-badge {{ display: block; margin: 8px auto 0; width: fit-content; }}
+            .summary {{ grid-template-columns: repeat(2, 1fr); gap: 8px; }}
+            .summary-card {{ padding: 14px 8px; }}
+            .summary-card .value {{ font-size: 1.2em; }}
+            .stock-card {{ padding: 18px 14px; }}
+            .stock-card .rank {{ width: 30px; height: 30px; font-size: 0.85em; border-radius: 8px; }}
+            .stock-card h2 {{ padding-left: 40px; font-size: 1.05em; padding-right: 70px; }}
+            .score-badge {{ padding: 5px 12px; font-size: 0.9em; }}
+            .stock-card .info {{ grid-template-columns: repeat(2, 1fr); gap: 6px; }}
+            .breakdown-item {{ grid-template-columns: 1fr auto; gap: 4px; font-size: 0.8em; }}
+            .breakdown-item .criterion-value {{ display: none; }}
+            .comment {{ font-size: 0.82em; }}
+            .analyst-comment {{ font-size: 0.82em; padding: 10px 12px; }}
+            .scoring-modal {{ width: 100%; height: 95vh; border-radius: 10px; }}
+        }}
+        @media (max-width: 400px) {{
+            .header h1 {{ font-size: 1.1em; }}
+            .summary {{ grid-template-columns: 1fr 1fr; gap: 6px; }}
+            .stock-card h2 {{ font-size: 0.95em; }}
         }}
     </style>
 </head>
 <body>
     <div class="container">
-        <div style="display:flex;justify-content:center;gap:0;margin-bottom:15px;">
-            <a href="https://redchoeng.github.io/stock-recommendation_2.0/" style="padding:10px 24px;font-size:0.95em;font-weight:800;border:3px solid #5D4E37;text-decoration:none;color:#5D4E37;display:flex;align-items:center;gap:8px;border-radius:20px 0 0 20px;border-right:none;background:white;">🇺🇸 미국장</a>
-            <span style="padding:10px 24px;font-size:0.95em;font-weight:800;border:3px solid #5D4E37;display:flex;align-items:center;gap:8px;border-radius:0 20px 20px 0;background:linear-gradient(135deg,#5D4E37,#7B6B4F);color:white;box-shadow:0 4px 0 #3D2E17;">🇰🇷 한국장</span>
+        <div class="market-switcher">
+            <a href="https://redchoeng.github.io/stock-recommendation_2.0/" class="market-btn">US</a>
+            <span class="market-btn active">KR</span>
         </div>
         <a href="index.html" class="back-link">&larr; 메인으로</a>
         <div class="header">
-            <div style="font-size: 3em;">{emoji}</div>
-            <h1>{report_type} <span class="titan-badge">TITAN KR v1.0</span></h1>
-            <div class="subtitle">한국장 Fundamental + Technical Analysis</div>
+            <h1>{report_type} <span class="titan-badge">TITAN KR</span></h1>
+            <div class="subtitle">Fundamental + Technical 기반 한국 주식 분석</div>
             <div class="date">{now.strftime("%Y-%m-%d %H:%M")} KST 업데이트</div>
             <button class="scoring-btn" onclick="document.getElementById('scoringOverlay').classList.add('active')">📐 점수 체계 보기</button>
         </div>
@@ -1713,10 +1771,10 @@ class TitanKRAnalyzer:
                 <div class="label">평균 점수</div>
                 <div class="value">{sum(r['score'] for r in filtered) / len(filtered) if filtered else 0:.0f}점</div>
             </div>
-            <div class="summary-card" style="grid-column: 1 / -1; background: linear-gradient(135deg, #E85D75 0%, #FF6B35 100%); color: white;">
-                <div class="label" style="color: rgba(255,255,255,0.9);">🌍 시장 상태 및 평가 기준</div>
-                <div class="value" style="font-size: 1.1em;">{filtered[0].get('regime_description', 'N/A') if filtered else 'N/A'}<br>
-                <span style="font-size: 0.85em; opacity: 0.9;">Strong Buy &ge;{strong_buy_threshold}점 | Buy &ge;{buy_threshold}점</span></div>
+            <div class="summary-card" style="grid-column: 1 / -1; background: var(--accent); color: white;">
+                <div class="label" style="color: rgba(255,255,255,0.8);">시장 상태 및 평가 기준</div>
+                <div class="value" style="font-size: 1em; color: white;">{filtered[0].get('regime_description', 'N/A') if filtered else 'N/A'}<br>
+                <span style="font-size: 0.8em; opacity: 0.85;">Strong Buy &ge;{strong_buy_threshold}점 | Buy &ge;{buy_threshold}점</span></div>
             </div>
         </div>
 '''
@@ -1913,8 +1971,8 @@ class TitanKRAnalyzer:
 
         html += f'''
         <div class="footer">
-            <p>🤖 Project Titan KR v1.0 | 한국장 AI 분석 시스템</p>
-            <p style="margin-top: 5px; font-size: 0.85em;">⚠️ 본 분석은 투자 참고용이며, 투자 책임은 본인에게 있습니다.</p>
+            <p>Project Titan KR &middot; 한국장 AI 분석 시스템</p>
+            <p style="margin-top: 4px;">본 분석은 알고리즘 기반 투자 참고 자료이며, 투자 책임은 본인에게 있습니다.</p>
         </div>
     </div>
     <script>
