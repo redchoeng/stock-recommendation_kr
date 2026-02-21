@@ -291,6 +291,42 @@ body {
 .price-value.target { color: var(--accent); }
 .price-value.stop { color: var(--red); }
 
+/* 저장 시점 가격 (워치리스트) */
+.saved-section {
+    background: var(--accent-light);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(66,99,235,0.12);
+}
+.saved-section .section-label {
+    font-size: 0.75em;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.saved-section .price-grid {
+    margin-bottom: 0;
+}
+.saved-section .price-item {
+    background: rgba(255,255,255,0.7);
+}
+.current-section {
+    margin-bottom: 12px;
+}
+.current-section .section-label {
+    font-size: 0.75em;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+.current-section .price-grid {
+    margin-bottom: 0;
+}
+
 /* 점수 바 */
 .score-bar {
     display: flex;
@@ -343,6 +379,48 @@ body {
     color: var(--text-sub);
     border-left: 3px solid #fbbf24;
     line-height: 1.5;
+}
+
+/* 메모 */
+.note-area {
+    margin-top: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+.note-text {
+    flex: 1;
+    padding: 8px 12px;
+    background: var(--bg);
+    border-radius: 8px;
+    font-size: 0.82em;
+    color: var(--text-sub);
+    line-height: 1.5;
+    min-height: 36px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+.note-text:hover {
+    border-color: var(--border);
+}
+.note-text.placeholder {
+    color: var(--text-muted);
+    font-style: italic;
+}
+.note-input {
+    flex: 1;
+    padding: 8px 12px;
+    background: var(--surface);
+    border-radius: 8px;
+    font-size: 0.82em;
+    color: var(--text);
+    line-height: 1.5;
+    border: 2px solid var(--accent);
+    font-family: inherit;
+    outline: none;
+    resize: vertical;
+    min-height: 36px;
 }
 
 /* 빈 워치리스트 */
@@ -415,7 +493,7 @@ body {
 
     <div class="footer">
         리포트에서 빠진 종목도 검색으로 매수가/목표가/손절가를 확인할 수 있습니다.<br>
-        별표를 눌러 내 종목에 저장하면 다음에 바로 확인 가능합니다.
+        별표를 눌러 내 종목에 저장하면 저장 시점의 가격이 고정됩니다.
     </div>
 </div>
 
@@ -423,65 +501,105 @@ body {
 let allStocks = [];
 const WATCHLIST_KEY = 'titan_watchlist_kr';
 
+// --- 워치리스트 저장/조회 (객체 배열) ---
 function getWatchlist() {
-    try { return JSON.parse(localStorage.getItem(WATCHLIST_KEY)) || []; }
-    catch { return []; }
+    try {
+        const raw = JSON.parse(localStorage.getItem(WATCHLIST_KEY)) || [];
+        // 기존 문자열 배열 → 객체 마이그레이션
+        if (raw.length && typeof raw[0] === 'string') {
+            const migrated = raw.map(t => ({ ticker: t, savedAt: '', note: '' }));
+            saveWatchlist(migrated);
+            return migrated;
+        }
+        return raw;
+    } catch { return []; }
 }
 function saveWatchlist(list) {
     localStorage.setItem(WATCHLIST_KEY, JSON.stringify(list));
 }
+function findWatchItem(ticker) {
+    return getWatchlist().find(w => w.ticker === ticker);
+}
 function isWatchlisted(ticker) {
-    return getWatchlist().includes(ticker);
+    return !!findWatchItem(ticker);
+}
+
+function addToWatchlist(ticker) {
+    const list = getWatchlist();
+    if (list.some(w => w.ticker === ticker)) return;
+    const stock = allStocks.find(s => s.ticker === ticker);
+    if (!stock) return;
+    const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+    const pad = n => String(n).padStart(2, '0');
+    const timeStr = `${now.getMonth()+1}/${now.getDate()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    list.push({
+        ticker,
+        savedAt: timeStr,
+        price: stock.price,
+        buy_price: stock.buy_price,
+        target_price: stock.target_price,
+        stop_loss: stock.stop_loss,
+        score: stock.score,
+        verdict: stock.verdict,
+        note: ''
+    });
+    saveWatchlist(list);
+}
+function removeFromWatchlist(ticker) {
+    const list = getWatchlist().filter(w => w.ticker !== ticker);
+    saveWatchlist(list);
 }
 function toggleWatchlist(ticker) {
-    let list = getWatchlist();
-    if (list.includes(ticker)) {
-        list = list.filter(t => t !== ticker);
+    if (isWatchlisted(ticker)) {
+        removeFromWatchlist(ticker);
     } else {
-        list.push(ticker);
+        addToWatchlist(ticker);
     }
-    saveWatchlist(list);
     renderWatchlist();
-    // 검색 결과의 별 상태도 업데이트
-    document.querySelectorAll('.watchlist-btn').forEach(btn => {
-        if (btn.dataset.ticker === ticker) {
-            btn.classList.toggle('active', list.includes(ticker));
-            btn.innerHTML = list.includes(ticker) ? '&#9733;' : '&#9734;';
-        }
+    refreshStarButtons(ticker);
+}
+function updateNote(ticker, note) {
+    const list = getWatchlist();
+    const item = list.find(w => w.ticker === ticker);
+    if (item) {
+        item.note = note;
+        saveWatchlist(list);
+    }
+}
+function refreshStarButtons(ticker) {
+    const watched = isWatchlisted(ticker);
+    document.querySelectorAll(`.watchlist-btn[data-ticker="${ticker}"]`).forEach(btn => {
+        btn.classList.toggle('active', watched);
+        btn.innerHTML = watched ? '&#9733;' : '&#9734;';
     });
 }
 
+// --- 데이터 로드 ---
 async function loadData() {
     try {
         const [gRes, vRes] = await Promise.all([
             fetch('titan_kr_scores_growth.json?' + Date.now()).then(r => r.json()).catch(() => ({})),
             fetch('titan_kr_scores_value.json?' + Date.now()).then(r => r.json()).catch(() => ({}))
         ]);
-
         const gCount = Object.keys(gRes).length;
         const vCount = Object.keys(vRes).length;
-
         for (const [ticker, data] of Object.entries(gRes)) {
             allStocks.push({ ...data, ticker, mode: 'Growth' });
         }
         for (const [ticker, data] of Object.entries(vRes)) {
-            if (!gRes[ticker]) {
-                allStocks.push({ ...data, ticker, mode: 'Value' });
-            }
+            if (!gRes[ticker]) allStocks.push({ ...data, ticker, mode: 'Value' });
         }
-
         allStocks.sort((a, b) => b.score - a.score);
-
         document.getElementById('growthCount').textContent = gCount;
         document.getElementById('valueCount').textContent = vCount;
         document.getElementById('totalCount').textContent = allStocks.length;
-
         renderWatchlist();
     } catch (e) {
         console.error('Data load error:', e);
     }
 }
 
+// --- 검색 ---
 function search(query) {
     if (!query || query.length < 1) return [];
     const q = query.toLowerCase();
@@ -505,133 +623,168 @@ function search(query) {
         .slice(0, 20);
 }
 
-function renderCard(s, isWatchlistCard) {
-    const scoreClass = s.score >= 80 ? 'score-strong' : s.score >= 60 ? 'score-buy' : s.score >= 40 ? 'score-hold' : 'score-low';
-    const verdictText = s.verdict || (s.score >= 80 ? 'Strong Buy' : s.score >= 60 ? 'Buy' : 'Hold');
-    const verdictClass = s.score >= 80 ? 'verdict-strong-buy' : s.score >= 60 ? 'verdict-buy' : 'verdict-hold';
-
-    const price = s.price ? `₩${Number(s.price).toLocaleString()}` : '-';
-    const buy = s.buy_price ? `₩${Number(s.buy_price).toLocaleString()}` : '-';
-    const target = s.target_price ? `₩${Number(s.target_price).toLocaleString()}` : '-';
-    const stop = s.stop_loss ? `₩${Number(s.stop_loss).toLocaleString()}` : '-';
-
-    const watched = isWatchlisted(s.ticker);
-    const starHtml = watched ? '&#9733;' : '&#9734;';
-    const starClass = watched ? 'active' : '';
-
-    const roe = s.roe_value != null ? `ROE ${s.roe_value.toFixed(1)}%` : '';
-    const opm = s.opm_value != null ? `OPM ${s.opm_value.toFixed(1)}%` : '';
-    const rsi = s.rsi_value != null ? `RSI ${s.rsi_value.toFixed(0)}` : '';
-
+// --- 공통 헬퍼 ---
+function fmtKRW(v) { return v ? `₩${Number(v).toLocaleString()}` : '-'; }
+function scoreClass(sc) { return sc >= 80 ? 'score-strong' : sc >= 60 ? 'score-buy' : sc >= 40 ? 'score-hold' : 'score-low'; }
+function verdictInfo(s) {
+    const text = s.verdict || (s.score >= 80 ? 'Strong Buy' : s.score >= 60 ? 'Buy' : 'Hold');
+    const cls = s.score >= 80 ? 'verdict-strong-buy' : s.score >= 60 ? 'verdict-buy' : 'verdict-hold';
+    return { text, cls };
+}
+function buildTags(s) {
     const tags = [];
     if (s.sector_name) tags.push(`<span class="tag tag-sector">${s.sector_name}</span>`);
     if (s.mode) tags.push(`<span class="tag tag-mode">${s.mode}</span>`);
     if (s.strategy) tags.push(`<span class="tag tag-strategy">${s.strategy}</span>`);
     if (s.trading_tier) tags.push(`<span class="tag tag-liq">${s.trading_tier}</span>`);
+    const roe = s.roe_value != null ? `ROE ${s.roe_value.toFixed(1)}%` : '';
+    const opm = s.opm_value != null ? `OPM ${s.opm_value.toFixed(1)}%` : '';
+    const rsi = s.rsi_value != null ? `RSI ${s.rsi_value.toFixed(0)}` : '';
     if (roe) tags.push(`<span class="tag">${roe}</span>`);
     if (opm) tags.push(`<span class="tag">${opm}</span>`);
     if (rsi) tags.push(`<span class="tag">${rsi}</span>`);
+    return tags.join('');
+}
 
-    const commentHtml = s.comment ? `<div class="comment">${s.comment}</div>` : '';
-
+// --- 검색 결과 카드 ---
+function renderSearchCard(s) {
+    const v = verdictInfo(s);
+    const watched = isWatchlisted(s.ticker);
     return `
-    <div class="stock-card${watched && isWatchlistCard ? ' watchlisted' : ''}">
+    <div class="stock-card">
         <div class="card-top">
             <span class="ticker">${s.ticker}</span>
             <span class="company-name">${s.company_name || ''}</span>
-            <span class="verdict-badge ${verdictClass}">${verdictText}</span>
-            <span class="score-badge ${scoreClass}">${s.score}점</span>
-            <button class="watchlist-btn ${starClass}" data-ticker="${s.ticker}" onclick="toggleWatchlist('${s.ticker}')" title="${watched ? '내 종목에서 제거' : '내 종목에 추가'}">${starHtml}</button>
+            <span class="verdict-badge ${v.cls}">${v.text}</span>
+            <span class="score-badge ${scoreClass(s.score)}">${s.score}점</span>
+            <button class="watchlist-btn ${watched?'active':''}" data-ticker="${s.ticker}" onclick="toggleWatchlist('${s.ticker}')">${watched?'&#9733;':'&#9734;'}</button>
         </div>
         <div class="price-grid">
-            <div class="price-item">
-                <div class="price-label">현재가</div>
-                <div class="price-value">${price}</div>
-            </div>
-            <div class="price-item">
-                <div class="price-label">매수가</div>
-                <div class="price-value buy">${buy}</div>
-            </div>
-            <div class="price-item">
-                <div class="price-label">목표가</div>
-                <div class="price-value target">${target}</div>
-            </div>
-            <div class="price-item">
-                <div class="price-label">손절가</div>
-                <div class="price-value stop">${stop}</div>
-            </div>
+            <div class="price-item"><div class="price-label">현재가</div><div class="price-value">${fmtKRW(s.price)}</div></div>
+            <div class="price-item"><div class="price-label">매수가</div><div class="price-value buy">${fmtKRW(s.buy_price)}</div></div>
+            <div class="price-item"><div class="price-label">목표가</div><div class="price-value target">${fmtKRW(s.target_price)}</div></div>
+            <div class="price-item"><div class="price-label">손절가</div><div class="price-value stop">${fmtKRW(s.stop_loss)}</div></div>
         </div>
         <div class="score-bar">
-            <div class="score-item">
-                <div class="label">펀더멘털</div>
-                <div class="value">${s.fund_score}점</div>
-            </div>
-            <div class="score-item">
-                <div class="label">기술적</div>
-                <div class="value">${s.tech_score}점</div>
-            </div>
+            <div class="score-item"><div class="label">펀더멘털</div><div class="value">${s.fund_score}점</div></div>
+            <div class="score-item"><div class="label">기술적</div><div class="value">${s.tech_score}점</div></div>
         </div>
-        <div class="card-tags">${tags.join('')}</div>
-        ${commentHtml}
+        <div class="card-tags">${buildTags(s)}</div>
+        ${s.comment ? `<div class="comment">${s.comment}</div>` : ''}
     </div>`;
 }
 
+// --- 워치리스트 카드 (저장 시점 + 현재 + 메모) ---
+function renderWatchCard(watchItem) {
+    const s = allStocks.find(x => x.ticker === watchItem.ticker);
+    if (!s) return '';
+    const v = verdictInfo(s);
+    const w = watchItem;
+    const escapedTicker = s.ticker.replace(/'/g, "\\'");
+    const escapedNote = (w.note || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+    return `
+    <div class="stock-card watchlisted">
+        <div class="card-top">
+            <span class="ticker">${s.ticker}</span>
+            <span class="company-name">${s.company_name || ''}</span>
+            <span class="verdict-badge ${v.cls}">${v.text}</span>
+            <span class="score-badge ${scoreClass(s.score)}">${s.score}점</span>
+            <button class="watchlist-btn active" data-ticker="${s.ticker}" onclick="toggleWatchlist('${escapedTicker}')">&#9733;</button>
+        </div>
+
+        <div class="saved-section">
+            <div class="section-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                저장 시점${w.savedAt ? ` (${w.savedAt})` : ''}
+            </div>
+            <div class="price-grid">
+                <div class="price-item"><div class="price-label">당시 현재가</div><div class="price-value">${fmtKRW(w.price)}</div></div>
+                <div class="price-item"><div class="price-label">매수가</div><div class="price-value buy">${fmtKRW(w.buy_price)}</div></div>
+                <div class="price-item"><div class="price-label">목표가</div><div class="price-value target">${fmtKRW(w.target_price)}</div></div>
+                <div class="price-item"><div class="price-label">손절가</div><div class="price-value stop">${fmtKRW(w.stop_loss)}</div></div>
+            </div>
+        </div>
+
+        <div class="current-section">
+            <div class="section-label">현재 (최신 업데이트)</div>
+            <div class="price-grid">
+                <div class="price-item"><div class="price-label">현재가</div><div class="price-value">${fmtKRW(s.price)}</div></div>
+                <div class="price-item"><div class="price-label">매수가</div><div class="price-value buy">${fmtKRW(s.buy_price)}</div></div>
+                <div class="price-item"><div class="price-label">목표가</div><div class="price-value target">${fmtKRW(s.target_price)}</div></div>
+                <div class="price-item"><div class="price-label">손절가</div><div class="price-value stop">${fmtKRW(s.stop_loss)}</div></div>
+            </div>
+        </div>
+
+        <div class="score-bar">
+            <div class="score-item"><div class="label">펀더멘털</div><div class="value">${s.fund_score}점</div></div>
+            <div class="score-item"><div class="label">기술적</div><div class="value">${s.tech_score}점</div></div>
+        </div>
+        <div class="card-tags">${buildTags(s)}</div>
+        ${s.comment ? `<div class="comment">${s.comment}</div>` : ''}
+
+        <div class="note-area">
+            <div class="note-text ${w.note ? '' : 'placeholder'}" onclick="startEditNote(this, '${escapedTicker}')">${w.note || '클릭하여 메모 추가 (매수 이유, 수량 등)'}</div>
+        </div>
+    </div>`;
+}
+
+function startEditNote(el, ticker) {
+    const watchItem = findWatchItem(ticker);
+    const currentNote = watchItem ? watchItem.note || '' : '';
+    const textarea = document.createElement('textarea');
+    textarea.className = 'note-input';
+    textarea.value = currentNote;
+    textarea.placeholder = '매수 이유, 수량, 목표 등 메모';
+    el.replaceWith(textarea);
+    textarea.focus();
+
+    function save() {
+        const note = textarea.value.trim();
+        updateNote(ticker, note);
+        const div = document.createElement('div');
+        div.className = 'note-text' + (note ? '' : ' placeholder');
+        div.onclick = () => startEditNote(div, ticker);
+        div.textContent = note || '클릭하여 메모 추가 (매수 이유, 수량 등)';
+        textarea.replaceWith(div);
+    }
+    textarea.addEventListener('blur', save);
+    textarea.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); save(); }
+    });
+}
+
+// --- 렌더링 ---
 function renderWatchlist() {
     const list = getWatchlist();
     const section = document.getElementById('watchlistSection');
     const container = document.getElementById('watchlistResults');
     const countEl = document.getElementById('watchlistCount');
-
-    if (!list.length) {
-        section.style.display = 'none';
-        return;
-    }
-
+    if (!list.length) { section.style.display = 'none'; return; }
     section.style.display = 'block';
     countEl.textContent = `${list.length}개`;
-
-    const watchStocks = list
-        .map(t => allStocks.find(s => s.ticker === t))
-        .filter(Boolean);
-
-    if (!watchStocks.length) {
-        container.innerHTML = '<div class="watchlist-empty">저장된 종목의 데이터를 불러오는 중...</div>';
-        return;
-    }
-
-    container.innerHTML = watchStocks.map(s => renderCard(s, true)).join('');
+    const html = list.map(w => renderWatchCard(w)).filter(Boolean).join('');
+    container.innerHTML = html || '<div class="watchlist-empty">저장된 종목의 데이터를 불러오는 중...</div>';
 }
 
 function renderResults(stocks) {
     const section = document.getElementById('searchSection');
     const container = document.getElementById('results');
     const q = document.getElementById('searchInput').value.trim();
-
-    if (!q) {
-        section.style.display = 'none';
-        return;
-    }
-
+    if (!q) { section.style.display = 'none'; return; }
     section.style.display = 'block';
-
-    if (!stocks.length) {
-        container.innerHTML = '<div class="no-result">검색 결과가 없습니다</div>';
-        return;
-    }
-
-    container.innerHTML = stocks.map(s => renderCard(s, false)).join('');
+    if (!stocks.length) { container.innerHTML = '<div class="no-result">검색 결과가 없습니다</div>'; return; }
+    container.innerHTML = stocks.map(s => renderSearchCard(s)).join('');
 }
 
 document.getElementById('searchInput').addEventListener('input', (e) => {
-    const results = search(e.target.value.trim());
-    renderResults(results);
+    renderResults(search(e.target.value.trim()));
 });
 
 document.getElementById('clearWatchlist').addEventListener('click', () => {
     if (confirm('내 종목을 모두 삭제하시겠습니까?')) {
         saveWatchlist([]);
         renderWatchlist();
-        // 검색 결과의 별 상태도 업데이트
         document.querySelectorAll('.watchlist-btn').forEach(btn => {
             btn.classList.remove('active');
             btn.innerHTML = '&#9734;';
