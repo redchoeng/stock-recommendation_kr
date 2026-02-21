@@ -104,9 +104,9 @@
     "analyst_comment": "ROE 10.1%로 양호한 수익성. 영업이익률 26.6%의 고마진 구조. 매출 YoY +263% 고성장. MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 61으로 매수세 우위. 상승 추세 지속 중으로 추세 추종 매매가 유효."
   },
   "373220": {
-    "score": 34,
+    "score": 31,
     "fund_score": 13,
-    "tech_score": 18,
+    "tech_score": 15,
     "price": 401500,
     "company_name": "LG에너지솔루션",
     "verdict": "Avoid",
@@ -156,9 +156,9 @@
     "analyst_comment": "MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 63으로 매수세 우위. 상승 추세 지속 중으로 추세 추종 매매가 유효."
   },
   "051910": {
-    "score": 22,
+    "score": 18,
     "fund_score": 0,
-    "tech_score": 19,
+    "tech_score": 15,
     "price": 337000,
     "company_name": "LG화학",
     "verdict": "Avoid",
@@ -208,9 +208,9 @@
     "analyst_comment": "ROE 0.4%로 수익성 보통. MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 59으로 매수세 우위. 상승 추세 지속 중으로 추세 추종 매매가 유효."
   },
   "018260": {
-    "score": 37,
+    "score": 34,
     "fund_score": 13,
-    "tech_score": 21,
+    "tech_score": 18,
     "price": 172300,
     "company_name": "삼성에스디에스",
     "verdict": "Avoid",
@@ -234,9 +234,9 @@
     "analyst_comment": "ROE 7.8%로 수익성 보통. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 50으로 매도세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "361610": {
-    "score": 41,
+    "score": 43,
     "fund_score": 25,
-    "tech_score": 19,
+    "tech_score": 21,
     "price": 26550,
     "company_name": "SK아이이테크놀로지",
     "verdict": "Avoid",
@@ -286,9 +286,9 @@
     "analyst_comment": "ROE 7.8%로 수익성 보통. MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 62으로 매수세 우위. 상승 추세 지속 중으로 추세 추종 매매가 유효."
   },
   "207940": {
-    "score": 45,
+    "score": 48,
     "fund_score": 26,
-    "tech_score": 16,
+    "tech_score": 19,
     "price": 1736000,
     "company_name": "삼성바이오로직스",
     "verdict": "Avoid",

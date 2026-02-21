@@ -1248,9 +1248,9 @@
     "analyst_comment": "ROE 2.8%로 수익성 보통. MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 79으로 과매수 영역 → 단기 조정 유의. 과열 구간으로 신규 진입보다 조정 후 재진입 권장."
   },
   "003230": {
-    "score": 51,
+    "score": 54,
     "fund_score": 43,
-    "tech_score": 5,
+    "tech_score": 8,
     "price": 1164000,
     "company_name": "삼양식품",
     "verdict": "Avoid",
@@ -1326,9 +1326,9 @@
     "analyst_comment": "ROE 3.4%로 수익성 보통. MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 67으로 매수세 우위. 상승 추세 지속 중으로 추세 추종 매매가 유효."
   },
   "051910": {
-    "score": 19,
+    "score": 16,
     "fund_score": 1,
-    "tech_score": 15,
+    "tech_score": 12,
     "price": 337000,
     "company_name": "LG화학",
     "verdict": "Avoid",
@@ -1352,9 +1352,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 53으로 매수세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "010130": {
-    "score": 41,
+    "score": 39,
     "fund_score": 27,
-    "tech_score": 11,
+    "tech_score": 9,
     "price": 1663000,
     "company_name": "고려아연",
     "verdict": "Avoid",
@@ -1393,8 +1393,8 @@
     "trading_bonus": 5,
     "trading_tier": "Hot",
     "sector_name": "기타",
-    "roe_value": 0.81400005,
-    "opm_value": 0.071000005,
+    "roe_value": 0.815,
+    "opm_value": 0.071999995,
     "revenue_growth_value": -5.4,
     "rsi_value": 65.83337457924732,
     "ma5": 382700.0,
@@ -1430,9 +1430,9 @@
     "analyst_comment": "MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 74으로 과매수 영역 → 단기 조정 유의. 과열 구간으로 신규 진입보다 조정 후 재진입 권장."
   },
   "042670": {
-    "score": 34,
+    "score": 32,
     "fund_score": 28,
-    "tech_score": 9,
+    "tech_score": 7,
     "price": 13800,
     "company_name": "HD현대인프라코어",
     "verdict": "Avoid",
