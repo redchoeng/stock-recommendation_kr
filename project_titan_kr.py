@@ -402,8 +402,8 @@ class TitanKRAnalyzer:
         score = 0
         comments = []
         breakdown = {
-            'roe_score': 0, 'roe_value': 0,
-            'opm_score': 0, 'opm_value': 0,
+            'roe_score': 0, 'roe_value': None,
+            'opm_score': 0, 'opm_value': None,
             'revenue_growth_score': 0, 'revenue_growth_value': None,
             'sector_score': 0, 'sector_name': ''
         }
@@ -416,7 +416,7 @@ class TitanKRAnalyzer:
             roe = info.get('returnOnEquity')
             roe_excellent, roe_good = self._get_sector_threshold(
                 sector, self.SECTOR_ROE_THRESHOLDS, self.DEFAULT_ROE_THRESHOLD)
-            if roe:
+            if roe is not None:
                 roe_pct = roe * 100
                 breakdown['roe_value'] = roe_pct
                 roe_score = self._calc_gradient_score(roe_pct, roe_excellent, roe_good, 15)
@@ -429,7 +429,7 @@ class TitanKRAnalyzer:
             opm = info.get('operatingMargins')
             opm_excellent, opm_good = self._get_sector_threshold(
                 sector, self.SECTOR_OPM_THRESHOLDS, self.DEFAULT_OPM_THRESHOLD)
-            if opm:
+            if opm is not None:
                 opm_pct = opm * 100
                 breakdown['opm_value'] = opm_pct
                 opm_score = self._calc_gradient_score(opm_pct, opm_excellent, opm_good, 15)
@@ -442,7 +442,7 @@ class TitanKRAnalyzer:
             revenue_growth = info.get('revenueGrowth')
             rg_high, rg_good = self._get_sector_threshold(
                 sector, self.SECTOR_REVENUE_GROWTH_THRESHOLDS, self.DEFAULT_REVENUE_GROWTH_THRESHOLD)
-            if revenue_growth:
+            if revenue_growth is not None:
                 rg_pct = revenue_growth * 100
                 breakdown['revenue_growth_value'] = rg_pct
                 rg_score = self._calc_gradient_score(rg_pct, rg_high, rg_good, 10)
@@ -450,7 +450,7 @@ class TitanKRAnalyzer:
                 breakdown['revenue_growth_score'] = rg_score
 
             # 3-1. 고성장 투자기업 보정 (매출 30%+ & ROE/OPM 적자)
-            if revenue_growth and revenue_growth > 0.30:
+            if revenue_growth is not None and revenue_growth > 0.30:
                 roe_val = roe * 100 if roe else 0
                 opm_val = opm * 100 if opm else 0
                 if roe_val < 0 and breakdown['roe_score'] == 0:
@@ -1514,7 +1514,9 @@ class TitanKRAnalyzer:
         filtered = [r for r in results if r['score'] >= min_score]
         filtered.sort(key=lambda x: x['score'], reverse=True)
 
-        now = datetime.now()
+        import pytz as _pytz
+        _kst = _pytz.timezone('Asia/Seoul')
+        now = datetime.now(_kst)
 
         market_regime = filtered[0].get('market_regime', 'neutral') if filtered else 'neutral'
         if market_regime == 'bull':
@@ -1727,6 +1729,10 @@ class TitanKRAnalyzer:
             tech_bd = stock.get('tech_breakdown', {})
             market_info = stock.get('market_info', {})
 
+            roe_value = fund_bd.get('roe_value')
+            roe_display = f"{roe_value:.1f}%" if roe_value is not None else "N/A"
+            opm_value = fund_bd.get('opm_value')
+            opm_display = f"{opm_value:.1f}%" if opm_value is not None else "N/A"
             rg_value = fund_bd.get('revenue_growth_value')
             rg_display = f"{rg_value:.1f}%" if rg_value is not None else "N/A"
 
@@ -1745,12 +1751,12 @@ class TitanKRAnalyzer:
                     <div class="breakdown-items">
                         <div class="breakdown-item">
                             <span class="criterion">ROE (자기자본이익률)</span>
-                            <span class="criterion-value">{fund_bd.get('roe_value', 0):.1f}%</span>
+                            <span class="criterion-value">{roe_display}</span>
                             <span class="criterion-score">+{fund_bd.get('roe_score', 0)}점</span>
                         </div>
                         <div class="breakdown-item">
                             <span class="criterion">OPM (영업이익률)</span>
-                            <span class="criterion-value">{fund_bd.get('opm_value', 0):.1f}%</span>
+                            <span class="criterion-value">{opm_display}</span>
                             <span class="criterion-score">+{fund_bd.get('opm_score', 0)}점</span>
                         </div>
                         <div class="breakdown-item">
@@ -1986,6 +1992,17 @@ if __name__ == "__main__":
         results, report_type=report_type, filename=filename, min_score=50)
 
     analyzer._save_score_cache(results, report_type)
+
+    # 마지막 업데이트 시간 저장 (index.html에서 표시용)
+    import json as _json
+    kst = pytz.timezone('Asia/Seoul')
+    now_kst = datetime.now(kst)
+    with open('last_updated.json', 'w', encoding='utf-8') as _f:
+        _json.dump({
+            'timestamp': now_kst.strftime('%Y-%m-%d %H:%M'),
+            'timezone': 'KST',
+            'mode': mode
+        }, _f)
 
     print(f"\n✅ 분석 완료!")
     print(f"📄 리포트: {report_path}")

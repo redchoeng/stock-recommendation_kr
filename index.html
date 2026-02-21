@@ -431,14 +431,18 @@
             <div class="stats">
                 <div class="stat">
                     <div class="stat-value" id="updateTime">로딩 중...</div>
-                    <div class="stat-label">마지막 업데이트 (KST)</div>
+                    <div class="stat-label">📅 마지막 업데이트 (KST)</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="nextUpdate">계산 중...</div>
+                    <div class="stat-label">⏰ 다음 업데이트</div>
                 </div>
                 <div class="stat">
                     <div class="stat-value">150+</div>
                     <div class="stat-label">분석 종목</div>
                 </div>
                 <div class="stat">
-                    <div class="stat-value">6회/일</div>
+                    <div class="stat-value">8회/일</div>
                     <div class="stat-label">자동 업데이트</div>
                 </div>
             </div>
@@ -533,25 +537,52 @@
             본 리포트는 PROJECT TITAN KR 알고리즘 기반 투자 참고 자료이며, 투자 손실에 대한 책임은 투자자 본인에게 있습니다.</p>
             <p style="margin-top: 10px; font-size: 0.8em; color: #999;">
                 Powered by Titan KR | GitHub Actions 자동 배포 |
-                업데이트: 08:30, 09:30, 11:00, 13:00, 14:30, 15:30 KST
+                업데이트: 08:00, 09:00, 10:00, 12:00, 14:00, 15:00, 17:00, 20:00 KST
             </p>
         </div>
     </div>
 
     <script>
-        // 현재 시간 표시 (한국시간)
-        function updateTime() {
-            const now = new Date();
-            const kstTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Seoul"}));
-            const formatted = (kstTime.getMonth() + 1) + '/' +
-                            kstTime.getDate() + ' ' +
-                            String(kstTime.getHours()).padStart(2, '0') + ':' +
-                            String(kstTime.getMinutes()).padStart(2, '0');
-            document.getElementById('updateTime').textContent = formatted;
-        }
+        // 실제 리포트 생성 시간 표시
+        fetch('last_updated.json?' + Date.now())
+            .then(r => r.json())
+            .then(d => {
+                document.getElementById('updateTime').textContent = d.timestamp;
+            })
+            .catch(() => {
+                document.getElementById('updateTime').textContent = '-';
+            });
 
-        updateTime();
-        setInterval(updateTime, 1000);
+        // 다음 업데이트 시간 계산 (KST 기준)
+        function showNextUpdate() {
+            const scheduleKST = [
+                [8, 0], [9, 0], [10, 0], [12, 0], [14, 0], [15, 0], [17, 0], [20, 0]
+            ];
+            const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Seoul"}));
+            const day = now.getDay(); // 0=Sun
+            const h = now.getHours();
+            const m = now.getMinutes();
+            const nowMin = h * 60 + m;
+
+            let nextLabel = '';
+            if (day >= 1 && day <= 5) {
+                for (const [sh, sm] of scheduleKST) {
+                    if (nowMin < sh * 60 + sm) {
+                        nextLabel = String(sh).padStart(2,'0') + ':' + String(sm).padStart(2,'0') + ' KST';
+                        break;
+                    }
+                }
+            }
+            if (!nextLabel) {
+                // 오늘 남은 스케줄 없음 → 다음 평일
+                const daysUntilMon = day === 5 ? 3 : day === 6 ? 2 : 1;
+                nextLabel = '월요일 08:30 KST';
+                if (day >= 1 && day < 5) nextLabel = '내일 08:30 KST';
+            }
+            document.getElementById('nextUpdate').textContent = nextLabel;
+        }
+        showNextUpdate();
+        setInterval(showNextUpdate, 60000);
 
         // 랜덤 반짝이 추가
         function createSparkle() {

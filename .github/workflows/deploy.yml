@@ -1,16 +1,17 @@
 name: Auto Deploy KR Stock Reports
 
 on:
-  # 한국시간 08:30, 09:30, 11:00, 13:00, 14:30, 15:30 실행
-  # UTC 시간: 23:30(전일), 00:30, 02:00, 04:00, 05:30, 06:30
-  # 월-금 (한국장 개장일) 실행
+  # 한국시간(KST) 기준 스케줄 (평일 8회)
+  # 정규장: 09:00-15:30 KST
   schedule:
-    - cron: '30 23 * * 0-4'  # 08:30 KST (다음날)
-    - cron: '30 0 * * 1-5'   # 09:30 KST
-    - cron: '0 2 * * 1-5'    # 11:00 KST
-    - cron: '0 4 * * 1-5'    # 13:00 KST
-    - cron: '30 5 * * 1-5'   # 14:30 KST
-    - cron: '30 6 * * 1-5'   # 15:30 KST
+    - cron: '0 23 * * 0-4'   # UTC 23:00 = KST 08:00 (장 전)
+    - cron: '0 0 * * 1-5'    # UTC 00:00 = KST 09:00 (장 시작)
+    - cron: '0 1 * * 1-5'    # UTC 01:00 = KST 10:00 (장 초반)
+    - cron: '0 3 * * 1-5'    # UTC 03:00 = KST 12:00 (장 중반)
+    - cron: '0 5 * * 1-5'    # UTC 05:00 = KST 14:00 (장 후반)
+    - cron: '0 6 * * 1-5'    # UTC 06:00 = KST 15:00 (장 마감 전)
+    - cron: '0 8 * * 1-5'    # UTC 08:00 = KST 17:00 (장 마감 후)
+    - cron: '0 11 * * 1-5'   # UTC 11:00 = KST 20:00 (저녁 업데이트)
 
   # 푸시할 때도 실행
   push:
@@ -19,6 +20,10 @@ on:
 
   # 수동 실행도 가능
   workflow_dispatch:
+
+concurrency:
+  group: deploy-kr-reports
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:
@@ -68,16 +73,19 @@ jobs:
       - name: Generate Growth Stocks Report
         if: steps.market_check.outputs.is_open == 'true' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         timeout-minutes: 15
+        continue-on-error: true
         run: |
           python project_titan_kr.py growth
 
       - name: Generate Value Stocks Report
         if: steps.market_check.outputs.is_open == 'true' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         timeout-minutes: 15
+        continue-on-error: true
         run: |
           python project_titan_kr.py value
 
       - name: Commit and Push
+        if: always()
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
@@ -88,5 +96,10 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Auto update reports with Titan KR - $(date -u '+%Y-%m-%d %H:%M') UTC"
-            git push
+            # 리모트에 새 커밋이 있으면 pull 후 재시도
+            for i in 1 2 3; do
+              git pull --rebase origin main && git push && break
+              echo "Push failed, retrying ($i/3)..."
+              sleep 5
+            done
           fi

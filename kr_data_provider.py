@@ -421,37 +421,39 @@ class KRDataProvider:
                 # DART 실패 시 조용히 넘어감
                 pass
 
-        # yfinance 한국 종목 (.KS/.KQ) - DART 실패 시 기본 대안 (연속 3회 실패 시 자동 비활성)
+        # yfinance 한국 종목 (.KS/.KQ) - DART 실패 시 기본 대안
+        # 연속 10회 네트워크/API 오류 시 자동 비활성 (데이터 없음은 오류로 안 침)
         if (roe is None or opm is None or revenue_growth is None) and YF_AVAILABLE and self._yf_enabled:
             try:
-                got_data = False
                 for suffix in ['.KS', '.KQ']:
-                    yf_ticker = yf.Ticker(f"{code}{suffix}")
-                    yf_info = yf_ticker.info
-                    if not yf_info or yf_info.get('regularMarketPrice', 0) == 0:
+                    try:
+                        yf_ticker = yf.Ticker(f"{code}{suffix}")
+                        yf_info = yf_ticker.info
+                        if not yf_info or not isinstance(yf_info, dict):
+                            continue
+                        # 종목 존재 여부 확인 (regularMarketPrice 대신 quoteType/shortName 확인)
+                        if not yf_info.get('quoteType') and not yf_info.get('shortName'):
+                            continue
+                        if roe is None and yf_info.get('returnOnEquity') is not None:
+                            roe = yf_info['returnOnEquity']
+                            info['returnOnEquity'] = roe
+                        if opm is None and yf_info.get('operatingMargins') is not None:
+                            opm = yf_info['operatingMargins']
+                            info['operatingMargins'] = opm
+                        if revenue_growth is None and yf_info.get('revenueGrowth') is not None:
+                            revenue_growth = yf_info['revenueGrowth']
+                            info['revenueGrowth'] = revenue_growth
+                        # 유효한 종목 찾았으면 (데이터 유무와 무관) 성공으로 처리
+                        self._yf_fail_count = 0
+                        break
+                    except Exception:
                         continue
-                    if roe is None and yf_info.get('returnOnEquity') is not None:
-                        roe = yf_info['returnOnEquity']
-                        info['returnOnEquity'] = roe
-                        got_data = True
-                    if opm is None and yf_info.get('operatingMargins') is not None:
-                        opm = yf_info['operatingMargins']
-                        info['operatingMargins'] = opm
-                        got_data = True
-                    if revenue_growth is None and yf_info.get('revenueGrowth') is not None:
-                        revenue_growth = yf_info['revenueGrowth']
-                        info['revenueGrowth'] = revenue_growth
-                        got_data = True
-                    break
-                if got_data:
-                    self._yf_fail_count = 0
-                else:
-                    self._yf_fail_count += 1
             except Exception:
+                # 네트워크/API 오류만 실패로 카운트
                 self._yf_fail_count += 1
-            if self._yf_fail_count >= 3:
+            if self._yf_fail_count >= 10:
                 self._yf_enabled = False
-                print("   yfinance 자동 비활성화 (연속 실패, PBR/PER 추정 사용)", flush=True)
+                print("   yfinance 자동 비활성화 (연속 10회 API 오류)", flush=True)
 
         # NAVER Finance 스크래핑 (yfinance도 실패 시 대안, 자동 비활성화 지원)
         if (roe is None or opm is None or revenue_growth is None) and self._naver_enabled:
