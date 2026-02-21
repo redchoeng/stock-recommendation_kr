@@ -2163,6 +2163,29 @@ def _send_telegram_fallback(results, market='kr'):
         send_tg(f"📊 [{tag}] 보유종목 현황 ({now_str} KST)\n\n" + "\n\n".join(summary_lines))
 
 
+def _fetch_user_holding_codes(market='kr'):
+    """Supabase에서 사용자 보유종목 코드를 가져와 분석 대상에 추가"""
+    import requests as _req
+    sb_url = os.environ.get('SUPABASE_URL', '')
+    sb_key = os.environ.get('SUPABASE_SERVICE_KEY', '')
+    if not sb_url or not sb_key:
+        return []
+    try:
+        headers = {'apikey': sb_key, 'Authorization': f'Bearer {sb_key}'}
+        resp = _req.get(
+            f"{sb_url}/rest/v1/alert_holdings?market=eq.{market}&select=ticker",
+            headers=headers, timeout=10
+        )
+        if resp.status_code == 200:
+            codes = list(set(h['ticker'] for h in resp.json()))
+            if codes:
+                print(f"📌 보유종목 {len(codes)}개 추가 분석 대상에 포함")
+            return codes
+    except Exception as e:
+        print(f"⚠️  보유종목 조회 실패: {e}")
+    return []
+
+
 # ============================================================================
 # 메인 실행
 # ============================================================================
@@ -2181,17 +2204,18 @@ if __name__ == "__main__":
         mode = sys.argv[1].lower()
 
     analyzer = TitanKRAnalyzer()
+    holding_codes = _fetch_user_holding_codes(market='kr')
 
     if mode == 'value':
         print("💰 가치주 모드 (금융/통신/유틸리티/건설)")
         analyzer.analysis_mode = 'value'
-        codes = list(set(KR_VALUE_CODES))
+        codes = list(dict.fromkeys(KR_VALUE_CODES + holding_codes))
         report_type = "KOSPI Value"
         filename = "titan_kr_value_report.html"
     else:
         print("🚀 성장주 모드 (반도체/2차전지/바이오/방산/조선)")
         analyzer.analysis_mode = 'growth'
-        codes = list(set(KR_GROWTH_CODES))
+        codes = list(dict.fromkeys(KR_GROWTH_CODES + holding_codes))
         report_type = "KOSPI Growth"
         filename = "titan_kr_growth_report.html"
 
