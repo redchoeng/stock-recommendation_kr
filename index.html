@@ -123,50 +123,6 @@
             color: var(--text-sub);
         }
 
-        /* 선물 위젯 */
-        .futures-card {
-            background: #1b1d2a;
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
-        .futures-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .futures-title {
-            color: #e9ecef;
-            font-weight: 700;
-            font-size: 0.95em;
-        }
-        .futures-session {
-            font-size: 0.8em;
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-weight: 600;
-        }
-        .futures-session.live { background: rgba(240,101,149,0.15); color: var(--red); }
-        .futures-session.market { background: rgba(32,201,151,0.15); color: var(--green); }
-        .futures-session.closed { background: rgba(139,149,161,0.15); color: var(--text-sub); }
-        @keyframes pulse-live { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
-        .futures-session.live { animation: pulse-live 2s infinite; }
-        .futures-message {
-            text-align: center;
-            padding: 12px 16px;
-            margin-top: 12px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 0.88em;
-            line-height: 1.5;
-        }
-        .futures-message.up { background: rgba(32,201,151,0.1); color: var(--green); }
-        .futures-message.down { background: rgba(240,101,149,0.1); color: var(--red); }
-        .futures-message.neutral { background: rgba(139,149,161,0.08); color: #adb5bd; }
-
         /* 리포트 카드 */
         .report-cards {
             display: grid;
@@ -306,30 +262,6 @@
             </div>
         </div>
 
-        <div class="futures-card">
-            <div class="futures-top">
-                <span class="futures-title">KOSPI 200 야간선물</span>
-                <span class="futures-session closed" id="futuresSession">--</span>
-            </div>
-            <div class="tradingview-widget-container">
-                <div class="tradingview-widget-container__widget"></div>
-                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-                {
-                    "symbol": "KRX:101",
-                    "width": "100%",
-                    "height": 220,
-                    "locale": "kr",
-                    "dateRange": "1D",
-                    "colorTheme": "dark",
-                    "isTransparent": true,
-                    "autosize": false,
-                    "largeChartUrl": ""
-                }
-                </script>
-            </div>
-            <div class="futures-message neutral" id="futuresMessage">데이터 로딩 중...</div>
-        </div>
-
         <div class="report-cards">
             <a href="titan_kr_growth_report.html" class="report-card growth">
                 <span class="badge">Growth</span>
@@ -396,59 +328,6 @@
         }
         showNextUpdate();
         setInterval(showNextUpdate, 60000);
-
-        // 야간선물
-        async function updateFutures() {
-            const msg = document.getElementById('futuresMessage');
-            const sess = document.getElementById('futuresSession');
-            const now = new Date(new Date().toLocaleString("en-US",{timeZone:"Asia/Seoul"}));
-            const h = now.getHours(), day = now.getDay();
-
-            if ((h >= 18 || h < 6) && day >= 1 && day <= 5) {
-                sess.textContent = 'LIVE'; sess.className = 'futures-session live';
-            } else if (h >= 9 && h < 16 && day >= 1 && day <= 5) {
-                sess.textContent = '정규장'; sess.className = 'futures-session market';
-            } else {
-                sess.textContent = '마감'; sess.className = 'futures-session closed';
-            }
-
-            try {
-                const res = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/%5EKS200?range=1d&interval=5m');
-                const data = await res.json();
-                const meta = data.chart.result[0].meta;
-                const prev = meta.chartPreviousClose || meta.previousClose;
-                const cur = meta.regularMarketPrice;
-                const pct = ((cur - prev) / prev * 100);
-
-                if (pct > 0.3) {
-                    msg.className = 'futures-message up';
-                    const msgs = [
-                        `+${pct.toFixed(2)}% 상승 중 \u2014 내일 갭상 기대되네요!`,
-                        `+${pct.toFixed(2)}% 순항 중! 오늘 밤 편히 주무세요`,
-                        `+${pct.toFixed(2)}% 상승! 내일이 기대됩니다`
-                    ];
-                    msg.textContent = msgs[Math.floor(Math.random()*msgs.length)];
-                } else if (pct < -0.3) {
-                    msg.className = 'futures-message down';
-                    const msgs = [
-                        `${pct.toFixed(2)}% \u2014 조정은 매수 기회입니다`,
-                        `${pct.toFixed(2)}% 하락 중... 장기 투자의 길은 멀어요`,
-                        `${pct.toFixed(2)}% \u2014 내일 반등을 기대해봐요`
-                    ];
-                    msg.textContent = msgs[Math.floor(Math.random()*msgs.length)];
-                } else {
-                    msg.className = 'futures-message neutral';
-                    msg.textContent = `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}% 보합 \u2014 시장이 방향을 탐색 중`;
-                }
-            } catch(e) {
-                msg.className = 'futures-message neutral';
-                if (h >= 18 || h < 6) msg.textContent = '야간선물 거래 중 \u2014 차트에서 확인하세요';
-                else if (h >= 9 && h < 16) msg.textContent = '정규장 진행 중';
-                else msg.textContent = '장 마감 \u2014 야간선물은 18:00부터';
-            }
-        }
-        updateFutures();
-        setInterval(updateFutures, 300000);
     </script>
 </body>
 </html>
