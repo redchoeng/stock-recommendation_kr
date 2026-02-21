@@ -5,11 +5,9 @@ KOSPI 200 + KOSDAQ 시총 상위 종목 대상
 100점 스코어링 (펀더멘털 50 + 기술적 50) + ML 앙상블
 """
 
-import pandas as pd
 import time
 from datetime import datetime
 from tabulate import tabulate
-from ta.momentum import RSIIndicator
 import pytz
 import os
 import sys
@@ -39,21 +37,19 @@ KR_GROWTH_CODES = [
     '302920',  # 더블유에스아이
     '067160',  # 아프리카TV
 
-    # ========== 2차전지/배터리 (12) ==========
+    # ========== 2차전지/배터리 (10) ==========
     '373220',  # LG에너지솔루션
     '006400',  # 삼성SDI
     '051910',  # LG화학
     '247540',  # 에코프로비엠
     '086520',  # 에코프로
     '003670',  # 포스코퓨처엠
-    '012450',  # 한화에어로스페이스 (방산이지만 배터리도)
-    '064350',  # 현대로템
     '018260',  # 삼성에스디에스
     '361610',  # SK아이이테크놀로지
     '137400',  # 피엔티
     '108320',  # LX세미콘
 
-    # ========== 바이오/헬스케어 (15) ==========
+    # ========== 바이오/헬스케어 (11) ==========
     '207940',  # 삼성바이오로직스
     '068270',  # 셀트리온
     '326030',  # SK바이오팜
@@ -65,15 +61,16 @@ KR_GROWTH_CODES = [
     '195940',  # HK이노엔
     '950160',  # 코오롱티슈진
     '328130',  # 루닛
+    '006280',  # 녹십자
+
+    # ========== K-플랫폼/IT서비스/게임 (14) ==========
+    '035420',  # NAVER
+    '035720',  # 카카오
+    '259960',  # 크래프톤
     '352820',  # 하이브
     '263750',  # 펄어비스
     '112040',  # 위메이드
     '293490',  # 카카오게임즈
-
-    # ========== K-플랫폼/IT서비스 (10) ==========
-    '035420',  # NAVER
-    '035720',  # 카카오
-    '259960',  # 크래프톤
     '030200',  # KT
     '036570',  # 엔씨소프트
     '251270',  # 넷마블
@@ -108,7 +105,6 @@ KR_GROWTH_CODES = [
     '161390',  # 한국타이어앤테크놀로지
     '298040',  # 효성중공업
     '009150',  # 삼성전기
-    '006280',  # 녹십자
 ]
 
 # 가치주/배당주 (금융, 통신, 유틸리티, 건설, 에너지, 보험 등)
@@ -137,11 +133,10 @@ KR_VALUE_CODES = [
     '016360',  # 삼성증권
     '030610',  # 교보증권
 
-    # ========== 통신 (5) ==========
+    # ========== 통신 (4) ==========
     '017670',  # SK텔레콤
     '030200',  # KT
     '032640',  # LG유플러스
-    '036570',  # 엔씨소프트
     '034730',  # SK
 
     # ========== 유틸리티/에너지 (8) ==========
@@ -196,7 +191,6 @@ KR_VALUE_CODES = [
     '003550',  # LG
     '000150',  # 두산
     '010140',  # 삼성중공업
-    '042670',  # 두산인프라코어
     '001120',  # LX인터내셔널
     '001740',  # SK네트웍스
 ]
@@ -207,11 +201,6 @@ class TitanKRAnalyzer:
     MIN_MARKET_CAP = 1_000_000_000_000  # 1조원
     MIN_PRICE = 1000                     # ₩1,000
     MIN_AVG_VOLUME = 100_000            # 10만주
-
-    # 점수 임계값
-    SCORE_STRONG_BUY = 80
-    SCORE_BUY = 60
-    SCORE_HOLD = 40
 
     # 섹터별 점수 - 성장주 (10pt 만점)
     SCORE_SECTOR_TIER1 = 10  # 반도체/AI, 2차전지
@@ -347,53 +336,11 @@ class TitanKRAnalyzer:
     SCORE_OVERSOLD_QUALITY_BONUS = 10
     SCORE_OVERBOUGHT_PENALTY = -5
 
-    VOLUME_SURGE_MULTIPLIER = 1.2
-    STOP_LOSS_RATIO = 0.97
 
     def __init__(self, dart_api_key=None):
-        self.K_FACTOR = 0.5
         self.results = []
         self.analysis_mode = 'growth'
         self.data_provider = KRDataProvider(dart_api_key=dart_api_key)
-
-    # ================================================================
-    # 1단계: 빠른 스크리닝
-    # ================================================================
-    def _meets_stage1_criteria(self, info):
-        market_cap = info.get('marketCap', 0)
-        current_price = info.get('currentPrice') or info.get('regularMarketPrice', 0)
-        avg_volume = info.get('averageVolume', 0)
-
-        return (market_cap and market_cap > self.MIN_MARKET_CAP and
-                current_price and current_price > self.MIN_PRICE and
-                avg_volume and avg_volume > self.MIN_AVG_VOLUME)
-
-    def stage1_quick_filter(self, codes):
-        """1단계: 빠른 스크리닝 (시가총액, 거래량, 가격)"""
-        print("=" * 70)
-        print(f"🔍 STAGE 1: 빠른 스크리닝 (시총 > ₩{self.MIN_MARKET_CAP/1e8:.0f}억, "
-              f"거래량 > {self.MIN_AVG_VOLUME/1e4:.0f}만주)")
-        print("=" * 70)
-
-        filtered = []
-        total = len(codes)
-
-        for i, code in enumerate(codes, 1):
-            try:
-                if i % 50 == 0 or i == total:
-                    print(f"진행: {i}/{total} ({i/total*100:.1f}%)")
-
-                info = self.data_provider.get_info(code)
-                if self._meets_stage1_criteria(info):
-                    filtered.append(code)
-
-                if i % 10 == 0:
-                    time.sleep(0.1)
-            except Exception:
-                pass
-
-        print(f"\n✅ 1단계 완료: {len(filtered)}개 종목 선정 (원본 {total}개)\n")
-        return filtered
 
     # ================================================================
     # 펀더멘털 점수 (50점 만점)
@@ -1047,9 +994,6 @@ class TitanKRAnalyzer:
             return 'neutral', {}, "감지 실패"
 
     def _apply_regime_adjustment(self, tech_score, fund_score, regime, is_downtrend=False, tech_breakdown=None):
-        original_tech = tech_score
-        original_fund = fund_score
-
         # 하락추세 페널티
         trend_penalty_applied = False
         if is_downtrend and tech_score > 0:
@@ -1228,16 +1172,12 @@ class TitanKRAnalyzer:
             return {
                 'status': market_status,
                 'current_price': current_price,
-                'pre_market_price': None,
-                'post_market_price': None,
                 'previous_close': previous_close
             }
         except Exception:
             return {
                 'status': 'unknown',
                 'current_price': info.get('currentPrice', 0),
-                'pre_market_price': None,
-                'post_market_price': None,
                 'previous_close': info.get('previousClose', 0)
             }
 
@@ -1514,8 +1454,7 @@ class TitanKRAnalyzer:
         filtered = [r for r in results if r['score'] >= min_score]
         filtered.sort(key=lambda x: x['score'], reverse=True)
 
-        import pytz as _pytz
-        _kst = _pytz.timezone('Asia/Seoul')
+        _kst = pytz.timezone('Asia/Seoul')
         now = datetime.now(_kst)
 
         market_regime = filtered[0].get('market_regime', 'neutral') if filtered else 'neutral'
@@ -2016,7 +1955,6 @@ def send_push_alert(results, market='kr'):
     import requests as _req
     import json as _json
     from collections import defaultdict
-    import time
 
     sb_url = os.environ.get('SUPABASE_URL', '')
     sb_key = os.environ.get('SUPABASE_SERVICE_KEY', '')
