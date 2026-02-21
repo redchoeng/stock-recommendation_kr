@@ -994,15 +994,19 @@ class TitanKRAnalyzer:
             return 'neutral', {}, "감지 실패"
 
     def _apply_regime_adjustment(self, tech_score, fund_score, regime, is_downtrend=False, tech_breakdown=None):
-        # 하락추세 페널티
+        # 하락추세 페널티 (펀더멘털 품질 차등)
         trend_penalty_applied = False
         if is_downtrend and tech_score > 0:
-            if regime == 'bear':
-                tech_score = int(tech_score * 0.8)
-                trend_penalty_msg = "하락추세 페널티 -20% (하락장 완화)"
+            if fund_score >= 40:
+                penalty = 0.9 if regime == 'bear' else 0.85
+                trend_penalty_msg = f"하락추세 페널티 -{int((1-penalty)*100)}% (우량주 경감)"
+            elif fund_score >= 30:
+                penalty = 0.8 if regime == 'bear' else 0.7
+                trend_penalty_msg = f"하락추세 페널티 -{int((1-penalty)*100)}%"
             else:
-                tech_score = int(tech_score * 0.6)
-                trend_penalty_msg = "하락추세 페널티 -40%"
+                penalty = 0.7 if regime == 'bear' else 0.5
+                trend_penalty_msg = f"하락추세 페널티 -{int((1-penalty)*100)}% (펀더 약세 강화)"
+            tech_score = int(tech_score * penalty)
             trend_penalty_applied = True
         else:
             trend_penalty_msg = ""
