@@ -2116,6 +2116,21 @@ class TitanKRAnalyzer:
                     <div class="breakdown-title" style="color: {tb_color};">💰 거래대금 유동성 ({stock.get('trading_tier', '')}): {tb_sign}{trading_bonus}점</div>
                 </div>'''
 
+            # 🔄 섹터 순환매 표시
+            rot_bonus = stock.get('rotation_bonus', 0)
+            rot_phase = stock.get('rotation_phase', '')
+            if rot_phase and rot_phase != '중립':
+                rot_sign = '+' if rot_bonus >= 0 else ''
+                phase_colors = {'수급유입': '#FF6B35', '순환매 기대': '#27AE60', '관심': '#3498DB', '과열주의': '#E67E22', '소외 지속': '#E74C3C'}
+                phase_icons = {'수급유입': '🔥', '순환매 기대': '⚡', '관심': '👀', '과열주의': '⚠️', '소외 지속': '❄️'}
+                rot_color = phase_colors.get(rot_phase, '#7B6B4F')
+                rot_icon = phase_icons.get(rot_phase, '🔄')
+                bonus_parts.append(f"{rot_sign}{rot_bonus}")
+                html += f'''
+                <div class="breakdown-section" style="padding-top: 5px;">
+                    <div class="breakdown-title" style="color: {rot_color};">{rot_icon} 섹터 순환매: {rot_phase} ({rot_sign}{rot_bonus}점)</div>
+                </div>'''
+
             if bonus_parts:
                 bonus_str = ' '.join(bonus_parts)
                 html += f'''
