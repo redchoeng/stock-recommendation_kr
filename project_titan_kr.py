@@ -218,6 +218,21 @@ class TitanKRAnalyzer:
     POLICY_BONUS = 3
     POLICY_PENALTY = -3
 
+    # 섹터 순환매 분석용 ETF 매핑 (KOSPI 섹터 ETF)
+    SECTOR_ETF_MAP = {
+        'Technology': '091160.KS',           # KODEX 반도체
+        'Financial Services': '091170.KS',   # KODEX 은행
+        'Industrials': '091180.KS',          # KODEX 자동차
+        'Healthcare': '244580.KS',           # KODEX 바이오
+        'Basic Materials': '117680.KS',      # KODEX 철강
+        'Energy': '117460.KS',              # KODEX 에너지화학
+    }
+    ROTATION_BONUS_INFLOW = 3
+    ROTATION_BONUS_TURNING = 5
+    ROTATION_BONUS_WATCHING = 1
+    ROTATION_PENALTY_OVERHEAT = -2
+    ROTATION_PENALTY_COLD = -3
+
     # 한국 섹터별 ROE 기준 (한국장 하향 조정)
     SECTOR_ROE_THRESHOLDS = {
         '전기,전자': (15, 8),
@@ -1059,6 +1074,82 @@ class TitanKRAnalyzer:
             return "Avoid"
 
     # ================================================================
+    # 섹터 순환매 분석 (KOSPI 섹터 ETF 기반)
+    # ================================================================
+    def _analyze_sector_rotation(self):
+        """섹터 순환매 분석 — 섹터 ETF 모멘텀 기반"""
+        try:
+            import yfinance as yf
+            etf_tickers = list(self.SECTOR_ETF_MAP.values())
+            data = yf.download(etf_tickers, period='1mo', progress=False)
+
+            if data.empty:
+                return {}
+
+            results = {}
+            for sector, etf in self.SECTOR_ETF_MAP.items():
+                try:
+                    if len(self.SECTOR_ETF_MAP) > 1:
+                        close = data['Close'][etf].dropna()
+                    else:
+                        close = data['Close'].dropna()
+                    if len(close) < 10:
+                        continue
+
+                    week_return = (close.iloc[-1] / close.iloc[-5] - 1) * 100
+                    recent_5d = (close.iloc[-1] / close.iloc[-5] - 1) * 100
+                    prev_5d = (close.iloc[-6] / close.iloc[-10] - 1) * 100
+                    acceleration = recent_5d - prev_5d
+
+                    results[sector] = {
+                        'etf': etf,
+                        'week_return': round(week_return, 2),
+                        'acceleration': round(acceleration, 2),
+                    }
+                except Exception:
+                    continue
+
+            if not results:
+                return {}
+
+            sorted_sectors = sorted(results.items(), key=lambda x: x[1]['week_return'], reverse=True)
+            total = len(sorted_sectors)
+            top_cutoff = max(total // 3, 1)
+            bottom_cutoff = total - top_cutoff
+
+            for rank, (sector, info) in enumerate(sorted_sectors):
+                info['rank'] = rank + 1
+                acc = info['acceleration']
+
+                if rank < top_cutoff:
+                    if acc > 0:
+                        info['rotation_bonus'] = self.ROTATION_BONUS_INFLOW
+                        info['phase'] = '수급유입'
+                    else:
+                        info['rotation_bonus'] = self.ROTATION_PENALTY_OVERHEAT
+                        info['phase'] = '과열주의'
+                elif rank >= bottom_cutoff:
+                    if acc > 0:
+                        info['rotation_bonus'] = self.ROTATION_BONUS_TURNING
+                        info['phase'] = '순환매 기대'
+                    else:
+                        info['rotation_bonus'] = self.ROTATION_PENALTY_COLD
+                        info['phase'] = '소외 지속'
+                else:
+                    if acc > 0.5:
+                        info['rotation_bonus'] = self.ROTATION_BONUS_WATCHING
+                        info['phase'] = '관심'
+                    else:
+                        info['rotation_bonus'] = 0
+                        info['phase'] = '중립'
+
+            return dict(sorted_sectors)
+
+        except Exception as e:
+            print(f"  ⚠️ 섹터 순환매 분석 실패: {e}")
+            return {}
+
+    # ================================================================
     # 시장 레짐 감지 (KOSPI 기반)
     # ================================================================
     def _detect_market_regime(self):
@@ -1503,6 +1594,8 @@ class TitanKRAnalyzer:
                 'contrarian_adjustment': r.get('contrarian_adjustment', 0),
                 'trading_bonus': r.get('trading_bonus', 0),
                 'trading_tier': r.get('trading_tier', ''),
+                'rotation_bonus': r.get('rotation_bonus', 0),
+                'rotation_phase': r.get('rotation_phase', ''),
                 'sector_name': fund_bd.get('sector_name', ''),
                 'roe_value': fund_bd.get('roe_value'),
                 'opm_value': fund_bd.get('opm_value'),
@@ -1533,6 +1626,23 @@ class TitanKRAnalyzer:
         market_regime, regime_details, regime_desc = self._detect_market_regime()
         print(f"   {regime_desc}\n")
 
+        # 🔄 섹터 순환매 분석
+        print("🔄 섹터 순환매 분석 중...")
+        self.sector_rotation = self._analyze_sector_rotation()
+        if self.sector_rotation:
+            phases = {}
+            for sector, info in self.sector_rotation.items():
+                phase = info.get('phase', '중립')
+                if phase not in phases:
+                    phases[phase] = []
+                phases[phase].append(f"{sector}({info['week_return']:+.1f}%)")
+
+            icons = {'수급유입': '🔥', '과열주의': '⚠️', '순환매 기대': '⚡', '소외 지속': '❄️', '관심': '👀', '중립': '➖'}
+            for phase in ['수급유입', '순환매 기대', '관심', '중립', '과열주의', '소외 지속']:
+                if phase in phases:
+                    print(f"   {icons.get(phase, '')} {phase}: {', '.join(phases[phase])}")
+            print()
+
         results = []
         total = len(codes)
 
@@ -1546,7 +1656,15 @@ class TitanKRAnalyzer:
                         result['tech_score'], result['fund_score'],
                         market_regime, is_downtrend=is_downtrend)
 
-                    total_score_adjusted = fund_adjusted + tech_adjusted + result['contrarian_adjustment'] + result.get('trading_bonus', 0)
+                    # 🔄 섹터 순환매 보너스
+                    sector = result.get('sector', '')
+                    rotation_info = self.sector_rotation.get(sector, {})
+                    rotation_bonus = rotation_info.get('rotation_bonus', 0)
+                    rotation_phase = rotation_info.get('phase', '중립')
+                    result['rotation_bonus'] = rotation_bonus
+                    result['rotation_phase'] = rotation_phase
+
+                    total_score_adjusted = fund_adjusted + tech_adjusted + result['contrarian_adjustment'] + result.get('trading_bonus', 0) + rotation_bonus
 
                     result['market_regime'] = market_regime
                     result['regime_description'] = regime_desc
