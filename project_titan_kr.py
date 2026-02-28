@@ -227,11 +227,12 @@ class TitanKRAnalyzer:
         'Basic Materials': '117680.KS',      # KODEX 철강
         'Energy': '117460.KS',              # KODEX 에너지화학
     }
-    ROTATION_BONUS_INFLOW = 3
-    ROTATION_BONUS_TURNING = 5
-    ROTATION_BONUS_WATCHING = 1
-    ROTATION_PENALTY_OVERHEAT = -2
-    ROTATION_PENALTY_COLD = -3
+    # 순환매 보너스 확대 (US v2.0 동기화)
+    ROTATION_BONUS_INFLOW = 5       # 기존 3 → 5
+    ROTATION_BONUS_TURNING = 7      # 기존 5 → 7
+    ROTATION_BONUS_WATCHING = 2     # 기존 1 → 2
+    ROTATION_PENALTY_OVERHEAT = -3  # 기존 -2 → -3
+    ROTATION_PENALTY_COLD = -5      # 기존 -3 → -5
 
     # 한국 섹터별 ROE 기준 (한국장 하향 조정)
     SECTOR_ROE_THRESHOLDS = {
@@ -355,35 +356,91 @@ class TitanKRAnalyzer:
     }
     DEFAULT_VALUE_DE_THRESHOLD = (80, 150)
 
-    # 기술적 점수 (총 50점, v2.0)
-    # 추세 (20점): MA120(2)+MA60(2)+MA20(3)+MA5(2)+MACD(4/2)+일목(3)+ADX(2)
+    # EV/EBITDA 기준 (신규: PER 대안) {sector: (good_upper, fair_upper)}
+    VALUE_EVEBITDA_THRESHOLDS = {
+        '전기,전자': (12, 20),
+        '전기전자': (12, 20),
+        '금융업': (10, 16),
+        '은행': (10, 16),
+        '보험': (10, 16),
+        '통신업': (8, 14),
+        '유틸리티': (10, 16),
+        '전기가스업': (10, 16),
+        '건설업': (8, 13),
+        '화학': (8, 13),
+        '의약품': (14, 22),
+        '음식료품': (14, 24),
+        '유통업': (12, 20),
+    }
+    DEFAULT_VALUE_EVEBITDA_THRESHOLD = (12, 20)
+
+    # P/B 기준 (금융/소재/에너지 전용)
+    VALUE_PB_THRESHOLDS = {
+        '금융업': (1.2, 1.8),
+        '은행': (1.2, 1.8),
+        '보험': (1.2, 1.8),
+        '증권': (1.2, 1.8),
+        '화학': (1.8, 2.8),
+        '철강': (1.8, 2.8),
+        '금속': (1.8, 2.8),
+        'default': (2.5, 4.5),
+    }
+
+    # Beta 임계값 (가치주)
+    VALUE_BETA_THRESHOLDS = (0.8, 1.2)
+
+    # 한국 배당 귀족 (10년+ 연속 배당)
+    KR_DIVIDEND_ARISTOCRATS = {
+        '105560',  # KB금융
+        '055550',  # 신한지주
+        '086790',  # 하나금융지주
+        '316140',  # 우리금융지주
+        '000810',  # 삼성화재
+        '005830',  # DB손해보험
+        '000370',  # 한화손해보험
+        '017670',  # SK텔레콤
+        '030200',  # KT
+        '032640',  # LG유플러스
+        '034020',  # 두산에너빌리티
+        '051900',  # LG생활건강
+        '036570',  # 엔씨소프트
+    }
+
+    # 기술적 점수 (총 ~53점, US v2.0 동기화)
+    # 1. 추세 (18점): MA120(2)+MA60(2)+MA20(2)+MA5(1)+MACD(4/2)+일목(3)+ADX(2)
     SCORE_MA120 = 2
     SCORE_MA60 = 2
-    SCORE_MA20 = 3
-    SCORE_MA5 = 2
+    SCORE_MA20 = 2    # 3→2 (US 동기화)
+    SCORE_MA5 = 1      # 2→1 (US 동기화)
     SCORE_MACD_BULLISH = 4
     SCORE_MACD_SIGNAL = 2
-    SCORE_ICHIMOKU = 3   # 구름위(1)+TK크로스(1)+미래양운(1)
+    SCORE_ICHIMOKU = 3   # 구름위(1)+TK크로스(1)+미래양운(1) — KR 고유 유지
     SCORE_ADX_STRONG = 2
 
-    # 모멘텀 (10점): RSI(5/3/2)+Stoch(5)
+    # 2. 모멘텀 (12점): RSI(5/3/2)+Stoch(5/2)+MFI(2)
     SCORE_RSI_OPTIMAL = 5
     SCORE_RSI_GOOD = 3
     SCORE_RSI_OVERSOLD = 2
     SCORE_STOCH_OPTIMAL = 5
+    SCORE_STOCH_GOOD = 2     # 신규: stoch_k > stoch_d (>=80 포함)
 
-    # 거래량 (8점): Vol(4/3/2/1)+OBV(4)
+    # 3. 거래량 (8점): Vol(4/3/2/1)+OBV(4)
     SCORE_VOLUME_EXTREME = 4
     SCORE_VOLUME_HIGH = 3
     SCORE_VOLUME_MODERATE = 2
     SCORE_VOLUME_NORMAL = 1
     SCORE_OBV_RISING = 4
 
-    # 변동성 (7점): BB(4)+ATR(3)
-    SCORE_BB_POSITION = 4
-    SCORE_ATR_EXPANSION = 3
-    # 패턴 (5점)
+    # 4. 변동성 (5점, 7→5 축소): BB(3)+ATR(2)
+    SCORE_BB_POSITION = 3    # 4→3
+    SCORE_ATR_EXPANSION = 2  # 3→2
+    # 5. 패턴 (5점)
     SCORE_PRICE_POSITION = 5
+
+    # 6. 상대강도 vs KOSPI (5점, 신규)
+    SCORE_RS_STRONG = 5
+    SCORE_RS_GOOD = 3
+    SCORE_RS_NEUTRAL = 1
 
     # 거래대금 유동성 보너스
     TRADING_VALUE_HOT = 100_000_000_000       # 1000억원
@@ -406,7 +463,7 @@ class TitanKRAnalyzer:
     RSI_OVERBOUGHT = 70
 
     SCORE_OVERSOLD_QUALITY_BONUS = 10
-    SCORE_OVERBOUGHT_PENALTY = -5
+    SCORE_OVERBOUGHT_PENALTY = -8  # -5→-8 (US v2.0 동기화)
 
 
     def __init__(self, dart_api_key=None):
@@ -425,10 +482,17 @@ class TitanKRAnalyzer:
             'opm_score': 0, 'opm_value': None,
             'revenue_growth_score': 0, 'revenue_growth_value': None,
             'sector_score': 0, 'sector_name': '',
+            'peg_value': None, 'peg_score': 0,
+            'fcf_margin_value': None, 'fcf_score': 0,
             # 가치주 전용 필드
             'dividend_yield_score': 0, 'dividend_yield_value': None,
+            'dividend_growth_score': 0,
             'per_score': 0, 'per_value': None,
+            'valuation_method': 'PER',
+            'ev_ebitda_value': None,
             'debt_equity_score': 0, 'debt_equity_value': None,
+            'fcf_yield_value': None,
+            'beta_value': None, 'beta_score': 0,
         }
 
         try:
@@ -437,8 +501,22 @@ class TitanKRAnalyzer:
 
             # ===== 가치주 모드: 배당/저평가/안정성 중심 (50점) =====
             if self.analysis_mode == 'value':
-                # 1. 배당수익률 (12점)
-                # dividendYield 포맷 불일치 문제 회피: dividendRate / 현재가로 직접 계산
+                market_cap = info.get('marketCap', 0)
+                stock_code = info.get('_code', '')
+                is_aristocrat = stock_code in self.KR_DIVIDEND_ARISTOCRATS
+
+                # [우량주 프리미엄 산정]
+                premium_multiplier = 1.0
+                roe_pre = info.get('returnOnEquity')
+                if market_cap and market_cap >= 50_000_000_000_000:  # 50조원
+                    premium_multiplier += 0.2
+                if roe_pre and roe_pre >= 0.15:
+                    premium_multiplier += 0.2
+                if is_aristocrat:
+                    premium_multiplier += 0.1
+                premium_multiplier = min(premium_multiplier, 1.6)
+
+                # 1. 배당수익률 (10점, 12→10: 배당성장률 5점 신설로 재배분)
                 div_pct = None
                 div_rate = info.get('dividendRate')
                 price_now = info.get('currentPrice') or info.get('regularMarketPrice') or info.get('previousClose')
@@ -453,22 +531,99 @@ class TitanKRAnalyzer:
                     breakdown['dividend_yield_value'] = round(div_pct, 2)
                     dy_exc, dy_good = self._get_sector_threshold(
                         sector, self.VALUE_DIVIDEND_THRESHOLDS, self.DEFAULT_VALUE_DIVIDEND_THRESHOLD)
-                    dy_pts = self._calc_gradient_score(div_pct, dy_exc, dy_good, 12)
+                    dy_pts = self._calc_gradient_score(div_pct, dy_exc, dy_good, 10)
+
+                    # 배당귀족/메가캡 최소 보장
+                    if dy_pts < 4 and (is_aristocrat or (market_cap and market_cap >= 50_000_000_000_000)):
+                        dy_pts = 4
+
+                    # 배당성향 경고
+                    payout = info.get('payoutRatio')
+                    if payout and payout > 1.0:
+                        dy_pts = int(dy_pts * 0.7)
+                        comments.append(f"배당성향{payout*100:.0f}%⚠️")
+
                     score += dy_pts
                     breakdown['dividend_yield_score'] = dy_pts
-                    if dy_pts >= 6:
+                    if dy_pts >= 5:
                         comments.append(f"배당{div_pct:.1f}%")
 
-                # 2. PER 저평가 (12점, 역방향)
+                # 1.5. 배당 성장률 (5점, 신규)
+                div_growth_pts = 0
+                five_yr_avg_yield = info.get('fiveYearAvgDividendYield')
+                earnings_growth = info.get('earningsGrowth')
+                payout_for_growth = info.get('payoutRatio')
+
+                if is_aristocrat:
+                    div_growth_pts = 5
+                elif div_pct and div_pct > 0:
+                    if five_yr_avg_yield and five_yr_avg_yield > 0:
+                        div_growth_pts += 2
+                    if payout_for_growth and 0 < payout_for_growth < 0.7:
+                        div_growth_pts += 1
+                    if earnings_growth and earnings_growth > 0.05:
+                        div_growth_pts += 1
+                    if earnings_growth and earnings_growth > 0.10 and payout_for_growth and 0 < payout_for_growth < 0.6:
+                        div_growth_pts += 1
+
+                div_growth_pts = min(div_growth_pts, 5)
+                score += div_growth_pts
+                breakdown['dividend_growth_score'] = div_growth_pts
+                if div_growth_pts >= 3:
+                    comments.append(f"배당성장력{div_growth_pts}점")
+
+                # 2. 밸류에이션 (12점): PER vs EV/EBITDA vs P/B 중 높은 쪽 채택
                 per = info.get('trailingPE')
+                ev_ebitda = info.get('enterpriseToEbitda')
+
+                per_pts = 0
                 if per and per > 0:
                     breakdown['per_value'] = per
                     per_good, per_fair = self._get_sector_threshold(
                         sector, self.VALUE_PER_THRESHOLDS, self.DEFAULT_VALUE_PER_THRESHOLD)
+                    per_good *= premium_multiplier
+                    per_fair *= premium_multiplier
                     per_pts = self._calc_inverse_gradient_score(per, per_good, per_fair, 12)
-                    score += per_pts
-                    breakdown['per_score'] = per_pts
-                    if per_pts >= 6:
+
+                ev_pts = 0
+                is_financial = any(kw in (sector or '') for kw in ['금융', '은행', '보험', '증권'])
+                if ev_ebitda and ev_ebitda > 0 and not is_financial:
+                    breakdown['ev_ebitda_value'] = ev_ebitda
+                    ev_good, ev_fair = self._get_sector_threshold(
+                        sector, self.VALUE_EVEBITDA_THRESHOLDS, self.DEFAULT_VALUE_EVEBITDA_THRESHOLD)
+                    ev_good *= premium_multiplier
+                    ev_fair *= premium_multiplier
+                    ev_pts = self._calc_inverse_gradient_score(ev_ebitda, ev_good, ev_fair, 12)
+
+                pb_pts = 0
+                if is_financial or any(kw in (sector or '') for kw in ['화학', '철강', '금속', '소재']):
+                    pb = info.get('priceToBook')
+                    if pb and pb > 0:
+                        pb_good, pb_fair = self.VALUE_PB_THRESHOLDS.get(
+                            sector, self.VALUE_PB_THRESHOLDS.get('default', (2.5, 4.5)))
+                        # 섹터 부분 매칭
+                        for key, val in self.VALUE_PB_THRESHOLDS.items():
+                            if key != 'default' and (key in (sector or '') or (sector or '') in key):
+                                pb_good, pb_fair = val
+                                break
+                        pb_good *= premium_multiplier
+                        pb_fair *= premium_multiplier
+                        pb_pts = self._calc_inverse_gradient_score(pb, pb_good, pb_fair, 12)
+
+                val_pts = max(per_pts, ev_pts, pb_pts)
+                if val_pts == pb_pts and pb_pts > 0:
+                    breakdown['valuation_method'] = 'P/B'
+                elif val_pts == ev_pts and ev_pts > 0:
+                    breakdown['valuation_method'] = 'EV/EBITDA'
+                else:
+                    breakdown['valuation_method'] = 'PER'
+
+                score += val_pts
+                breakdown['per_score'] = val_pts
+                if val_pts >= 6:
+                    if ev_pts > per_pts and ev_ebitda:
+                        comments.append(f"EV/EBITDA:{ev_ebitda:.1f}x")
+                    elif per and per > 0:
                         comments.append(f"PER:{per:.1f}")
 
                 # 3. ROE (8점, 가치주는 비중 축소)
@@ -490,16 +645,51 @@ class TitanKRAnalyzer:
                     breakdown['debt_equity_value'] = de
                     de_good, de_fair = self._get_sector_threshold(
                         sector, self.VALUE_DE_THRESHOLDS, self.DEFAULT_VALUE_DE_THRESHOLD)
+                    de_good = int(de_good * premium_multiplier)
+                    de_fair = int(de_fair * premium_multiplier)
                     de_pts = self._calc_inverse_gradient_score(de, de_good, de_fair, 8)
                     score += de_pts
                     breakdown['debt_equity_score'] = de_pts
                     if de_pts >= 4:
                         comments.append(f"D/E:{de:.0f}")
-                elif sector and any(kw in sector for kw in ['금융', '은행', '보험', '증권', 'Financial']):
-                    # 금융주: yfinance D/E 데이터 없는 경우 중간 점수 부여
+                elif is_financial:
                     de_pts = round(8 * 0.5)
                     score += de_pts
                     breakdown['debt_equity_score'] = de_pts
+
+                # FCF Yield (5점, 배당 지속가능성 검증)
+                fcf = info.get('freeCashflow')
+                if fcf and market_cap and market_cap > 0:
+                    fcf_yield = fcf / market_cap
+                    breakdown['fcf_yield_value'] = round(fcf_yield * 100, 1)
+                    if fcf_yield > 0.08:
+                        fcf_pts = 5
+                        comments.append("현금흐름최상위")
+                    elif fcf_yield > 0.05:
+                        fcf_pts = 4
+                        comments.append("현금흐름우수")
+                    elif fcf_yield > 0.03:
+                        fcf_pts = 2
+                    else:
+                        fcf_pts = 0
+                    score += fcf_pts
+                    breakdown['fcf_score'] = fcf_pts
+
+                # Beta (5점)
+                beta = info.get('beta')
+                if beta is not None:
+                    breakdown['beta_value'] = beta
+                    if beta <= 0.8:
+                        beta_pts = 5
+                        comments.append(f"LowBeta({beta:.2f})")
+                    elif beta <= 1.0:
+                        beta_pts = 4
+                    elif beta <= 1.2:
+                        beta_pts = 2
+                    else:
+                        beta_pts = 0
+                    score += beta_pts
+                    breakdown['beta_score'] = beta_pts
 
                 # 5. 섹터 (10점)
                 breakdown['sector_name'] = sector or industry or '기타'
@@ -510,6 +700,12 @@ class TitanKRAnalyzer:
                 if sector_comment:
                     comments.append(sector_comment)
 
+                # 배당 귀족 보너스 (+4점)
+                if is_aristocrat:
+                    score += 4
+                    breakdown['aristocrat_bonus'] = 4
+                    comments.append("배당귀족")
+
                 # 한국 정책 보너스
                 policy_bonus, policy_comment = self._get_kr_policy_bonus(
                     sector, industry, info.get('shortName', ''))
@@ -518,8 +714,10 @@ class TitanKRAnalyzer:
                     breakdown['policy_bonus'] = policy_bonus
                     comments.append(policy_comment)
 
-            # ===== 성장주 모드: ROE/OPM/매출성장 중심 (50점) =====
+            # ===== 성장주 모드: ROE/OPM/FCF/매출성장 중심 (50점) =====
             else:
+                market_cap = info.get('marketCap', 0)
+
                 # 1. ROE (섹터별 차등, 15점)
                 roe = info.get('returnOnEquity')
                 roe_excellent, roe_good = self._get_sector_threshold(
@@ -530,21 +728,57 @@ class TitanKRAnalyzer:
                     roe_score = self._calc_gradient_score(roe_pct, roe_excellent, roe_good, 15)
                     score += roe_score
                     breakdown['roe_score'] = roe_score
-                    if roe_score > 0:
+                    if roe_score >= 8:
                         comments.append(f"ROE:{roe_pct:.1f}%")
 
-                # 2. OPM (섹터별 차등, 15점)
+                # 2. OPM (섹터별 차등, 10점 — 15→10 축소, ROE와 중복 줄임)
                 opm = info.get('operatingMargins')
                 opm_excellent, opm_good = self._get_sector_threshold(
                     sector, self.SECTOR_OPM_THRESHOLDS, self.DEFAULT_OPM_THRESHOLD)
                 if opm is not None:
                     opm_pct = opm * 100
                     breakdown['opm_value'] = opm_pct
-                    opm_score = self._calc_gradient_score(opm_pct, opm_excellent, opm_good, 15)
+                    opm_score = self._calc_gradient_score(opm_pct, opm_excellent, opm_good, 10)
                     score += opm_score
                     breakdown['opm_score'] = opm_score
-                    if opm_score > 0:
+                    if opm_score >= 5:
                         comments.append(f"OPM:{opm_pct:.1f}%")
+
+                # 2.5. FCF Margin (10점, 신규: 현금창출력)
+                fcf = info.get('freeCashflow')
+                total_revenue = info.get('totalRevenue')
+                if fcf and total_revenue and total_revenue > 0:
+                    fcf_margin = fcf / total_revenue * 100
+                    breakdown['fcf_margin_value'] = round(fcf_margin, 1)
+                    # 한국 섹터별 FCF 기준
+                    if any(kw in (sector or '') for kw in ['전기전자', '전자', '반도체']):
+                        fcf_excellent, fcf_good = 20, 8
+                    elif any(kw in (sector or '') for kw in ['바이오', '의약', '제약']):
+                        fcf_excellent, fcf_good = 15, 5
+                    elif any(kw in (sector or '') for kw in ['통신']):
+                        fcf_excellent, fcf_good = 20, 8
+                    else:
+                        fcf_excellent, fcf_good = 10, 3
+                    fcf_pts = self._calc_gradient_score(fcf_margin, fcf_excellent, fcf_good, 10)
+                    score += fcf_pts
+                    breakdown['fcf_score'] = fcf_pts
+                    if fcf_pts >= 5:
+                        comments.append(f"FCF:{fcf_margin:.0f}%")
+                elif fcf and market_cap and market_cap > 0:
+                    # FCF Yield 폴백 (매출 데이터 없을 때)
+                    fcf_yield = fcf / market_cap * 100
+                    breakdown['fcf_margin_value'] = None
+                    breakdown['fcf_yield_value'] = round(fcf_yield, 1)
+                    if fcf_yield > 5:
+                        fcf_pts = 7
+                    elif fcf_yield > 3:
+                        fcf_pts = 4
+                    elif fcf_yield > 1:
+                        fcf_pts = 2
+                    else:
+                        fcf_pts = 0
+                    score += fcf_pts
+                    breakdown['fcf_score'] = fcf_pts
 
                 # 3. 매출성장률 (10점)
                 revenue_growth = info.get('revenueGrowth')
@@ -557,6 +791,18 @@ class TitanKRAnalyzer:
                     score += rg_score
                     breakdown['revenue_growth_score'] = rg_score
 
+                # PEG Ratio (GARP 전략, 5점 보너스)
+                peg = info.get('pegRatio')
+                if peg and peg > 0:
+                    breakdown['peg_value'] = peg
+                    if peg < 1.0:
+                        score += 5
+                        breakdown['peg_score'] = 5
+                        comments.append(f"PEG저평가({peg:.2f})")
+                    elif peg < 1.5:
+                        score += 3
+                        breakdown['peg_score'] = 3
+
                 # 3-1. 고성장 투자기업 보정
                 if revenue_growth is not None and revenue_growth > 0.30:
                     roe_val = roe * 100 if roe else 0
@@ -567,18 +813,16 @@ class TitanKRAnalyzer:
                         breakdown['roe_score'] = bonus
                         comments.append("성장투자")
                     if opm_val < 0 and breakdown['opm_score'] == 0:
-                        bonus = round(15 * 0.4)
+                        bonus = round(10 * 0.4)
                         score += bonus
                         breakdown['opm_score'] = bonus
 
-                # 4. 섹터 & 정책 보너스
+                # 4. 섹터 (라벨링만, 점수 0 — 순환매 보너스가 동적으로 대체)
                 breakdown['sector_name'] = sector or industry or '기타'
                 sector_score, sector_name, sector_comment = self._get_growth_sector_score(sector, industry, info.get('shortName', ''))
-                score += sector_score
-                breakdown['sector_score'] = sector_score
+                breakdown['sector_score'] = 0  # 고정 섹터 점수 제거
                 breakdown['sector_name'] = sector_name
-                if sector_comment:
-                    comments.append(sector_comment)
+                # sector_comment는 라벨링용으로 유지
 
                 # 한국 정책 보너스
                 policy_bonus, policy_comment = self._get_kr_policy_bonus(
@@ -602,27 +846,29 @@ class TitanKRAnalyzer:
         - good*0.5 ~ good: 5%~40% 보간
         - < good*0.5: 0점
         """
-        if value is None:
+        if value is None or value <= 0:
             return 0
         if excellent == 0 and good == 0:
             return 0
 
+        fair = good * 0.5
         top = excellent * 1.3
-        bottom = good * 0.5
 
         if value >= top:
             return max_pts
         elif value >= excellent:
-            ratio = 0.8 + 0.2 * (value - excellent) / (top - excellent) if top != excellent else 1.0
-            return round(max_pts * ratio, 1)
+            ratio = (value - excellent) / (top - excellent) if top > excellent else 1
+            pts = max_pts * (0.8 + 0.2 * ratio)
         elif value >= good:
-            ratio = 0.4 + 0.4 * (value - good) / (excellent - good) if excellent != good else 0.8
-            return round(max_pts * ratio, 1)
-        elif value >= bottom:
-            ratio = 0.05 + 0.35 * (value - bottom) / (good - bottom) if good != bottom else 0.05
-            return round(max_pts * ratio, 1)
+            ratio = (value - good) / (excellent - good) if excellent > good else 1
+            pts = max_pts * (0.4 + 0.4 * ratio)
+        elif value >= fair:
+            ratio = (value - fair) / (good - fair) if good > fair else 1
+            pts = max_pts * (0.05 + 0.35 * ratio)
         else:
             return 0
+
+        return round(pts)
 
     @staticmethod
     def _calc_inverse_gradient_score(value, good_upper, fair_upper, max_pts):
@@ -645,13 +891,13 @@ class TitanKRAnalyzer:
             return max_pts
         elif value <= good_upper:
             ratio = (good_upper - value) / (good_upper - excellent) if good_upper > excellent else 1
-            return round(max_pts * (0.8 + 0.2 * ratio), 1)
+            return round(max_pts * (0.8 + 0.2 * ratio))
         elif value <= fair_upper:
             ratio = (fair_upper - value) / (fair_upper - good_upper) if fair_upper > good_upper else 1
-            return round(max_pts * (0.4 + 0.4 * ratio), 1)
+            return round(max_pts * (0.4 + 0.4 * ratio))
         elif value <= poor:
             ratio = (poor - value) / (poor - fair_upper) if poor > fair_upper else 1
-            return round(max_pts * (0.05 + 0.35 * ratio), 1)
+            return round(max_pts * (0.05 + 0.35 * ratio))
         else:
             return 0
 
@@ -819,11 +1065,12 @@ class TitanKRAnalyzer:
     # ================================================================
     # 기술적 분석 (50점, US와 동일 알고리즘)
     # ================================================================
-    def _get_technical_score(self, hist, current_price):
+    def _get_technical_score(self, hist, current_price, kospi_hist=None):
+        """기술적 분석 (최대 ~53점) — US v2.0 동기화"""
         from ta.trend import MACD, ADXIndicator
         from ta.momentum import RSIIndicator, StochasticOscillator
         from ta.volatility import BollingerBands, AverageTrueRange
-        from ta.volume import OnBalanceVolumeIndicator
+        from ta.volume import OnBalanceVolumeIndicator, MFIIndicator
 
         score = 0
         comments = []
@@ -833,9 +1080,12 @@ class TitanKRAnalyzer:
             'ichimoku_score': 0,
             'momentum_score': 0, 'rsi_value': 0, 'rsi_score': 0,
             'stoch_score': 0, 'stoch_k': 0, 'stoch_d': 0,
+            'mfi_value': 0,
             'volume_score': 0, 'volume_ratio': 0, 'obv_score': 0,
-            'volatility_score': 0, 'bb_position': 0, 'bb_low': 0, 'atr_score': 0,
-            'pattern_score': 0, 'price_position': 0
+            'volatility_score': 0, 'bb_position': 0, 'bb_upper': 0, 'bb_lower': 0, 'bb_mid': 0,
+            'atr_score': 0, 'atr_value': 0,
+            'pattern_score': 0, 'price_position': 0,
+            'rs_score': 0, 'rs_ratio': 0,
         }
 
         try:
@@ -957,6 +1207,22 @@ class TitanKRAnalyzer:
                 momentum_score += self.SCORE_STOCH_OPTIMAL
                 breakdown['stoch_score'] = self.SCORE_STOCH_OPTIMAL
                 comments.append("Stoch골든")
+            elif stoch_k > stoch_d:
+                momentum_score += self.SCORE_STOCH_GOOD
+                breakdown['stoch_score'] = self.SCORE_STOCH_GOOD
+
+            # MFI (Money Flow Index)
+            try:
+                mfi = MFIIndicator(high=hist['High'], low=hist['Low'], close=close, volume=volume, window=14)
+                mfi_val = mfi.money_flow_index().iloc[-1]
+                breakdown['mfi_value'] = mfi_val
+                if mfi_val < 20:
+                    momentum_score += 2
+                    comments.append("MFI바닥")
+                elif mfi_val > 80 and is_downtrend:
+                    comments.append("MFI과열")
+            except Exception:
+                pass
 
             breakdown['momentum_score'] = momentum_score
             score += momentum_score
@@ -990,20 +1256,23 @@ class TitanKRAnalyzer:
             breakdown['volume_score'] = volume_score
             score += volume_score
 
-            # 4. 변동성 (7점)
+            # 4. 변동성 (5점, 7→5 축소)
             volatility_score = 0
             bb = BollingerBands(close=close)
             bb_high = bb.bollinger_hband().iloc[-1]
             bb_low = bb.bollinger_lband().iloc[-1]
+            bb_mid = bb.bollinger_mavg().iloc[-1]
             bb_position = (current_price - bb_low) / (bb_high - bb_low) if (bb_high - bb_low) > 0 else 0.5
             breakdown['bb_position'] = bb_position
-            breakdown['bb_low'] = bb_low
+            breakdown['bb_upper'] = float(bb_high)
+            breakdown['bb_lower'] = float(bb_low)
+            breakdown['bb_mid'] = float(bb_mid)
 
             if 0.3 <= bb_position <= 0.7:
                 volatility_score += self.SCORE_BB_POSITION
             elif bb_position < 0.3:
                 if not is_downtrend:
-                    volatility_score += 2
+                    volatility_score += 3
                     comments.append("BB하단")
 
             atr = AverageTrueRange(high=hist['High'], low=hist['Low'], close=close)
@@ -1013,6 +1282,7 @@ class TitanKRAnalyzer:
                 volatility_score += self.SCORE_ATR_EXPANSION
                 breakdown['atr_score'] = self.SCORE_ATR_EXPANSION
 
+            breakdown['atr_value'] = float(atr_current)
             breakdown['volatility_score'] = volatility_score
             score += volatility_score
 
@@ -1033,6 +1303,31 @@ class TitanKRAnalyzer:
 
             breakdown['pattern_score'] = pattern_score
             score += pattern_score
+
+            # 6. 상대강도 vs KOSPI (5점, 신규)
+            rs_score = 0
+            if kospi_hist is not None and len(kospi_hist) >= 60 and len(close) >= 60:
+                try:
+                    kospi_close = kospi_hist['Close']
+                    stock_return_3m = (close.iloc[-1] / close.iloc[-63] - 1) if len(close) >= 63 else (close.iloc[-1] / close.iloc[0] - 1)
+                    kospi_return_3m = (kospi_close.iloc[-1] / kospi_close.iloc[-63] - 1) if len(kospi_close) >= 63 else (kospi_close.iloc[-1] / kospi_close.iloc[0] - 1)
+                    rs_ratio = stock_return_3m - kospi_return_3m
+
+                    breakdown['rs_ratio'] = round(rs_ratio * 100, 1)
+
+                    if rs_ratio > 0.15:
+                        rs_score = self.SCORE_RS_STRONG
+                        comments.append(f"RS강세+{rs_ratio*100:.0f}%")
+                    elif rs_ratio > 0.05:
+                        rs_score = self.SCORE_RS_GOOD
+                        comments.append(f"RS양호+{rs_ratio*100:.0f}%")
+                    elif rs_ratio > -0.05:
+                        rs_score = self.SCORE_RS_NEUTRAL
+                except Exception:
+                    pass
+
+            breakdown['rs_score'] = rs_score
+            score += rs_score
 
             breakdown['is_downtrend'] = is_downtrend
             if is_downtrend:
@@ -1309,101 +1604,306 @@ class TitanKRAnalyzer:
     # 역발상 + 스마트 진입/청산
     # ================================================================
     def _apply_contrarian_adjustment(self, fund_score, tech_breakdown, sector_name):
+        """하이브리드 전략: 과매도 우량주 보너스, 과열주 감점 (US v2.0 강화)"""
         adjustment = 0
         contrarian_comment = ""
         rsi = tech_breakdown.get('rsi_value', 50)
+        volume_ratio = tech_breakdown.get('volume_ratio', 1.0)
 
-        quality_sectors = ['AI/반도체', '전기전자', '2차전지', '바이오', 'K-플랫폼', '방산', '조선']
+        quality_sectors = [
+            'AI/반도체', '전기전자', '2차전지', '바이오', 'K-플랫폼', '방산', '조선',
+            # 가치주 방어 섹터 (포트폴리오 헤징 역할)
+            '금융', '통신', '유틸리티',
+        ]
 
+        # 과매도 조건 강화: Fund≥35 (기존 30), 거래량 폭증 시 추가 보너스
         if rsi < self.RSI_OVERSOLD:
-            if fund_score >= 30:
+            if fund_score >= 35:
                 if sector_name in quality_sectors:
                     adjustment = self.SCORE_OVERSOLD_QUALITY_BONUS
+                    if volume_ratio >= 2.0:
+                        adjustment += 2  # 항복매도(Capitulation) 거래량 동반
                     contrarian_comment = "🎯저가매수기회"
                 else:
                     adjustment = self.SCORE_OVERSOLD_QUALITY_BONUS // 2
                     contrarian_comment = "💎저평가"
-        elif rsi > self.RSI_OVERBOUGHT:
-            adjustment = self.SCORE_OVERBOUGHT_PENALTY
+            elif fund_score >= 25:
+                adjustment = 3
+                contrarian_comment = "💎약한저평가"
+        # 과열 조건 강화: RSI>75 → 더 강한 감점
+        elif rsi > 75:
+            adjustment = self.SCORE_OVERBOUGHT_PENALTY  # -8
+            if volume_ratio < 1.0:
+                adjustment -= 2  # 거래량 감소 동반 과열 = 추가 감점
             contrarian_comment = "⚠️과열주의"
+        elif rsi > self.RSI_OVERBOUGHT:  # 70-75 구간: 경미한 감점
+            adjustment = -3
+            contrarian_comment = "⚡과열경계"
 
         return adjustment, contrarian_comment
 
-    def _calculate_volatility_breakout(self, hist):
-        try:
-            if len(hist) < 2:
-                return None, None, None
-            prev_high = hist['High'].iloc[-2]
-            prev_low = hist['Low'].iloc[-2]
-            today_open = hist['Open'].iloc[-1]
-            range_val = prev_high - prev_low
-            breakout_price = today_open + (range_val * self.K_FACTOR)
-            target_price = breakout_price + range_val
-            stop_loss = breakout_price * self.STOP_LOSS_RATIO
-            return breakout_price, target_price, stop_loss
-        except Exception:
-            return None, None, None
+    # ================================================================
+    # 스윙 저점/고점 탐지 (US v2.0 동기화)
+    # ================================================================
+    def _find_swing_lows(self, hist, lookback=60, order=5):
+        """최근 N일 로우에서 스윙 저점(지지선) 탐지"""
+        lows = hist['Low'].iloc[-lookback:]
+        swing_lows = []
+        for i in range(order, len(lows) - order):
+            if all(lows.iloc[i] <= lows.iloc[i - j] for j in range(1, order + 1)) and \
+               all(lows.iloc[i] <= lows.iloc[i + j] for j in range(1, order + 1)):
+                swing_lows.append(float(lows.iloc[i]))
+        return sorted(set(swing_lows))
 
-    def _calculate_swing_tier(self, current_price, hist, tech_breakdown, fund_score):
-        """6단계 스윙매매 전략 (R:R >= 1.5:1, 최대 손절 8%)"""
+    def _find_swing_highs(self, hist, lookback=60, order=5):
+        """최근 N일 하이에서 스윙 고점(저항선) 탐지"""
+        highs = hist['High'].iloc[-lookback:]
+        swing_highs = []
+        for i in range(order, len(highs) - order):
+            if all(highs.iloc[i] >= highs.iloc[i - j] for j in range(1, order + 1)) and \
+               all(highs.iloc[i] >= highs.iloc[i + j] for j in range(1, order + 1)):
+                swing_highs.append(float(highs.iloc[i]))
+        return sorted(set(swing_highs))
+
+    @staticmethod
+    def _nearest_below(levels, price):
+        """현재가 아래 가장 가까운 레벨"""
+        candidates = [l for l in levels if l < price]
+        return max(candidates) if candidates else None
+
+    @staticmethod
+    def _nearest_above(levels, price):
+        """현재가 위 가장 가까운 레벨"""
+        candidates = [l for l in levels if l > price]
+        return min(candidates) if candidates else None
+
+    def _validate_risk_reward(self, buy_price, target_price, stop_loss, atr, swing_highs):
+        """R:R >= 2.0 보장, 최대 손절 7%"""
+        max_stop = buy_price * 0.93
+        if stop_loss < max_stop:
+            stop_loss = max_stop
+
+        risk = buy_price - stop_loss
+        reward = target_price - buy_price
+        if risk > 0 and reward / risk < 2.0:
+            farther = [r for r in swing_highs if r > target_price]
+            if farther:
+                target_price = min(farther)
+            elif atr > 0:
+                target_price = buy_price + (3.0 * atr)
+            else:
+                target_price = buy_price * 1.12
+
+        return target_price, stop_loss
+
+    def _calculate_smart_entry_exit(self, current_price, contrarian_adj, hist, tech_breakdown):
+        """스윙매매 특화 진입/청산 전략 (기술적 레벨 기반, US v2.0 동기화)"""
         try:
             if len(hist) < 20:
-                return None, None, None, "데이터부족", "N/A"
+                return None, None, None, "데이터 부족"
 
-            rsi = tech_breakdown.get('rsi_value', 50)
             ma20 = tech_breakdown.get('ma20', 0)
             ma60 = tech_breakdown.get('ma60', 0)
-            ma120 = tech_breakdown.get('ma120', 0)
-            bb_low = tech_breakdown.get('bb_low', 0)
-            adx_val = tech_breakdown.get('adx_value', 25)
-            swing_low = hist['Low'].tail(20).min()
+            bb_upper = tech_breakdown.get('bb_upper', 0)
+            bb_lower = tech_breakdown.get('bb_lower', 0)
+            atr = tech_breakdown.get('atr_value', 0)
 
-            # Tier 1: 역발상매수 (RSI<30 + 펀더30점+)
-            if rsi < 30 and fund_score >= 30:
-                buy = min(bb_low, current_price) if bb_low > 0 else current_price
-                stop = buy * 0.92
-                target = buy + (buy - stop) * 1.5
-                return buy, target, stop, "🎯 역발상매수", "Tier1"
+            swing_lows = self._find_swing_lows(hist)
+            swing_highs = self._find_swing_highs(hist)
+            nearest_support = self._nearest_below(swing_lows, current_price)
+            nearest_resistance = self._nearest_above(swing_highs, current_price)
 
-            # Tier 2: 조정대기 (RSI>70)
-            if rsi > 70:
-                entry = ma20 * 1.01 if ma20 > 0 else current_price * 0.95
-                stop = entry * 0.92
-                target = entry + (entry - stop) * 1.5
-                return entry, target, stop, "⚠️ 조정대기", "Tier2"
+            # ========== Tier 1: 역발상 매수 (과매도 우량주) ==========
+            if contrarian_adj > 0:
+                if bb_lower > 0 and bb_lower >= current_price * 0.97:
+                    buy_price = bb_lower
+                else:
+                    buy_price = current_price
 
-            # Tier 3A: 추세추종 (MA20>MA60, 가격>MA20, RSI>=50)
-            if ma20 > ma60 and current_price > ma20 and rsi >= 50:
-                buy = current_price
-                stop = max(ma20 * 0.98, buy * 0.92)
-                target = buy + (buy - stop) * 1.5
-                return buy, target, stop, "📈 추세추종", "Tier3A"
+                if nearest_resistance and nearest_resistance > buy_price * 1.03:
+                    target_price = nearest_resistance
+                elif bb_upper > 0 and bb_upper > buy_price * 1.03:
+                    target_price = bb_upper
+                else:
+                    target_price = buy_price + (1.5 * atr) if atr > 0 else buy_price * 1.08
 
-            # Tier 3B: 풀백매수 (MA20>MA60, 가격<MA20)
-            if ma20 > ma60 and current_price <= ma20:
-                candidates = [v for v in [ma20, bb_low, swing_low] if v and v > 0]
-                buy = min(candidates) if candidates else current_price * 0.97
-                stop = buy * 0.92
-                target = buy + (buy - stop) * 1.5
-                return buy, target, stop, "📊 풀백매수", "Tier3B"
+                atr_stop = buy_price - (2.0 * atr) if atr > 0 else buy_price * 0.95
+                struct_stop = nearest_support * 0.99 if nearest_support else atr_stop
+                stop_loss = max(atr_stop, struct_stop)
+                if stop_loss > buy_price * 0.98:
+                    stop_loss = buy_price * 0.98
+                if stop_loss >= buy_price:
+                    stop_loss = buy_price * 0.95
 
-            # Tier 3C: 박스권하단 (횡보 or 비추세, ADX<20)
-            if adx_val < 20:
-                candidates = [v for v in [bb_low, ma60] if v and v > 0]
-                buy = min(candidates) if candidates else current_price * 0.97
-                stop = buy * 0.92
-                target = buy + (buy - stop) * 1.5
-                return buy, target, stop, "📦 박스권하단", "Tier3C"
+                target_price, stop_loss = self._validate_risk_reward(
+                    buy_price, target_price, stop_loss, atr, swing_highs)
+                strategy = "🎯 역발상매수(기술적지지)"
 
-            # Tier 3D: 약세 / 반등대기
-            candidates = [v for v in [ma120, swing_low] if v and v > 0]
-            buy = min(candidates) if candidates else current_price * 0.95
-            stop = buy * 0.92
-            target = buy + (buy - stop) * 1.5
-            return buy, target, stop, "🔄 반등대기", "Tier3D"
+            # ========== Tier 2: 조정대기 (과열주) ==========
+            elif contrarian_adj < 0:
+                candidates = []
+                if ma20 > 0 and ma20 < current_price:
+                    candidates.append(ma20)
+                if nearest_support and nearest_support < current_price:
+                    candidates.append(nearest_support)
+                if atr > 0:
+                    candidates.append(current_price - (2.0 * atr))
+
+                buy_price = max(candidates) if candidates else current_price * 0.95
+
+                if nearest_resistance and nearest_resistance > buy_price * 1.03:
+                    target_price = nearest_resistance
+                elif bb_upper > 0:
+                    target_price = bb_upper
+                else:
+                    target_price = buy_price * 1.08
+
+                atr_stop = buy_price - (2.0 * atr) if atr > 0 else buy_price * 0.95
+                struct_stop = nearest_support * 0.99 if nearest_support else atr_stop
+                stop_loss = max(atr_stop, struct_stop)
+                if stop_loss >= buy_price:
+                    stop_loss = buy_price * 0.95
+
+                target_price, stop_loss = self._validate_risk_reward(
+                    buy_price, target_price, stop_loss, atr, swing_highs)
+                strategy = "⚠️ 조정대기(진입조건가)"
+
+            # ========== Tier 3: 세분화 전략 (일반종목) ==========
+            else:
+                rsi = tech_breakdown.get('rsi_value', 50)
+                ma120 = tech_breakdown.get('ma120', 0)
+
+                uptrend = (ma20 > 0 and ma60 > 0 and ma20 > ma60)
+                price_above_ma20 = (ma20 > 0 and current_price > ma20)
+                sideways = (ma20 > 0 and ma60 > 0 and abs(ma20 - ma60) / ma60 < 0.02)
+                weak = (ma60 > 0 and current_price < ma60) or rsi < 40
+
+                # --- Tier 3A: 추세추종 ---
+                if uptrend and price_above_ma20 and rsi >= 50:
+                    buy_price = current_price
+                    if nearest_resistance and nearest_resistance > current_price * 1.02:
+                        target_price = nearest_resistance
+                    elif bb_upper > 0 and bb_upper > current_price * 1.02:
+                        target_price = bb_upper
+                    else:
+                        target_price = current_price + (2.0 * atr) if atr > 0 else current_price * 1.08
+                    atr_stop = current_price - (2.0 * atr) if atr > 0 else current_price * 0.95
+                    ma20_stop = ma20 * 0.99 if ma20 > 0 else atr_stop
+                    stop_loss = max(atr_stop, ma20_stop)
+                    if stop_loss > current_price * 0.98:
+                        stop_loss = current_price * 0.98
+                    if stop_loss >= current_price:
+                        stop_loss = current_price * 0.95
+                    target_price, stop_loss = self._validate_risk_reward(
+                        buy_price, target_price, stop_loss, atr, swing_highs)
+                    strategy = "📈 추세추종(MA20↑)"
+
+                # --- Tier 3B: 풀백매수 ---
+                elif uptrend and not price_above_ma20:
+                    support_candidates = []
+                    if ma20 > 0 and ma20 < current_price * 1.03:
+                        support_candidates.append(('MA20', ma20))
+                    if bb_lower > 0 and bb_lower < current_price:
+                        support_candidates.append(('BB하단', bb_lower))
+                    if nearest_support and nearest_support < current_price:
+                        support_candidates.append(('스윙저점', nearest_support))
+                    if support_candidates:
+                        best_label, best_support = max(support_candidates, key=lambda x: x[1])
+                        buy_price = best_support
+                        strategy_suffix = best_label
+                    else:
+                        buy_price = ma20 if ma20 > 0 else current_price
+                        strategy_suffix = "MA20"
+                    if nearest_resistance and nearest_resistance > current_price:
+                        target_price = nearest_resistance
+                    elif bb_upper > 0 and bb_upper > current_price:
+                        target_price = bb_upper
+                    else:
+                        target_price = buy_price + (2.0 * atr) if atr > 0 else buy_price * 1.08
+                    supports_below = [l for l in swing_lows if l < buy_price]
+                    struct_stop = max(supports_below) * 0.99 if supports_below else buy_price * 0.95
+                    atr_stop = buy_price - (2.0 * atr) if atr > 0 else buy_price * 0.95
+                    stop_loss = max(atr_stop, struct_stop)
+                    if stop_loss > buy_price * 0.98:
+                        stop_loss = buy_price * 0.98
+                    if stop_loss >= buy_price:
+                        stop_loss = buy_price * 0.95
+                    target_price, stop_loss = self._validate_risk_reward(
+                        buy_price, target_price, stop_loss, atr, swing_highs)
+                    strategy = f"📊 풀백매수({strategy_suffix})"
+
+                # --- Tier 3C: 박스권하단 ---
+                elif sideways or (not uptrend and not weak):
+                    support_candidates = []
+                    if bb_lower > 0 and bb_lower < current_price:
+                        support_candidates.append(('BB하단', bb_lower))
+                    if nearest_support and nearest_support < current_price:
+                        support_candidates.append(('스윙저점', nearest_support))
+                    if ma60 > 0 and ma60 < current_price:
+                        support_candidates.append(('MA60', ma60))
+                    if support_candidates:
+                        best_label, best_support = max(support_candidates, key=lambda x: x[1])
+                        buy_price = best_support
+                        strategy_suffix = best_label
+                    else:
+                        buy_price = current_price * 0.97
+                        strategy_suffix = "지지선"
+                    if nearest_resistance and nearest_resistance > current_price:
+                        target_price = nearest_resistance
+                    elif bb_upper > 0 and bb_upper > current_price:
+                        target_price = bb_upper
+                    else:
+                        target_price = buy_price + (1.5 * atr) if atr > 0 else buy_price * 1.06
+                    supports_below = [l for l in swing_lows if l < buy_price]
+                    struct_stop = max(supports_below) * 0.99 if supports_below else buy_price * 0.95
+                    atr_stop = buy_price - (2.0 * atr) if atr > 0 else buy_price * 0.95
+                    stop_loss = max(atr_stop, struct_stop)
+                    if stop_loss > buy_price * 0.98:
+                        stop_loss = buy_price * 0.98
+                    if stop_loss >= buy_price:
+                        stop_loss = buy_price * 0.95
+                    target_price, stop_loss = self._validate_risk_reward(
+                        buy_price, target_price, stop_loss, atr, swing_highs)
+                    strategy = f"📦 박스권하단({strategy_suffix})"
+
+                # --- Tier 3D: 반등대기 ---
+                else:
+                    support_candidates = []
+                    if nearest_support and nearest_support < current_price:
+                        support_candidates.append(('스윙저점', nearest_support))
+                    if ma120 > 0 and ma120 < current_price:
+                        support_candidates.append(('MA120', ma120))
+                    if bb_lower > 0 and bb_lower < current_price:
+                        support_candidates.append(('BB하단', bb_lower))
+                    if support_candidates:
+                        best_label, best_support = max(support_candidates, key=lambda x: x[1])
+                        buy_price = best_support
+                        strategy_suffix = best_label
+                    else:
+                        buy_price = current_price * 0.95
+                        strategy_suffix = "지지확인"
+                    if ma60 > 0 and ma60 > current_price:
+                        target_price = ma60
+                    elif nearest_resistance and nearest_resistance > current_price:
+                        target_price = nearest_resistance
+                    else:
+                        target_price = buy_price + (1.5 * atr) if atr > 0 else buy_price * 1.06
+                    supports_below = [l for l in swing_lows if l < buy_price]
+                    struct_stop = max(supports_below) * 0.99 if supports_below else buy_price * 0.95
+                    atr_stop = buy_price - (1.5 * atr) if atr > 0 else buy_price * 0.95
+                    stop_loss = max(atr_stop, struct_stop)
+                    if stop_loss > buy_price * 0.97:
+                        stop_loss = buy_price * 0.97
+                    if stop_loss >= buy_price:
+                        stop_loss = buy_price * 0.95
+                    target_price, stop_loss = self._validate_risk_reward(
+                        buy_price, target_price, stop_loss, atr, swing_highs)
+                    strategy = f"🔄 반등대기({strategy_suffix})"
+
+            return buy_price, target_price, stop_loss, strategy
 
         except Exception:
-            return None, None, None, "계산실패", "N/A"
+            return None, None, None, "계산 실패"
 
     def _get_current_price(self, info, hist):
         return info.get('currentPrice') or info.get('regularMarketPrice') or (int(hist['Close'].iloc[-1]) if not hist.empty else 0)
@@ -1439,8 +1939,10 @@ class TitanKRAnalyzer:
     # ================================================================
     # 개별 종목 분석
     # ================================================================
-    def _analyze_single_stock(self, code):
+    def _analyze_single_stock(self, code, kospi_hist=None):
         info = self.data_provider.get_info(code)
+        # 가치주 모드에서 배당귀족 판별용 코드 삽입
+        info['_code'] = code
         hist = self.data_provider.get_history(code, period='1y')
 
         if hist.empty or len(hist) < 20:
@@ -1449,7 +1951,7 @@ class TitanKRAnalyzer:
         current_price = self._get_current_price(info, hist)
 
         fund_score, fund_comments, fund_breakdown = self._get_fundamental_score(info)
-        tech_score, tech_comments, tech_breakdown = self._get_technical_score(hist, current_price)
+        tech_score, tech_comments, tech_breakdown = self._get_technical_score(hist, current_price, kospi_hist)
 
         contrarian_adj, contrarian_comment = self._apply_contrarian_adjustment(
             fund_score, tech_breakdown, fund_breakdown.get('sector_name', ''))
@@ -1459,11 +1961,9 @@ class TitanKRAnalyzer:
 
         total_score = fund_score + tech_score + contrarian_adj + trading_bonus
 
-        # 6단계 스윙매매 전략
-        buy_price, target, stop_loss, strategy, swing_tier = self._calculate_swing_tier(
-            current_price, hist, tech_breakdown, fund_score)
-
-        breakout, _, _ = self._calculate_volatility_breakout(hist)
+        # 스마트 진입/청산 전략 (US v2.0)
+        buy_price, target, stop_loss, strategy = self._calculate_smart_entry_exit(
+            current_price, contrarian_adj, hist, tech_breakdown)
 
         market_info = self._get_market_status_and_prices(info)
         verdict = self._get_verdict(total_score)
@@ -1491,8 +1991,6 @@ class TitanKRAnalyzer:
             'market_info': market_info,
             'buy_price': buy_price,
             'buy_strategy': strategy,
-            'swing_tier': swing_tier,
-            'breakout': breakout,
             'target': target,
             'stop_loss': stop_loss,
             'comment': comment
@@ -1614,10 +2112,23 @@ class TitanKRAnalyzer:
                 'roe_value': fund_bd.get('roe_value'),
                 'opm_value': fund_bd.get('opm_value'),
                 'revenue_growth_value': fund_bd.get('revenue_growth_value'),
+                'peg_value': fund_bd.get('peg_value'),
+                'fcf_margin_value': fund_bd.get('fcf_margin_value'),
+                'fcf_score': fund_bd.get('fcf_score', 0),
                 'dividend_yield_value': fund_bd.get('dividend_yield_value'),
+                'dividend_growth_score': fund_bd.get('dividend_growth_score', 0),
+                'valuation_method': fund_bd.get('valuation_method', 'PER'),
+                'ev_ebitda_value': fund_bd.get('ev_ebitda_value'),
                 'per_value': fund_bd.get('per_value'),
                 'debt_equity_value': fund_bd.get('debt_equity_value'),
+                'beta_value': fund_bd.get('beta_value'),
+                'beta_score': fund_bd.get('beta_score', 0),
+                'fcf_yield_value': fund_bd.get('fcf_yield_value'),
                 'rsi_value': tech_bd.get('rsi_value'),
+                'mfi_value': tech_bd.get('mfi_value'),
+                'atr_value': tech_bd.get('atr_value'),
+                'rs_score': tech_bd.get('rs_score', 0),
+                'rs_ratio': tech_bd.get('rs_ratio', 0),
                 'ma5': tech_bd.get('ma5'),
                 'ma20': tech_bd.get('ma20'),
                 'ma60': tech_bd.get('ma60'),
@@ -1657,13 +2168,22 @@ class TitanKRAnalyzer:
                     print(f"   {icons.get(phase, '')} {phase}: {', '.join(phases[phase])}")
             print()
 
+        # KOSPI 히스토리 (RS vs KOSPI용)
+        print("📈 KOSPI 지수 로딩 중...")
+        kospi_hist = self.data_provider.get_market_index(period='1y')
+        if not kospi_hist.empty:
+            print(f"   KOSPI: {kospi_hist['Close'].iloc[-1]:,.0f} ({len(kospi_hist)}일)")
+        else:
+            print("   ⚠️ KOSPI 데이터 없음 (RS 분석 생략)")
+        print()
+
         results = []
         total = len(codes)
 
         for i, code in enumerate(codes, 1):
             try:
                 print(f"분석 중: {i}/{total} - {code}")
-                result = self._analyze_single_stock(code)
+                result = self._analyze_single_stock(code, kospi_hist=kospi_hist)
                 if result:
                     is_downtrend = result.get('tech_breakdown', {}).get('is_downtrend', False)
                     tech_adjusted, fund_adjusted, adjustment_msg = self._apply_regime_adjustment(
@@ -1671,8 +2191,22 @@ class TitanKRAnalyzer:
                         market_regime, is_downtrend=is_downtrend)
 
                     # 🔄 섹터 순환매 보너스
-                    sector = result.get('sector', '')
-                    rotation_info = self.sector_rotation.get(sector, {})
+                    sector_name = result.get('fund_breakdown', {}).get('sector_name', '')
+                    # KR 섹터명 → ETF 섹터 매핑
+                    kr_sector_to_etf = {
+                        'AI/반도체': 'Technology', '전기전자': 'Technology', '2차전지': 'Technology',
+                        '금융': 'Financial Services', '은행': 'Financial Services', '보험': 'Financial Services',
+                        '자동차': 'Industrials', '기계': 'Industrials', '조선': 'Industrials',
+                        '바이오': 'Healthcare', '의약품': 'Healthcare',
+                        '화학': 'Basic Materials', '철강': 'Basic Materials', '소재': 'Basic Materials',
+                        '에너지': 'Energy', '정유': 'Energy',
+                    }
+                    etf_sector = ''
+                    for kw, mapped in kr_sector_to_etf.items():
+                        if kw in sector_name:
+                            etf_sector = mapped
+                            break
+                    rotation_info = self.sector_rotation.get(etf_sector, {})
                     rotation_bonus = rotation_info.get('rotation_bonus', 0)
                     rotation_phase = rotation_info.get('phase', '중립')
                     result['rotation_bonus'] = rotation_bonus
@@ -1723,7 +2257,7 @@ class TitanKRAnalyzer:
                 r['score'],
                 r['verdict'],
                 f"₩{r['price']:,}",
-                f"₩{int(r['breakout']):,}" if r['breakout'] else "N/A",
+                f"₩{int(r['buy_price']):,}" if r.get('buy_price') else "N/A",
                 f"₩{int(r['stop_loss']):,}" if r['stop_loss'] else "N/A",
                 r['comment']
             ])
@@ -2034,38 +2568,63 @@ class TitanKRAnalyzer:
                     <div class="breakdown-items">''' + (f'''
                         <div class="breakdown-item">
                             <span class="criterion">배당수익률</span>
-                            <span class="criterion-value">{fund_bd.get('dividend_yield_value', 0):.2f}%</span>
-                            <span class="criterion-score">+{fund_bd.get('dividend_yield_score', 0)}점</span>
+                            <span class="criterion-value">{(fund_bd.get('dividend_yield_value') or 0):.2f}%</span>
+                            <span class="criterion-score">+{fund_bd.get('dividend_yield_score', 0)}점 /10</span>
                         </div>
                         <div class="breakdown-item">
-                            <span class="criterion">PER (저평가)</span>
-                            <span class="criterion-value">{fund_bd.get('per_value', 0):.1f}x</span>
-                            <span class="criterion-score">+{fund_bd.get('per_score', 0)}점</span>
+                            <span class="criterion">배당 성장력</span>
+                            <span class="criterion-value">{'배당귀족' if fund_bd.get('aristocrat_bonus', 0) > 0 else '지속성 평가'}</span>
+                            <span class="criterion-score">+{fund_bd.get('dividend_growth_score', 0)}점 /5</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="criterion">{"EV/EBITDA" if fund_bd.get("valuation_method") == "EV/EBITDA" else "P/B" if fund_bd.get("valuation_method") == "P/B" else "PER"} (저평가)</span>
+                            <span class="criterion-value">{fund_bd.get("valuation_method", "PER")} 지표</span>
+                            <span class="criterion-score">+{fund_bd.get('per_score', 0)}점 /12</span>
                         </div>
                         <div class="breakdown-item">
                             <span class="criterion">ROE (수익성)</span>
                             <span class="criterion-value">{roe_display}</span>
-                            <span class="criterion-score">+{fund_bd.get('roe_score', 0)}점</span>
+                            <span class="criterion-score">+{fund_bd.get('roe_score', 0)}점 /8</span>
                         </div>
                         <div class="breakdown-item">
                             <span class="criterion">부채비율 (D/E)</span>
                             <span class="criterion-value">{"N/A" if fund_bd.get('debt_equity_value') is None else f"{fund_bd.get('debt_equity_value', 0):.0f}%"}</span>
-                            <span class="criterion-score">+{fund_bd.get('debt_equity_score', 0)}점</span>
+                            <span class="criterion-score">+{fund_bd.get('debt_equity_score', 0)}점 /8</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="criterion">FCF Yield</span>
+                            <span class="criterion-value">{"N/A" if fund_bd.get('fcf_yield_value') is None else f"{fund_bd.get('fcf_yield_value', 0):.1f}%"}</span>
+                            <span class="criterion-score">+{fund_bd.get('fcf_score', 0)}점 /5</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="criterion">Beta (시장민감도)</span>
+                            <span class="criterion-value">{"N/A" if fund_bd.get('beta_value') is None else f"{fund_bd.get('beta_value', 0):.2f}"}</span>
+                            <span class="criterion-score">+{fund_bd.get('beta_score', 0)}점 /5</span>
                         </div>''' if is_value_mode else f'''
                         <div class="breakdown-item">
                             <span class="criterion">ROE (자기자본이익률)</span>
                             <span class="criterion-value">{roe_display}</span>
-                            <span class="criterion-score">+{fund_bd.get('roe_score', 0)}점</span>
+                            <span class="criterion-score">+{fund_bd.get('roe_score', 0)}점 /15</span>
                         </div>
                         <div class="breakdown-item">
                             <span class="criterion">OPM (영업이익률)</span>
                             <span class="criterion-value">{opm_display}</span>
-                            <span class="criterion-score">+{fund_bd.get('opm_score', 0)}점</span>
+                            <span class="criterion-score">+{fund_bd.get('opm_score', 0)}점 /10</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="criterion">FCF Margin (현금창출)</span>
+                            <span class="criterion-value">{"N/A" if fund_bd.get('fcf_margin_value') is None else f"{fund_bd.get('fcf_margin_value', 0):.1f}%"}</span>
+                            <span class="criterion-score">+{fund_bd.get('fcf_score', 0)}점 /10</span>
                         </div>
                         <div class="breakdown-item">
                             <span class="criterion">매출성장률</span>
                             <span class="criterion-value">{rg_display}</span>
-                            <span class="criterion-score">+{fund_bd.get('revenue_growth_score', 0)}점</span>
+                            <span class="criterion-score">+{fund_bd.get('revenue_growth_score', 0)}점 /10</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="criterion">PEG (성장가치)</span>
+                            <span class="criterion-value">{"N/A" if fund_bd.get('peg_value') is None else f"{fund_bd.get('peg_value', 0):.2f}"}</span>
+                            <span class="criterion-score">+{fund_bd.get('peg_score', 0)}점</span>
                         </div>''') + f'''
                         <div class="breakdown-item">
                             <span class="criterion">섹터</span>
@@ -2080,17 +2639,17 @@ class TitanKRAnalyzer:
                     </div>
                 </div>
                 <div class="breakdown-section">
-                    <div class="breakdown-title">기술적 점수: {stock.get('tech_score', 0)}점 / 50점</div>
+                    <div class="breakdown-title">기술적 점수: {stock.get('tech_score', 0)}점</div>
                     <div class="breakdown-items">
                         <div class="breakdown-item" style="background: rgba(103, 126, 234, 0.05);">
                             <span class="criterion">📈 추세 분석</span>
                             <span class="criterion-value">MA5/20/60/120, MACD, 일목({tech_bd.get('ichimoku_score', 0)}/3), ADX</span>
-                            <span class="criterion-score">+{tech_bd.get('trend_score', 0)}점 /20</span>
+                            <span class="criterion-score">+{tech_bd.get('trend_score', 0)}점 /18</span>
                         </div>
                         <div class="breakdown-item" style="background: rgba(76, 175, 80, 0.05);">
                             <span class="criterion">⚡ 모멘텀</span>
-                            <span class="criterion-value">RSI:{tech_bd.get('rsi_value', 0):.0f}, Stoch</span>
-                            <span class="criterion-score">+{tech_bd.get('momentum_score', 0)}점 /10</span>
+                            <span class="criterion-value">RSI:{tech_bd.get('rsi_value', 0):.0f}, Stoch, MFI:{tech_bd.get('mfi_value', 0):.0f}</span>
+                            <span class="criterion-score">+{tech_bd.get('momentum_score', 0)}점 /12</span>
                         </div>
                         <div class="breakdown-item" style="background: rgba(255, 152, 0, 0.05);">
                             <span class="criterion">📊 거래량</span>
@@ -2100,12 +2659,17 @@ class TitanKRAnalyzer:
                         <div class="breakdown-item" style="background: rgba(156, 39, 176, 0.05);">
                             <span class="criterion">🌊 변동성</span>
                             <span class="criterion-value">BB, ATR</span>
-                            <span class="criterion-score">+{tech_bd.get('volatility_score', 0)}점 /7</span>
+                            <span class="criterion-score">+{tech_bd.get('volatility_score', 0)}점 /5</span>
                         </div>
                         <div class="breakdown-item" style="background: rgba(244, 67, 54, 0.05);">
                             <span class="criterion">🎯 가격 패턴</span>
                             <span class="criterion-value">52주 {tech_bd.get('price_position', 0):.0%}</span>
                             <span class="criterion-score">+{tech_bd.get('pattern_score', 0)}점 /5</span>
+                        </div>
+                        <div class="breakdown-item" style="background: rgba(33, 150, 243, 0.05);">
+                            <span class="criterion">💪 상대강도 vs KOSPI</span>
+                            <span class="criterion-value">{"N/A" if tech_bd.get('rs_ratio', 0) == 0 else f"{tech_bd.get('rs_ratio', 0):+.1f}%"}</span>
+                            <span class="criterion-score">+{tech_bd.get('rs_score', 0)}점 /5</span>
                         </div>
                     </div>
                 </div>'''
@@ -2202,7 +2766,7 @@ class TitanKRAnalyzer:
             if stock.get('buy_price') is not None:
                 html += f'''
                 <div class="info-item">
-                    <div class="info-label">{stock.get('buy_strategy', '')} [{stock.get('swing_tier', '')}]</div>
+                    <div class="info-label">{stock.get('buy_strategy', '')}</div>
                     <div class="info-value">₩{int(stock['buy_price']):,}</div>
                 </div>
                 <div class="info-item">

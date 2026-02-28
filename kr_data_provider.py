@@ -260,9 +260,19 @@ class KRDataProvider:
             'forwardPE': 0,
             'priceToBook': 0,
             'dividendYield': 0,
+            'dividendRate': None,
             'returnOnEquity': None,
             'operatingMargins': None,
             'revenueGrowth': None,
+            'freeCashflow': None,
+            'totalRevenue': None,
+            'enterpriseToEbitda': None,
+            'debtToEquity': None,
+            'beta': None,
+            'pegRatio': None,
+            'payoutRatio': None,
+            'earningsGrowth': None,
+            'fiveYearAvgDividendYield': None,
             'sector': '',
             'industry': '',
             'shortName': '',
@@ -443,6 +453,12 @@ class KRDataProvider:
                         if revenue_growth is None and yf_info.get('revenueGrowth') is not None:
                             revenue_growth = yf_info['revenueGrowth']
                             info['revenueGrowth'] = revenue_growth
+                        # 추가 필드 (US v2.0 동기화)
+                        for key in ['freeCashflow', 'totalRevenue', 'enterpriseToEbitda',
+                                    'debtToEquity', 'beta', 'pegRatio', 'payoutRatio',
+                                    'earningsGrowth', 'fiveYearAvgDividendYield', 'dividendRate']:
+                            if info.get(key) is None and yf_info.get(key) is not None:
+                                info[key] = yf_info[key]
                         # 유효한 종목 찾았으면 (데이터 유무와 무관) 성공으로 처리
                         self._yf_fail_count = 0
                         break
