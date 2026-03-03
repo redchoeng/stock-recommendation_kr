@@ -2008,8 +2008,8 @@ class TitanKRAnalyzer:
         tech_bd = stock_data.get('tech_breakdown', {})
 
         # 1) 펀더멘털 요약
-        roe = fund_bd.get('roe_value', 0)
-        opm = fund_bd.get('opm_value', 0)
+        roe = fund_bd.get('roe_value') or 0
+        opm = fund_bd.get('opm_value') or 0
         rev_growth = fund_bd.get('revenue_growth_value')
 
         fund_parts = []

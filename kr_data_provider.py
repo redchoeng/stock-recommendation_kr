@@ -305,25 +305,32 @@ class KRDataProvider:
                 info['priceToBook'] = float(pbr) if pbr and pbr > 0 else 0
                 info['dividendYield'] = float(div_yield) / 100 if div_yield and div_yield > 0 else 0
 
-            # 현재가 (벌크 시총 데이터에서 종가 추출, 개별 API 호출 회피)
-            if not cap_df.empty and code in cap_df.index:
+            # 현재가 + 전일종가 (OHLCV 2일치로 전일대비 계산)
+            try:
+                end_date = datetime.strptime(date_str, '%Y%m%d')
+                start_lookback = (end_date - timedelta(days=10)).strftime('%Y%m%d')
+                ohlcv = krx.get_market_ohlcv(start_lookback, date_str, code)
+                if ohlcv is not None and not ohlcv.empty and len(ohlcv) >= 1:
+                    # 거래 있는 날만 (거래정지일 제외)
+                    ohlcv = ohlcv[ohlcv['거래량'] > 0]
+                    if len(ohlcv) >= 1:
+                        info['currentPrice'] = int(ohlcv['종가'].iloc[-1])
+                        info['regularMarketPrice'] = info['currentPrice']
+                        if len(ohlcv) >= 2:
+                            info['previousClose'] = int(ohlcv['종가'].iloc[-2])
+                        else:
+                            info['previousClose'] = info['currentPrice']
+            except Exception:
+                pass
+
+            # 벌크 시총에서 현재가 보완 (개별 OHLCV 실패 시)
+            if info['currentPrice'] == 0 and not cap_df.empty and code in cap_df.index:
                 row = cap_df.loc[code]
                 close_price = row.get('종가', 0)
                 if close_price and close_price > 0:
                     info['currentPrice'] = int(close_price)
                     info['regularMarketPrice'] = info['currentPrice']
-                    info['previousClose'] = info['currentPrice']  # 근사치
-
-            # 벌크에 종가 없으면 개별 호출 (fallback)
-            if info['currentPrice'] == 0:
-                try:
-                    ohlcv = krx.get_market_ohlcv(date_str, date_str, code)
-                    if ohlcv is not None and not ohlcv.empty:
-                        info['currentPrice'] = int(ohlcv['종가'].iloc[-1])
-                        info['regularMarketPrice'] = info['currentPrice']
-                        info['previousClose'] = int(ohlcv['시가'].iloc[-1])
-                except Exception:
-                    pass
+                    info['previousClose'] = info['currentPrice']
 
             # 섹터/업종 (KRX 업종 인덱스)
             self._fill_sector_info(code, info)
