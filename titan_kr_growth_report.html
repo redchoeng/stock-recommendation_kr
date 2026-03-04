@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOSPI Growth - Titan KR - 2026-03-04</title>
+    <title>KOSPI Growth - Titan KR - 2026-03-05</title>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
     <style>
@@ -21,6 +21,20 @@
             --radius: 16px;
             --shadow: 0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
             --shadow-hover: 0 8px 24px rgba(0,0,0,0.08);
+        }
+        [data-theme="dark"] {
+            --bg: #0a0e27;
+            --surface: rgba(255,255,255,0.04);
+            --text: #e0e0e0;
+            --text-sub: #8892b0;
+            --text-muted: #5a6270;
+            --border: rgba(255,255,255,0.08);
+            --accent: #e85d75;
+            --accent-light: rgba(232,93,117,0.15);
+            --green: #81c784;
+            --red: #ef5350;
+            --shadow: 0 2px 8px rgba(0,0,0,0.2);
+            --shadow-hover: 0 8px 24px rgba(0,0,0,0.3);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -192,19 +206,34 @@
             .summary { grid-template-columns: 1fr 1fr; gap: 6px; }
             .stock-card h2 { font-size: 0.95em; }
         }
+        /* 다크모드 보정 */
+        [data-theme="dark"] .verdict.strong-buy { background: rgba(76,175,80,0.15); }
+        [data-theme="dark"] .verdict.buy { background: rgba(76,175,80,0.1); }
+        [data-theme="dark"] .verdict.hold { background: rgba(255,152,0,0.1); color: #ffb74d; }
+        [data-theme="dark"] .comment { background: rgba(251,191,36,0.08); border-left-color: #fbbf24; }
+        /* 다크모드 토글 */
+        .theme-toggle {
+            position: fixed; top: 16px; right: 16px; width: 40px; height: 40px;
+            border-radius: 50%; border: 1px solid var(--border); background: var(--surface);
+            color: var(--text); font-size: 1.2em; cursor: pointer; z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: var(--shadow); transition: all 0.2s;
+        }
+        .theme-toggle:hover { box-shadow: var(--shadow-hover); }
     </style>
 </head>
 <body>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="다크모드 전환">🌙</button>
     <div class="container">
         <div class="market-switcher">
-            <a href="https://redchoeng.github.io/stock-recommendation_2.0/" class="market-btn">US</a>
-            <span class="market-btn active">KR</span>
+            <a href="https://redchoeng.github.io/stock-recommendation_2.0/" class="market-btn">미장</a>
+            <span class="market-btn active">국장</span>
         </div>
         <a href="index.html" class="back-link">&larr; 메인으로</a>
         <div class="header">
             <h1>KOSPI Growth <span class="titan-badge">TITAN KR</span></h1>
             <div class="subtitle">Fundamental + Technical 기반 한국 주식 분석</div>
-            <div class="date">2026-03-04 20:32 KST 업데이트</div>
+            <div class="date">2026-03-05 03:23 KST 업데이트</div>
             <button class="scoring-btn" onclick="document.getElementById('scoringOverlay').classList.add('active')">📐 점수 체계 보기</button>
         </div>
         <div id="scoringOverlay" class="scoring-overlay" onclick="if(event.target===this)this.classList.remove('active')">
@@ -232,7 +261,7 @@
             </div>
             <div class="summary-card" style="grid-column: 1 / -1; background: var(--accent); color: white;">
                 <div class="label" style="color: rgba(255,255,255,0.8);">시장 상태 및 평가 기준</div>
-                <div class="value" style="font-size: 1em; color: white;">📈 상승장 (KOSPI: 5,094, 3개월: +27.8%, ADX: 42)<br>
+                <div class="value" style="font-size: 1em; color: white;">📈 상승장 (KOSPI: 5,094, 3개월: +27.8%, ADX: 46)<br>
                 <span style="font-size: 0.8em; opacity: 0.85;">Strong Buy &ge;85점 | Buy &ge;75점</span></div>
             </div>
         </div>
@@ -1939,6 +1968,23 @@
             btn.textContent = '상세 분석 ▲';
         }
     }
+    </script>
+    <script>
+    function toggleTheme() {
+        var html = document.documentElement;
+        var current = html.getAttribute('data-theme');
+        var next = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        document.getElementById('themeToggle').textContent = next === 'dark' ? '☀️' : '🌙';
+        localStorage.setItem('titan-kr-theme', next);
+    }
+    (function() {
+        var saved = localStorage.getItem('titan-kr-theme') || 'light';
+        if (saved === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.getElementById('themeToggle').textContent = '☀️';
+        }
+    })();
     </script>
 </body>
 </html>
