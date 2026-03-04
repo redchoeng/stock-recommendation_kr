@@ -2321,6 +2321,20 @@ class TitanKRAnalyzer:
             --shadow: 0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
             --shadow-hover: 0 8px 24px rgba(0,0,0,0.08);
         }}
+        [data-theme="dark"] {{
+            --bg: #0a0e27;
+            --surface: rgba(255,255,255,0.04);
+            --text: #e0e0e0;
+            --text-sub: #8892b0;
+            --text-muted: #5a6270;
+            --border: rgba(255,255,255,0.08);
+            --accent: {('#e85d75' if 'E85D75' in primary_color else '#e8a838' if 'E8A838' in primary_color else '#667eea')};
+            --accent-light: {('rgba(232,93,117,0.15)' if 'E85D75' in primary_color else 'rgba(232,168,56,0.15)' if 'E8A838' in primary_color else 'rgba(102,126,234,0.15)')};
+            --green: #81c784;
+            --red: #ef5350;
+            --shadow: 0 2px 8px rgba(0,0,0,0.2);
+            --shadow-hover: 0 8px 24px rgba(0,0,0,0.3);
+        }}
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         body {{
             font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
@@ -2491,13 +2505,28 @@ class TitanKRAnalyzer:
             .summary {{ grid-template-columns: 1fr 1fr; gap: 6px; }}
             .stock-card h2 {{ font-size: 0.95em; }}
         }}
+        /* 다크모드 보정 */
+        [data-theme="dark"] .verdict.strong-buy {{ background: rgba(76,175,80,0.15); }}
+        [data-theme="dark"] .verdict.buy {{ background: rgba(76,175,80,0.1); }}
+        [data-theme="dark"] .verdict.hold {{ background: rgba(255,152,0,0.1); color: #ffb74d; }}
+        [data-theme="dark"] .comment {{ background: rgba(251,191,36,0.08); border-left-color: #fbbf24; }}
+        /* 다크모드 토글 */
+        .theme-toggle {{
+            position: fixed; top: 16px; right: 16px; width: 40px; height: 40px;
+            border-radius: 50%; border: 1px solid var(--border); background: var(--surface);
+            color: var(--text); font-size: 1.2em; cursor: pointer; z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: var(--shadow); transition: all 0.2s;
+        }}
+        .theme-toggle:hover {{ box-shadow: var(--shadow-hover); }}
     </style>
 </head>
 <body>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="다크모드 전환">🌙</button>
     <div class="container">
         <div class="market-switcher">
-            <a href="https://redchoeng.github.io/stock-recommendation_2.0/" class="market-btn">US</a>
-            <span class="market-btn active">KR</span>
+            <a href="https://redchoeng.github.io/stock-recommendation_2.0/" class="market-btn">미장</a>
+            <span class="market-btn active">국장</span>
         </div>
         <a href="index.html" class="back-link">&larr; 메인으로</a>
         <div class="header">
@@ -2811,6 +2840,23 @@ class TitanKRAnalyzer:
             btn.textContent = '상세 분석 ▲';
         }}
     }}
+    </script>
+    <script>
+    function toggleTheme() {{
+        var html = document.documentElement;
+        var current = html.getAttribute('data-theme');
+        var next = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        document.getElementById('themeToggle').textContent = next === 'dark' ? '☀️' : '🌙';
+        localStorage.setItem('titan-kr-theme', next);
+    }}
+    (function() {{
+        var saved = localStorage.getItem('titan-kr-theme') || 'light';
+        if (saved === 'dark') {{
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.getElementById('themeToggle').textContent = '☀️';
+        }}
+    }})();
     </script>
 </body>
 </html>'''
