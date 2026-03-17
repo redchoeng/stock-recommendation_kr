@@ -880,7 +880,7 @@
     "analyst_comment": "MA20>MA60 정배열이나 단기 조정 구간. RSI 47으로 매도세 우위. 상승 추세 내 조정 구간으로 분할 매수 접근 권장."
   },
   "003670": {
-    "score": 12,
+    "score": 14,
     "fund_score": 2,
     "tech_score": 10,
     "price": 193100,
@@ -892,8 +892,8 @@
     "strategy": "📊 풀백매수(스윙저점)",
     "comment": "[Policy]K-배터리 정책수혜, ADX:27, RSI:41*, Stoch골든",
     "contrarian_adjustment": 0,
-    "trading_bonus": 3,
-    "trading_tier": "Active",
+    "trading_bonus": 5,
+    "trading_tier": "Hot",
     "rotation_bonus": -3,
     "rotation_phase": "과열주의",
     "sector_name": "2차전지",
