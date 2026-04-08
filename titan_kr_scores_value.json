@@ -559,7 +559,7 @@
     "debt_equity_value": 36.566,
     "beta_value": 0.417,
     "beta_score": 5,
-    "fcf_yield_value": 7.7,
+    "fcf_yield_value": 7.6,
     "rsi_value": 47.035237044905266,
     "mfi_value": 39.7050248173279,
     "atr_value": 9706.06466777567,
@@ -2332,7 +2332,7 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 58으로 매수세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "010130": {
-    "score": 47,
+    "score": 45,
     "fund_score": 33,
     "tech_score": 9,
     "price": 1585000,
@@ -2344,8 +2344,8 @@
     "strategy": "🔄 반등대기(스윙저점)",
     "comment": "배당성장력3점, ROE:8.2%, D/E:53, LowBeta(0.60)",
     "contrarian_adjustment": 0,
-    "trading_bonus": 5,
-    "trading_tier": "Hot",
+    "trading_bonus": 3,
+    "trading_tier": "Active",
     "rotation_bonus": 0,
     "rotation_phase": "중립",
     "sector_name": "기타",
