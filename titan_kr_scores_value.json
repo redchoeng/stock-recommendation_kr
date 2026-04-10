@@ -748,8 +748,8 @@
     "analyst_comment": "ROE 5.1%로 수익성 보통. MA20>MA60 정배열이나 단기 조정 구간. RSI 50으로 매도세 우위. 상승 추세 내 조정 구간으로 분할 매수 접근 권장."
   },
   "006800": {
-    "score": 35,
-    "fund_score": 19,
+    "score": 36,
+    "fund_score": 20,
     "tech_score": 11,
     "price": 66500,
     "company_name": "미래에셋증권",
@@ -775,7 +775,7 @@
     "dividend_growth_score": 5,
     "valuation_method": "PER",
     "ev_ebitda_value": null,
-    "per_value": 20.991535,
+    "per_value": 20.271206,
     "debt_equity_value": 672.25,
     "beta_value": 1.596,
     "beta_score": 0,
