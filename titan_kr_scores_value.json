@@ -704,8 +704,8 @@
     "analyst_comment": "ROE 18.0%로 양호한 수익성. MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 55으로 매수세 우위. 상승 추세 지속 중으로 추세 추종 매매가 유효."
   },
   "003540": {
-    "score": 57,
-    "fund_score": 33,
+    "score": 59,
+    "fund_score": 35,
     "tech_score": 24,
     "price": 39200,
     "company_name": "대신증권",
@@ -714,7 +714,7 @@
     "target_price": 41550.0,
     "stop_loss": 37191.825,
     "strategy": "📈 추세추종(MA20↑)",
-    "comment": "배당3.1%, 배당성장력3점, PER:10.0, MA120↑",
+    "comment": "배당3.1%, 배당성장력5점, PER:10.0, MA120↑",
     "contrarian_adjustment": 0,
     "trading_bonus": 0,
     "trading_tier": "Normal",
@@ -728,7 +728,7 @@
     "fcf_margin_value": null,
     "fcf_score": 0,
     "dividend_yield_value": 3.06,
-    "dividend_growth_score": 3,
+    "dividend_growth_score": 5,
     "valuation_method": "PER",
     "ev_ebitda_value": null,
     "per_value": 10.038412,
