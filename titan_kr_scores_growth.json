@@ -1,6 +1,6 @@
 {
   "005930": {
-    "score": 77,
+    "score": 80,
     "fund_score": 36,
     "tech_score": 39,
     "price": 220500,
@@ -14,8 +14,8 @@
     "contrarian_adjustment": 0,
     "trading_bonus": 5,
     "trading_tier": "Hot",
-    "rotation_bonus": -3,
-    "rotation_phase": "과열주의",
+    "rotation_bonus": 0,
+    "rotation_phase": "중립",
     "sector_name": "AI/반도체",
     "roe_value": 10.783,
     "opm_value": 21.322,
@@ -44,7 +44,7 @@
     "analyst_comment": "ROE 10.8%로 양호한 수익성. 영업이익률 21.3%로 안정적. 매출 YoY +24% 성장세. MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 59으로 매수세 우위. 상승 추세 지속 중으로 추세 추종 매매가 유효."
   },
   "000660": {
-    "score": 65,
+    "score": 68,
     "fund_score": 30,
     "tech_score": 36,
     "price": 1286000,
@@ -58,8 +58,8 @@
     "contrarian_adjustment": -3,
     "trading_bonus": 5,
     "trading_tier": "Hot",
-    "rotation_bonus": -3,
-    "rotation_phase": "과열주의",
+    "rotation_bonus": 0,
+    "rotation_phase": "중립",
     "sector_name": "AI/반도체",
     "roe_value": 61.172000000000004,
     "opm_value": 71.535003,
@@ -88,7 +88,7 @@
     "analyst_comment": "ROE 61.2%로 수익성 최상위권. 영업이익률 71.5%의 고마진 구조. 매출 YoY +198% 고성장. MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 71으로 과매수 영역 → 단기 조정 유의. 과열 구간으로 신규 진입보다 조정 후 재진입 권장."
   },
   "042700": {
-    "score": 71,
+    "score": 74,
     "fund_score": 30,
     "tech_score": 42,
     "price": 368000,
@@ -102,8 +102,8 @@
     "contrarian_adjustment": -3,
     "trading_bonus": 5,
     "trading_tier": "Hot",
-    "rotation_bonus": -3,
-    "rotation_phase": "과열주의",
+    "rotation_bonus": 0,
+    "rotation_phase": "중립",
     "sector_name": "AI/반도체",
     "roe_value": 34.764,
     "opm_value": 33.280998000000004,
@@ -132,7 +132,7 @@
     "analyst_comment": "ROE 34.8%로 수익성 최상위권. 영업이익률 33.3%의 고마진 구조. MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 71으로 과매수 영역 → 단기 조정 유의. 과열 구간으로 신규 진입보다 조정 후 재진입 권장."
   },
   "403870": {
-    "score": 28,
+    "score": 31,
     "fund_score": 2,
     "tech_score": 32,
     "price": 52600,
@@ -146,8 +146,8 @@
     "contrarian_adjustment": 0,
     "trading_bonus": -3,
     "trading_tier": "Thin",
-    "rotation_bonus": -3,
-    "rotation_phase": "과열주의",
+    "rotation_bonus": 0,
+    "rotation_phase": "중립",
     "sector_name": "AI/반도체",
     "roe_value": null,
     "opm_value": null,
@@ -176,7 +176,7 @@
     "analyst_comment": "MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 62으로 매수세 우위. 상승 추세 지속 중으로 추세 추종 매매가 유효."
   },
   "058470": {
-    "score": 42,
+    "score": 45,
     "fund_score": 2,
     "tech_score": 46,
     "price": 119300,
@@ -190,8 +190,8 @@
     "contrarian_adjustment": 0,
     "trading_bonus": -3,
     "trading_tier": "Thin",
-    "rotation_bonus": -3,
-    "rotation_phase": "과열주의",
+    "rotation_bonus": 0,
+    "rotation_phase": "중립",
     "sector_name": "AI/반도체",
     "roe_value": null,
     "opm_value": null,
@@ -660,7 +660,7 @@
     "analyst_comment": "MA20<MA60 역배열로 약세 흐름. RSI 38으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "373220": {
-    "score": 50,
+    "score": 53,
     "fund_score": 10,
     "tech_score": 38,
     "price": 460500,
@@ -674,8 +674,8 @@
     "contrarian_adjustment": 0,
     "trading_bonus": 5,
     "trading_tier": "Hot",
-    "rotation_bonus": -3,
-    "rotation_phase": "과열주의",
+    "rotation_bonus": 0,
+    "rotation_phase": "중립",
     "sector_name": "2차전지",
     "roe_value": 0.26800002,
     "opm_value": 19.408001,
@@ -704,7 +704,7 @@
     "analyst_comment": "ROE 0.3%로 수익성 보통. 영업이익률 19.4%로 안정적. MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 59으로 매수세 우위. 상승 추세 지속 중으로 추세 추종 매매가 유효."
   },
   "006400": {
-    "score": 33,
+    "score": 36,
     "fund_score": 3,
     "tech_score": 38,
     "price": 695000,
@@ -718,8 +718,8 @@
     "contrarian_adjustment": -10,
     "trading_bonus": 5,
     "trading_tier": "Hot",
-    "rotation_bonus": -3,
-    "rotation_phase": "과열주의",
+    "rotation_bonus": 0,
+    "rotation_phase": "중립",
     "sector_name": "2차전지",
     "roe_value": -3.8760000000000003,
     "opm_value": -9.822000000000001,
@@ -792,7 +792,7 @@
     "analyst_comment": "MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 64으로 매수세 우위. 상승 추세 지속 중으로 추세 추종 매매가 유효."
   },
   "247540": {
-    "score": 5,
+    "score": 8,
     "fund_score": 2,
     "tech_score": 9,
     "price": 206000,
@@ -806,8 +806,8 @@
     "contrarian_adjustment": 0,
     "trading_bonus": -3,
     "trading_tier": "Thin",
-    "rotation_bonus": -3,
-    "rotation_phase": "과열주의",
+    "rotation_bonus": 0,
+    "rotation_phase": "중립",
     "sector_name": "2차전지",
     "roe_value": null,
     "opm_value": null,
@@ -836,7 +836,7 @@
     "analyst_comment": "MA20>MA60 정배열이나 단기 조정 구간. RSI 50으로 매수세 우위. 상승 추세 내 조정 구간으로 분할 매수 접근 권장."
   },
   "086520": {
-    "score": 10,
+    "score": 13,
     "fund_score": 2,
     "tech_score": 14,
     "price": 152900,
@@ -850,8 +850,8 @@
     "contrarian_adjustment": 0,
     "trading_bonus": -3,
     "trading_tier": "Thin",
-    "rotation_bonus": -3,
-    "rotation_phase": "과열주의",
+    "rotation_bonus": 0,
+    "rotation_phase": "중립",
     "sector_name": "2차전지",
     "roe_value": null,
     "opm_value": null,
@@ -880,7 +880,7 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 50으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "003670": {
-    "score": 38,
+    "score": 41,
     "fund_score": 2,
     "tech_score": 34,
     "price": 252000,
@@ -894,8 +894,8 @@
     "contrarian_adjustment": 0,
     "trading_bonus": 5,
     "trading_tier": "Hot",
-    "rotation_bonus": -3,
-    "rotation_phase": "과열주의",
+    "rotation_bonus": 0,
+    "rotation_phase": "중립",
     "sector_name": "2차전지",
     "roe_value": 0.9330000999999999,
     "opm_value": -9.328,
@@ -968,7 +968,7 @@
     "analyst_comment": "ROE 6.6%로 수익성 보통. MA20>MA60 정배열이나 단기 조정 구간. RSI 49으로 매도세 우위. 상승 추세 내 조정 구간으로 분할 매수 접근 권장."
   },
   "361610": {
-    "score": 25,
+    "score": 28,
     "fund_score": 0,
     "tech_score": 31,
     "price": 26400,
@@ -982,8 +982,8 @@
     "contrarian_adjustment": 0,
     "trading_bonus": -3,
     "trading_tier": "Thin",
-    "rotation_bonus": -3,
-    "rotation_phase": "과열주의",
+    "rotation_bonus": 0,
+    "rotation_phase": "중립",
     "sector_name": "2차전지",
     "roe_value": -8.583,
     "opm_value": -181.19099,
