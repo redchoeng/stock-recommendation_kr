@@ -1,7 +1,7 @@
 {
   "005930": {
-    "score": 80,
-    "fund_score": 38,
+    "score": 76,
+    "fund_score": 34,
     "tech_score": 40,
     "price": 271500,
     "company_name": "삼성전자",
@@ -20,7 +20,7 @@
     "roe_value": 18.854000000000003,
     "opm_value": 42.718,
     "revenue_growth_value": 69.3,
-    "peg_value": 0.17,
+    "peg_value": null,
     "fcf_margin_value": 4.3,
     "fcf_score": 5,
     "dividend_yield_value": null,
