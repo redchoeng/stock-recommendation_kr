@@ -233,7 +233,7 @@
         <div class="header">
             <h1>KOSPI Value <span class="titan-badge">TITAN KR</span></h1>
             <div class="subtitle">Fundamental + Technical 기반 한국 주식 분석</div>
-            <div class="date">2026-06-12 18:54 KST 업데이트</div>
+            <div class="date">2026-06-12 20:40 KST 업데이트</div>
             <button class="scoring-btn" onclick="document.getElementById('scoringOverlay').classList.add('active')">📐 점수 체계 보기</button>
         </div>
         <div id="scoringOverlay" class="scoring-overlay" onclick="if(event.target===this)this.classList.remove('active')">
@@ -253,11 +253,11 @@
             </div>
             <div class="summary-card">
                 <div class="label">Strong Buy (&ge;85점)</div>
-                <div class="value">1개</div>
+                <div class="value">0개</div>
             </div>
             <div class="summary-card">
                 <div class="label">평균 점수</div>
-                <div class="value">63점</div>
+                <div class="value">62점</div>
             </div>
             <div class="summary-card" style="grid-column: 1 / -1; background: var(--accent); color: white;">
                 <div class="label" style="color: rgba(255,255,255,0.8);">시장 상태 및 평가 기준</div>
@@ -268,15 +268,15 @@
 
         <div class="stock-card">
             <div class="rank">#1</div>
-            <span class="score-badge strong">86점</span>
+            <span class="score-badge high">81점</span>
             <h2><span class="ticker">000810</span> <span style="font-size:0.7em; color:#7B6B4F; font-weight:normal;">삼성화재</span></h2>
-            <span class="verdict strong-buy-">Strong Buy ★</span>
+            <span class="verdict buy">Buy</span>
 
             <button class="detail-toggle" onclick="toggleDetail(1)">상세 분석 ▼</button>
             <div class="score-breakdown" id="detail-1">
                 <h3>📊 점수 상세 분석</h3>
                 <div class="breakdown-section">
-                    <div class="breakdown-title">펀더멘털 점수: 50점 / 50점</div>
+                    <div class="breakdown-title">펀더멘털 점수: 45점 / 50점</div>
                     <div class="breakdown-items">
                         <div class="breakdown-item">
                             <span class="criterion">배당수익률</span>
@@ -295,7 +295,7 @@
                         </div>
                         <div class="breakdown-item">
                             <span class="criterion">ROE (수익성)</span>
-                            <span class="criterion-value">11.0%</span>
+                            <span class="criterion-value">10.3%</span>
                             <span class="criterion-score">+6점 /8</span>
                         </div>
                         <div class="breakdown-item">
@@ -305,13 +305,13 @@
                         </div>
                         <div class="breakdown-item">
                             <span class="criterion">FCF Yield</span>
-                            <span class="criterion-value">-17.6%</span>
+                            <span class="criterion-value">-27.3%</span>
                             <span class="criterion-score">+0점 /5</span>
                         </div>
                         <div class="breakdown-item">
                             <span class="criterion">Beta (시장민감도)</span>
-                            <span class="criterion-value">0.44</span>
-                            <span class="criterion-score">+5점 /5</span>
+                            <span class="criterion-value">N/A</span>
+                            <span class="criterion-score">+0점 /5</span>
                         </div>
                         <div class="breakdown-item">
                             <span class="criterion">섹터</span>
@@ -366,8 +366,8 @@
                         </div>
                         <div class="breakdown-item" style="background: rgba(232, 93, 117, 0.05);">
                             <span class="criterion">원래 펀더 점수</span>
-                            <span class="criterion-value">48점</span>
-                            <span class="criterion-score">&rarr; 50점</span>
+                            <span class="criterion-value">43점</span>
+                            <span class="criterion-score">&rarr; 45점</span>
                         </div>
                     </div>
                 </div>
@@ -378,8 +378,8 @@
                     <div class="breakdown-items">
                         <div class="breakdown-item" style="background: rgba(76, 175, 80, 0.1);">
                             <span class="criterion">최종 점수</span>
-                            <span class="criterion-value">50 + 31 +5</span>
-                            <span class="criterion-score" style="color: #E85D75; font-size: 1.1em;">86점</span>
+                            <span class="criterion-value">45 + 31 +5</span>
+                            <span class="criterion-score" style="color: #E85D75; font-size: 1.1em;">81점</span>
                         </div>
                     </div>
                 </div>
@@ -406,10 +406,10 @@
                     <div class="info-value" style="color: #F44336;">₩608,220</div>
                 </div>
             </div>
-            <div class="comment">배당3.0%, 배당성장력5점, PER:11.0, ROE:11.0%</div>
+            <div class="comment">배당3.0%, 배당성장력5점, PER:11.0, ROE:10.3%</div>
             <div class="analyst-view">
                 <div class="analyst-header">📝 Titan 애널리스트 뷰</div>
-                <div class="analyst-comment">ROE 11.0%로 양호한 수익성. MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 61으로 매수세 우위. 상승 추세 지속 중으로 추세 추종 매매가 유효.</div>
+                <div class="analyst-comment">ROE 10.3%로 양호한 수익성. MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 61으로 매수세 우위. 상승 추세 지속 중으로 추세 추종 매매가 유효.</div>
             </div>
         </div>
 
@@ -2746,23 +2746,23 @@
                         </div>
                         <div class="breakdown-item">
                             <span class="criterion">ROE (수익성)</span>
-                            <span class="criterion-value">20.6%</span>
+                            <span class="criterion-value">21.9%</span>
                             <span class="criterion-score">+8점 /8</span>
                         </div>
                         <div class="breakdown-item">
                             <span class="criterion">부채비율 (D/E)</span>
-                            <span class="criterion-value">69%</span>
+                            <span class="criterion-value">64%</span>
                             <span class="criterion-score">+8점 /8</span>
                         </div>
                         <div class="breakdown-item">
                             <span class="criterion">FCF Yield</span>
-                            <span class="criterion-value">-47.1%</span>
-                            <span class="criterion-score">+0점 /5</span>
+                            <span class="criterion-value">63.2%</span>
+                            <span class="criterion-score">+5점 /5</span>
                         </div>
                         <div class="breakdown-item">
                             <span class="criterion">Beta (시장민감도)</span>
-                            <span class="criterion-value">0.03</span>
-                            <span class="criterion-score">+5점 /5</span>
+                            <span class="criterion-value">N/A</span>
+                            <span class="criterion-score">+0점 /5</span>
                         </div>
                         <div class="breakdown-item">
                             <span class="criterion">섹터</span>
@@ -2845,10 +2845,10 @@
                     <div class="info-value" style="color: #F44336;">₩36,502</div>
                 </div>
             </div>
-            <div class="comment">PER:3.6, ROE:20.6%, D/E:69, LowBeta(0.03)</div>
+            <div class="comment">PER:3.6, ROE:21.9%, D/E:64, 현금흐름최상위</div>
             <div class="analyst-view">
                 <div class="analyst-header">📝 Titan 애널리스트 뷰</div>
-                <div class="analyst-comment">ROE 20.6%로 수익성 최상위권. MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 66으로 매수세 우위. 상승 추세 지속 중으로 추세 추종 매매가 유효.</div>
+                <div class="analyst-comment">ROE 21.9%로 수익성 최상위권. MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 66으로 매수세 우위. 상승 추세 지속 중으로 추세 추종 매매가 유효.</div>
             </div>
         </div>
 
