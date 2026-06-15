@@ -572,8 +572,8 @@
     "analyst_comment": "ROE 16.1%로 양호한 수익성. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 51으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "001450": {
-    "score": 65,
-    "fund_score": 35,
+    "score": 70,
+    "fund_score": 40,
     "tech_score": 30,
     "price": 40700,
     "company_name": "현대해상",
@@ -601,8 +601,8 @@
     "ev_ebitda_value": null,
     "per_value": 3.7151423,
     "debt_equity_value": 63.698,
-    "beta_value": null,
-    "beta_score": 0,
+    "beta_value": 0.032,
+    "beta_score": 5,
     "fcf_yield_value": 61.0,
     "rsi_value": 69.9158297977872,
     "mfi_value": 63.458873976266524,
