@@ -2332,7 +2332,7 @@
     "analyst_comment": "MA20<MA60 역배열로 약세 흐름. RSI 33으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "010130": {
-    "score": 50,
+    "score": 47,
     "fund_score": 44,
     "tech_score": 3,
     "price": 1034000,
@@ -2344,8 +2344,8 @@
     "strategy": "🔄 반등대기(스윙저점)",
     "comment": "배당2.4%, 배당성장력5점, EV/EBITDA:13.2x, ROE:10.1%",
     "contrarian_adjustment": 0,
-    "trading_bonus": 3,
-    "trading_tier": "Active",
+    "trading_bonus": 0,
+    "trading_tier": "Normal",
     "rotation_bonus": 0,
     "rotation_phase": "중립",
     "sector_name": "기타",
