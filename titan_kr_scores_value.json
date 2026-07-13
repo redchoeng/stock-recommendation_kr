@@ -176,7 +176,7 @@
     "analyst_comment": "ROE 8.5%로 수익성 보통. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 54으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "024110": {
-    "score": 51,
+    "score": 54,
     "fund_score": 40,
     "tech_score": 11,
     "price": 21150,
@@ -188,8 +188,8 @@
     "strategy": "📦 박스권하단(스윙저점)",
     "comment": "배당5.0%, 배당성장력3점, PER:5.8, ROE:7.4%",
     "contrarian_adjustment": 0,
-    "trading_bonus": 0,
-    "trading_tier": "Normal",
+    "trading_bonus": 3,
+    "trading_tier": "Active",
     "rotation_bonus": 0,
     "rotation_phase": "중립",
     "sector_name": "기타",
@@ -2992,7 +2992,7 @@
     "analyst_comment": "ROE 3.5%로 수익성 보통. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 44으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "001740": {
-    "score": 51,
+    "score": 53,
     "fund_score": 43,
     "tech_score": 5,
     "price": 8150,
@@ -3004,8 +3004,8 @@
     "strategy": "📊 풀백매수(BB하단)",
     "comment": "배당3.1%, 배당성장력3점, EV/EBITDA:9.8x, D/E:86",
     "contrarian_adjustment": 0,
-    "trading_bonus": 3,
-    "trading_tier": "Active",
+    "trading_bonus": 5,
+    "trading_tier": "Hot",
     "rotation_bonus": 0,
     "rotation_phase": "중립",
     "sector_name": "기타",
