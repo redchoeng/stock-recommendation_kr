@@ -1540,8 +1540,8 @@
     "analyst_comment": "MA20<MA60 역배열로 약세 흐름. RSI 30으로 과매도 영역 → 반등 가능성. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "328130": {
-    "score": 8,
-    "fund_score": 9,
+    "score": -1,
+    "fund_score": 0,
     "tech_score": 2,
     "price": 9360,
     "company_name": "루닛",
@@ -1557,11 +1557,11 @@
     "rotation_bonus": 0,
     "rotation_phase": "중립",
     "sector_name": "기타",
-    "roe_value": -45.298,
-    "opm_value": -56.765,
-    "revenue_growth_value": 24.7,
+    "roe_value": null,
+    "opm_value": null,
+    "revenue_growth_value": null,
     "peg_value": null,
-    "fcf_margin_value": -105.6,
+    "fcf_margin_value": null,
     "fcf_score": 0,
     "dividend_yield_value": null,
     "dividend_growth_score": 0,
@@ -1581,7 +1581,7 @@
     "ma20": 10772.5,
     "ma60": 15091.416666666666,
     "ma120": 16734.283333333333,
-    "analyst_comment": "매출 YoY +25% 성장세. MA20<MA60 역배열로 약세 흐름. RSI 30으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
+    "analyst_comment": "MA20<MA60 역배열로 약세 흐름. RSI 30으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "006280": {
     "score": 14,
@@ -2200,8 +2200,8 @@
     "analyst_comment": "ROE 2.6%로 수익성 보통. MA20<MA60 역배열로 약세 흐름. RSI 41으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "032640": {
-    "score": 9,
-    "fund_score": 0,
+    "score": 29,
+    "fund_score": 20,
     "tech_score": 9,
     "price": 14500,
     "company_name": "LG유플러스",
@@ -2210,19 +2210,19 @@
     "target_price": 16700.0,
     "stop_loss": 13671.9,
     "strategy": "🔄 반등대기(스윙저점)",
-    "comment": "RSI:47*, Stoch골든, ⚠하락추세",
+    "comment": "OPM:7.2%, FCF:6%, PEG저평가(0.70), RSI:47*",
     "contrarian_adjustment": 0,
     "trading_bonus": 0,
     "trading_tier": "Normal",
     "rotation_bonus": 0,
     "rotation_phase": "중립",
     "sector_name": "기타",
-    "roe_value": null,
-    "opm_value": null,
-    "revenue_growth_value": null,
-    "peg_value": null,
-    "fcf_margin_value": null,
-    "fcf_score": 0,
+    "roe_value": 5.8730002,
+    "opm_value": 7.158,
+    "revenue_growth_value": 1.5,
+    "peg_value": 0.7,
+    "fcf_margin_value": 6.1,
+    "fcf_score": 6,
     "dividend_yield_value": null,
     "dividend_growth_score": 0,
     "valuation_method": "PER",
@@ -2241,7 +2241,7 @@
     "ma20": 14421.5,
     "ma60": 15319.666666666666,
     "ma120": 15688.833333333334,
-    "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 47으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
+    "analyst_comment": "ROE 5.9%로 수익성 보통. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 47으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "012450": {
     "score": 35,
