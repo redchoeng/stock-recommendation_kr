@@ -1540,8 +1540,8 @@
     "analyst_comment": "MA20<MA60 역배열로 약세 흐름. RSI 30으로 과매도 영역 → 반등 가능성. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "328130": {
-    "score": -1,
-    "fund_score": 0,
+    "score": 8,
+    "fund_score": 9,
     "tech_score": 2,
     "price": 9360,
     "company_name": "루닛",
@@ -1557,11 +1557,11 @@
     "rotation_bonus": 0,
     "rotation_phase": "중립",
     "sector_name": "기타",
-    "roe_value": null,
-    "opm_value": null,
-    "revenue_growth_value": null,
+    "roe_value": -45.298,
+    "opm_value": -56.765,
+    "revenue_growth_value": 24.7,
     "peg_value": null,
-    "fcf_margin_value": null,
+    "fcf_margin_value": -105.6,
     "fcf_score": 0,
     "dividend_yield_value": null,
     "dividend_growth_score": 0,
@@ -1581,7 +1581,7 @@
     "ma20": 10772.5,
     "ma60": 15091.416666666666,
     "ma120": 16734.283333333333,
-    "analyst_comment": "MA20<MA60 역배열로 약세 흐름. RSI 30으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
+    "analyst_comment": "매출 YoY +25% 성장세. MA20<MA60 역배열로 약세 흐름. RSI 30으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "006280": {
     "score": 14,
