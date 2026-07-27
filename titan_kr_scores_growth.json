@@ -264,7 +264,7 @@
     "analyst_comment": "MA20<MA60 역배열로 약세 흐름. RSI 42으로 매도세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "025560": {
-    "score": 65,
+    "score": 68,
     "fund_score": 26,
     "tech_score": 42,
     "price": 10210,
@@ -276,8 +276,8 @@
     "strategy": "📈 추세추종(MA20↑)",
     "comment": "ROE:13.5%, OPM:23.6%, MA120↑, 일목3/3",
     "contrarian_adjustment": 0,
-    "trading_bonus": -3,
-    "trading_tier": "Thin",
+    "trading_bonus": 0,
+    "trading_tier": "Normal",
     "rotation_bonus": 0,
     "rotation_phase": "중립",
     "sector_name": "기타",
@@ -1100,7 +1100,7 @@
     "analyst_comment": "ROE 4.4%로 수익성 보통. MA20<MA60 역배열로 약세 흐름. RSI 41으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "207940": {
-    "score": 79,
+    "score": 77,
     "fund_score": 36,
     "tech_score": 33,
     "price": 1545000,
@@ -1112,8 +1112,8 @@
     "strategy": "📈 추세추종(MA20↑)",
     "comment": "ROE:18.2%, OPM:46.2%, FCF:23%, MA120↑",
     "contrarian_adjustment": 0,
-    "trading_bonus": 5,
-    "trading_tier": "Hot",
+    "trading_bonus": 3,
+    "trading_tier": "Active",
     "rotation_bonus": 5,
     "rotation_phase": "수급유입",
     "sector_name": "바이오",
