@@ -1,11 +1,11 @@
 {
   "005930": {
-    "score": 75,
-    "fund_score": 46,
-    "tech_score": 19,
+    "score": 72,
+    "fund_score": 41,
+    "tech_score": 21,
     "price": 268000,
     "company_name": "삼성전자",
-    "verdict": "Buy",
+    "verdict": "Hold",
     "buy_price": 250917.5,
     "target_price": 290516.6666666667,
     "stop_loss": 237600.0,
@@ -44,12 +44,12 @@
     "analyst_comment": "ROE 30.8%로 수익성 최상위권. 영업이익률 52.2%의 고마진 구조. 매출 YoY +130% 고성장. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 53으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "000660": {
-    "score": 66,
-    "fund_score": 38,
-    "tech_score": 18,
+    "score": 64,
+    "fund_score": 34,
+    "tech_score": 20,
     "price": 1593000,
     "company_name": "SK하이닉스",
-    "verdict": "Hold",
+    "verdict": "Avoid",
     "buy_price": 1271215.8198890192,
     "target_price": 2063200.0,
     "stop_loss": 1233079.3452923486,
@@ -88,12 +88,12 @@
     "analyst_comment": "ROE 92.7%로 수익성 최상위권. 영업이익률 76.3%의 고마진 구조. 매출 YoY +257% 고성장. MA20<MA60 역배열로 약세 흐름. RSI 45으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "042700": {
-    "score": 60,
-    "fund_score": 36,
-    "tech_score": 14,
+    "score": 57,
+    "fund_score": 32,
+    "tech_score": 15,
     "price": 226000,
     "company_name": "한미반도체",
-    "verdict": "Hold",
+    "verdict": "Avoid",
     "buy_price": 190600.0,
     "target_price": 251928.33333333334,
     "stop_loss": 177258.0,
@@ -132,9 +132,9 @@
     "analyst_comment": "ROE 30.8%로 수익성 최상위권. 영업이익률 16.6%로 안정적. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 53으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "403870": {
-    "score": 12,
+    "score": 13,
     "fund_score": 2,
-    "tech_score": 8,
+    "tech_score": 9,
     "price": 41200,
     "company_name": "HPSP",
     "verdict": "Avoid",
@@ -176,9 +176,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 53으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "058470": {
-    "score": 12,
+    "score": 13,
     "fund_score": 2,
-    "tech_score": 8,
+    "tech_score": 9,
     "price": 71300,
     "company_name": "리노공업",
     "verdict": "Avoid",
@@ -220,9 +220,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 51으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "036930": {
-    "score": 10,
+    "score": 11,
     "fund_score": 0,
-    "tech_score": 13,
+    "tech_score": 14,
     "price": 179300,
     "company_name": "주성엔지니어링",
     "verdict": "Avoid",
@@ -265,8 +265,8 @@
   },
   "025560": {
     "score": 65,
-    "fund_score": 29,
-    "tech_score": 36,
+    "fund_score": 26,
+    "tech_score": 39,
     "price": 10230,
     "company_name": "미래산업",
     "verdict": "Hold",
@@ -308,9 +308,9 @@
     "analyst_comment": "ROE 13.5%로 양호한 수익성. 영업이익률 23.6%로 안정적. 매출 YoY +337% 고성장. MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 62으로 매수세 우위. 상승 추세 지속 중으로 추세 추종 매매가 유효."
   },
   "045660": {
-    "score": 22,
+    "score": 24,
     "fund_score": 0,
-    "tech_score": 25,
+    "tech_score": 27,
     "price": 8400,
     "company_name": "에이텍",
     "verdict": "Avoid",
@@ -352,9 +352,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 55으로 매수세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "357780": {
-    "score": 5,
+    "score": 6,
     "fund_score": 0,
-    "tech_score": 8,
+    "tech_score": 9,
     "price": 328000,
     "company_name": "솔브레인",
     "verdict": "Avoid",
@@ -396,9 +396,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 59으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "005290": {
-    "score": 3,
+    "score": 4,
     "fund_score": 0,
-    "tech_score": 6,
+    "tech_score": 7,
     "price": 43200,
     "company_name": "동진쎄미켐",
     "verdict": "Avoid",
@@ -440,9 +440,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 50으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "240810": {
-    "score": 8,
+    "score": 9,
     "fund_score": 0,
-    "tech_score": 11,
+    "tech_score": 12,
     "price": 120000,
     "company_name": "원익IPS",
     "verdict": "Avoid",
@@ -484,9 +484,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 55으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "095340": {
-    "score": 6,
+    "score": 7,
     "fund_score": 0,
-    "tech_score": 9,
+    "tech_score": 10,
     "price": 159800,
     "company_name": "ISC",
     "verdict": "Avoid",
@@ -528,9 +528,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 57으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "098460": {
-    "score": 23,
+    "score": 25,
     "fund_score": 0,
-    "tech_score": 26,
+    "tech_score": 28,
     "price": 31900,
     "company_name": "고영",
     "verdict": "Avoid",
@@ -660,9 +660,9 @@
     "analyst_comment": "MA20<MA60 역배열로 약세 흐름. RSI 38으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "373220": {
-    "score": 23,
+    "score": 24,
     "fund_score": 2,
-    "tech_score": 11,
+    "tech_score": 12,
     "price": 365500,
     "company_name": "LG에너지솔루션",
     "verdict": "Avoid",
@@ -704,9 +704,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 57으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "006400": {
-    "score": 36,
-    "fund_score": 15,
-    "tech_score": 11,
+    "score": 35,
+    "fund_score": 13,
+    "tech_score": 12,
     "price": 487000,
     "company_name": "삼성SDI",
     "verdict": "Avoid",
@@ -748,9 +748,9 @@
     "analyst_comment": "매출 YoY +19% 성장세. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 58으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "051910": {
-    "score": 13,
+    "score": 14,
     "fund_score": 2,
-    "tech_score": 8,
+    "tech_score": 9,
     "price": 275500,
     "company_name": "LG화학",
     "verdict": "Avoid",
@@ -792,9 +792,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 53으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "247540": {
-    "score": 13,
+    "score": 14,
     "fund_score": 2,
-    "tech_score": 9,
+    "tech_score": 10,
     "price": 114500,
     "company_name": "에코프로비엠",
     "verdict": "Avoid",
@@ -836,9 +836,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 50으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "086520": {
-    "score": 12,
+    "score": 13,
     "fund_score": 2,
-    "tech_score": 8,
+    "tech_score": 9,
     "price": 92100,
     "company_name": "에코프로",
     "verdict": "Avoid",
@@ -880,9 +880,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 55으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "003670": {
-    "score": 21,
+    "score": 22,
     "fund_score": 2,
-    "tech_score": 11,
+    "tech_score": 12,
     "price": 165900,
     "company_name": "포스코퓨처엠",
     "verdict": "Avoid",
@@ -924,9 +924,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 57으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "018260": {
-    "score": 41,
-    "fund_score": 10,
-    "tech_score": 26,
+    "score": 42,
+    "fund_score": 9,
+    "tech_score": 28,
     "price": 237000,
     "company_name": "삼성에스디에스",
     "verdict": "Avoid",
@@ -968,9 +968,9 @@
     "analyst_comment": "ROE 6.6%로 수익성 보통. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 61으로 매수세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "361610": {
-    "score": 11,
+    "score": 12,
     "fund_score": 0,
-    "tech_score": 9,
+    "tech_score": 10,
     "price": 15880,
     "company_name": "SK아이이테크놀로지",
     "verdict": "Avoid",
@@ -1012,9 +1012,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 57으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "137400": {
-    "score": 4,
+    "score": 5,
     "fund_score": 0,
-    "tech_score": 7,
+    "tech_score": 8,
     "price": 32650,
     "company_name": "피엔티",
     "verdict": "Avoid",
@@ -1057,8 +1057,8 @@
   },
   "108320": {
     "score": 14,
-    "fund_score": 9,
-    "tech_score": 8,
+    "fund_score": 8,
+    "tech_score": 9,
     "price": 40150,
     "company_name": "LX세미콘",
     "verdict": "Avoid",
@@ -1100,12 +1100,12 @@
     "analyst_comment": "ROE 4.4%로 수익성 보통. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 56으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "207940": {
-    "score": 71,
-    "fund_score": 40,
-    "tech_score": 29,
+    "score": 70,
+    "fund_score": 36,
+    "tech_score": 32,
     "price": 1564000,
     "company_name": "삼성바이오로직스",
-    "verdict": "Buy",
+    "verdict": "Hold",
     "buy_price": 1564000,
     "target_price": 1769788.8164638407,
     "stop_loss": 1472179.5,
@@ -1145,11 +1145,11 @@
   },
   "068270": {
     "score": 64,
-    "fund_score": 28,
-    "tech_score": 31,
+    "fund_score": 25,
+    "tech_score": 34,
     "price": 202000,
     "company_name": "셀트리온",
-    "verdict": "Hold",
+    "verdict": "Avoid",
     "buy_price": 202000,
     "target_price": 225760.0331891308,
     "stop_loss": 187860.0,
@@ -1188,9 +1188,9 @@
     "analyst_comment": "ROE 7.3%로 수익성 보통. 영업이익률 28.1%의 고마진 구조. 매출 YoY +36% 고성장. MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 64으로 매수세 우위. 상승 추세 지속 중으로 추세 추종 매매가 유효."
   },
   "326030": {
-    "score": 58,
-    "fund_score": 38,
-    "tech_score": 23,
+    "score": 56,
+    "fund_score": 34,
+    "tech_score": 25,
     "price": 87600,
     "company_name": "SK바이오팜",
     "verdict": "Avoid",
@@ -1232,9 +1232,9 @@
     "analyst_comment": "ROE 44.2%로 수익성 최상위권. 영업이익률 39.4%의 고마진 구조. 매출 YoY +58% 고성장. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 58으로 매수세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "145020": {
-    "score": 27,
+    "score": 30,
     "fund_score": 0,
-    "tech_score": 30,
+    "tech_score": 33,
     "price": 262500,
     "company_name": "휴젤",
     "verdict": "Avoid",
@@ -1320,9 +1320,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 52으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "000100": {
-    "score": 41,
-    "fund_score": 13,
-    "tech_score": 28,
+    "score": 43,
+    "fund_score": 12,
+    "tech_score": 31,
     "price": 82500,
     "company_name": "유한양행",
     "verdict": "Avoid",
@@ -1364,9 +1364,9 @@
     "analyst_comment": "ROE 8.9%로 수익성 보통. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 64으로 매수세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "128940": {
-    "score": 32,
-    "fund_score": 22,
-    "tech_score": 7,
+    "score": 31,
+    "fund_score": 20,
+    "tech_score": 8,
     "price": 398500,
     "company_name": "한미약품",
     "verdict": "Avoid",
@@ -1408,9 +1408,9 @@
     "analyst_comment": "ROE 14.1%로 양호한 수익성. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 53으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "196170": {
-    "score": 28,
+    "score": 31,
     "fund_score": 0,
-    "tech_score": 31,
+    "tech_score": 34,
     "price": 317500,
     "company_name": "알테오젠",
     "verdict": "Avoid",
@@ -1452,9 +1452,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 64으로 매수세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "195940": {
-    "score": 17,
+    "score": 19,
     "fund_score": 0,
-    "tech_score": 20,
+    "tech_score": 22,
     "price": 41150,
     "company_name": "HK이노엔",
     "verdict": "Avoid",
@@ -1496,9 +1496,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 55으로 매수세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "950160": {
-    "score": 8,
+    "score": 9,
     "fund_score": 0,
-    "tech_score": 11,
+    "tech_score": 12,
     "price": 25600,
     "company_name": "코오롱티슈진",
     "verdict": "Avoid",
@@ -1540,9 +1540,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 37으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "328130": {
-    "score": 3,
+    "score": 4,
     "fund_score": 0,
-    "tech_score": 6,
+    "tech_score": 7,
     "price": 10520,
     "company_name": "루닛",
     "verdict": "Avoid",
@@ -1584,9 +1584,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 48으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "006280": {
-    "score": 20,
-    "fund_score": 14,
-    "tech_score": 9,
+    "score": 19,
+    "fund_score": 12,
+    "tech_score": 10,
     "price": 129500,
     "company_name": "녹십자",
     "verdict": "Avoid",
@@ -1629,8 +1629,8 @@
   },
   "035420": {
     "score": 67,
-    "fund_score": 31,
-    "tech_score": 31,
+    "fund_score": 28,
+    "tech_score": 34,
     "price": 226500,
     "company_name": "NAVER",
     "verdict": "Hold",
@@ -1672,9 +1672,9 @@
     "analyst_comment": "ROE 5.7%로 수익성 보통. 영업이익률 16.7%로 안정적. 매출 YoY +16% 성장세. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 58으로 매수세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "035720": {
-    "score": 51,
-    "fund_score": 29,
-    "tech_score": 19,
+    "score": 50,
+    "fund_score": 26,
+    "tech_score": 21,
     "price": 40100,
     "company_name": "카카오",
     "verdict": "Avoid",
@@ -1716,9 +1716,9 @@
     "analyst_comment": "ROE 3.9%로 수익성 보통. 매출 YoY +11% 성장세. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 61으로 매수세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "259960": {
-    "score": 52,
-    "fund_score": 37,
-    "tech_score": 12,
+    "score": 49,
+    "fund_score": 33,
+    "tech_score": 13,
     "price": 234500,
     "company_name": "크래프톤",
     "verdict": "Avoid",
@@ -1760,9 +1760,9 @@
     "analyst_comment": "ROE 12.0%로 양호한 수익성. 영업이익률 40.9%의 고마진 구조. 매출 YoY +57% 고성장. MA20<MA60 역배열로 약세 흐름. RSI 47으로 매도세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "352820": {
-    "score": 37,
-    "fund_score": 27,
-    "tech_score": 7,
+    "score": 35,
+    "fund_score": 24,
+    "tech_score": 8,
     "price": 176400,
     "company_name": "하이브",
     "verdict": "Avoid",
@@ -1804,9 +1804,9 @@
     "analyst_comment": "매출 YoY +40% 고성장. MA20<MA60 역배열로 약세 흐름. RSI 41으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "263750": {
-    "score": 2,
+    "score": 3,
     "fund_score": 0,
-    "tech_score": 5,
+    "tech_score": 6,
     "price": 31500,
     "company_name": "펄어비스",
     "verdict": "Avoid",
@@ -1848,9 +1848,9 @@
     "analyst_comment": "MA20<MA60 역배열로 약세 흐름. RSI 39으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "112040": {
-    "score": 22,
+    "score": 24,
     "fund_score": 0,
-    "tech_score": 25,
+    "tech_score": 27,
     "price": 17830,
     "company_name": "위메이드",
     "verdict": "Avoid",
@@ -1892,9 +1892,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 55으로 매수세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "293490": {
-    "score": 20,
+    "score": 22,
     "fund_score": 0,
-    "tech_score": 23,
+    "tech_score": 25,
     "price": 9070,
     "company_name": "카카오게임즈",
     "verdict": "Avoid",
@@ -1936,9 +1936,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 63으로 매수세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "030200": {
-    "score": 24,
-    "fund_score": 18,
-    "tech_score": 6,
+    "score": 23,
+    "fund_score": 16,
+    "tech_score": 7,
     "price": 52500,
     "company_name": "KT",
     "verdict": "Avoid",
@@ -1980,12 +1980,12 @@
     "analyst_comment": "ROE 8.7%로 수익성 보통. MA20<MA60 역배열로 약세 흐름. RSI 46으로 매도세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "036570": {
-    "score": 60,
-    "fund_score": 39,
-    "tech_score": 18,
+    "score": 58,
+    "fund_score": 35,
+    "tech_score": 20,
     "price": 243500,
     "company_name": "NC",
-    "verdict": "Hold",
+    "verdict": "Avoid",
     "buy_price": 227500.0,
     "target_price": 274000.0,
     "stop_loss": 211575.0,
@@ -2024,9 +2024,9 @@
     "analyst_comment": "ROE 14.1%로 양호한 수익성. 영업이익률 20.3%로 안정적. 매출 YoY +55% 고성장. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 52으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "251270": {
-    "score": 30,
-    "fund_score": 22,
-    "tech_score": 11,
+    "score": 29,
+    "fund_score": 20,
+    "tech_score": 12,
     "price": 38850,
     "company_name": "넷마블",
     "verdict": "Avoid",
@@ -2069,8 +2069,8 @@
   },
   "377300": {
     "score": 54,
-    "fund_score": 27,
-    "tech_score": 27,
+    "fund_score": 24,
+    "tech_score": 30,
     "price": 44700,
     "company_name": "카카오페이",
     "verdict": "Avoid",
@@ -2112,9 +2112,9 @@
     "analyst_comment": "ROE 3.9%로 수익성 보통. 매출 YoY +42% 고성장. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 57으로 매수세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "323410": {
-    "score": 39,
-    "fund_score": 25,
-    "tech_score": 14,
+    "score": 37,
+    "fund_score": 22,
+    "tech_score": 15,
     "price": 22150,
     "company_name": "카카오뱅크",
     "verdict": "Avoid",
@@ -2157,8 +2157,8 @@
   },
   "017670": {
     "score": 33,
-    "fund_score": 13,
-    "tech_score": 15,
+    "fund_score": 12,
+    "tech_score": 16,
     "price": 91100,
     "company_name": "SK텔레콤",
     "verdict": "Avoid",
@@ -2201,8 +2201,8 @@
   },
   "032640": {
     "score": 19,
-    "fund_score": 10,
-    "tech_score": 9,
+    "fund_score": 9,
+    "tech_score": 10,
     "price": 14700,
     "company_name": "LG유플러스",
     "verdict": "Avoid",
@@ -2244,9 +2244,9 @@
     "analyst_comment": "MA20<MA60 역배열로 약세 흐름. RSI 48으로 매도세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "012450": {
-    "score": 58,
-    "fund_score": 27,
-    "tech_score": 26,
+    "score": 57,
+    "fund_score": 24,
+    "tech_score": 28,
     "price": 1185000,
     "company_name": "한화에어로스페이스",
     "verdict": "Avoid",
@@ -2289,11 +2289,11 @@
   },
   "079550": {
     "score": 71,
-    "fund_score": 31,
-    "tech_score": 35,
+    "fund_score": 28,
+    "tech_score": 38,
     "price": 837000,
     "company_name": "LIG디펜스앤에어로스페이스",
-    "verdict": "Buy",
+    "verdict": "Hold",
     "buy_price": 774266.6666666666,
     "target_price": 1098000.0,
     "stop_loss": 720068.0,
@@ -2332,9 +2332,9 @@
     "analyst_comment": "ROE 20.7%로 수익성 최상위권. 매출 YoY +29% 성장세. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 57으로 매수세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "047810": {
-    "score": 56,
-    "fund_score": 30,
-    "tech_score": 23,
+    "score": 55,
+    "fund_score": 27,
+    "tech_score": 25,
     "price": 151200,
     "company_name": "한국항공우주",
     "verdict": "Avoid",
@@ -2376,9 +2376,9 @@
     "analyst_comment": "ROE 10.9%로 양호한 수익성. 매출 YoY +56% 고성장. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 54으로 매수세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "272210": {
-    "score": 26,
-    "fund_score": 14,
-    "tech_score": 9,
+    "score": 25,
+    "fund_score": 12,
+    "tech_score": 10,
     "price": 79600,
     "company_name": "한화시스템",
     "verdict": "Avoid",
@@ -2420,9 +2420,9 @@
     "analyst_comment": "ROE 2.2%로 수익성 보통. 매출 YoY +17% 성장세. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 59으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "064350": {
-    "score": 53,
-    "fund_score": 34,
-    "tech_score": 16,
+    "score": 51,
+    "fund_score": 30,
+    "tech_score": 18,
     "price": 147600,
     "company_name": "현대로템",
     "verdict": "Avoid",
@@ -2464,9 +2464,9 @@
     "analyst_comment": "ROE 26.9%로 수익성 최상위권. 매출 YoY +13% 성장세. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 47으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "014970": {
-    "score": 6,
+    "score": 7,
     "fund_score": 0,
-    "tech_score": 9,
+    "tech_score": 10,
     "price": 4500,
     "company_name": "삼륭물산",
     "verdict": "Avoid",
@@ -2508,9 +2508,9 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 53으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "006260": {
-    "score": 27,
-    "fund_score": 19,
-    "tech_score": 5,
+    "score": 26,
+    "fund_score": 17,
+    "tech_score": 6,
     "price": 326000,
     "company_name": "LS",
     "verdict": "Avoid",
@@ -2552,9 +2552,9 @@
     "analyst_comment": "ROE 7.8%로 수익성 보통. 매출 YoY +38% 고성장. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 52으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "103140": {
-    "score": 50,
-    "fund_score": 22,
-    "tech_score": 28,
+    "score": 51,
+    "fund_score": 20,
+    "tech_score": 31,
     "price": 84000,
     "company_name": "풍산",
     "verdict": "Avoid",
@@ -2596,12 +2596,12 @@
     "analyst_comment": "ROE 8.1%로 수익성 보통. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 64으로 매수세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "329180": {
-    "score": 61,
-    "fund_score": 39,
-    "tech_score": 17,
+    "score": 59,
+    "fund_score": 35,
+    "tech_score": 19,
     "price": 496000,
     "company_name": "HD현대중공업",
-    "verdict": "Hold",
+    "verdict": "Avoid",
     "buy_price": 437000.0,
     "target_price": 573875.0,
     "stop_loss": 407385.0,
@@ -2640,12 +2640,12 @@
     "analyst_comment": "ROE 24.6%로 수익성 최상위권. 영업이익률 15.3%로 안정적. 매출 YoY +55% 고성장. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 47으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "009540": {
-    "score": 61,
-    "fund_score": 44,
-    "tech_score": 14,
+    "score": 57,
+    "fund_score": 39,
+    "tech_score": 15,
     "price": 371500,
     "company_name": "HD한국조선해양",
-    "verdict": "Hold",
+    "verdict": "Avoid",
     "buy_price": 352500.0,
     "target_price": 389000.0,
     "stop_loss": 334620.0,
@@ -2684,9 +2684,9 @@
     "analyst_comment": "ROE 21.8%로 수익성 최상위권. 영업이익률 16.7%로 안정적. 매출 YoY +20% 성장세. MA20<MA60 역배열로 약세 흐름. RSI 49으로 매도세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "042660": {
-    "score": 46,
-    "fund_score": 29,
-    "tech_score": 12,
+    "score": 44,
+    "fund_score": 26,
+    "tech_score": 13,
     "price": 90700,
     "company_name": "한화오션",
     "verdict": "Avoid",
@@ -2772,12 +2772,12 @@
     "analyst_comment": "RSI 0으로 과매도 영역 → 반등 가능성. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "267250": {
-    "score": 64,
-    "fund_score": 35,
-    "tech_score": 26,
+    "score": 62,
+    "fund_score": 31,
+    "tech_score": 28,
     "price": 229000,
     "company_name": "HD현대",
-    "verdict": "Hold",
+    "verdict": "Avoid",
     "buy_price": 228356.66666666666,
     "target_price": 282500.0,
     "stop_loss": 212371.7,
@@ -2816,9 +2816,9 @@
     "analyst_comment": "ROE 16.8%로 양호한 수익성. 매출 YoY +15% 성장세. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 58으로 매수세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "241560": {
-    "score": 30,
-    "fund_score": 6,
-    "tech_score": 24,
+    "score": 31,
+    "fund_score": 5,
+    "tech_score": 26,
     "price": 64900,
     "company_name": "두산밥캣",
     "verdict": "Avoid",
@@ -2861,8 +2861,8 @@
   },
   "005380": {
     "score": 24,
-    "fund_score": 10,
-    "tech_score": 9,
+    "fund_score": 9,
+    "tech_score": 10,
     "price": 418500,
     "company_name": "현대차",
     "verdict": "Avoid",
@@ -2904,9 +2904,9 @@
     "analyst_comment": "ROE 7.2%로 수익성 보통. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 48으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "000270": {
-    "score": 38,
-    "fund_score": 24,
-    "tech_score": 9,
+    "score": 36,
+    "fund_score": 21,
+    "tech_score": 10,
     "price": 137400,
     "company_name": "기아",
     "verdict": "Avoid",
@@ -2948,9 +2948,9 @@
     "analyst_comment": "ROE 11.9%로 양호한 수익성. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 50으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "012330": {
-    "score": 34,
-    "fund_score": 20,
-    "tech_score": 9,
+    "score": 33,
+    "fund_score": 18,
+    "tech_score": 10,
     "price": 511000,
     "company_name": "현대모비스",
     "verdict": "Avoid",
@@ -2993,8 +2993,8 @@
   },
   "018880": {
     "score": 15,
-    "fund_score": 5,
-    "tech_score": 7,
+    "fund_score": 4,
+    "tech_score": 8,
     "price": 3805,
     "company_name": "한온시스템",
     "verdict": "Avoid",
@@ -3036,12 +3036,12 @@
     "analyst_comment": "이동평균 수렴 구간으로 방향성 탐색 중. RSI 55으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "161390": {
-    "score": 61,
-    "fund_score": 19,
-    "tech_score": 39,
+    "score": 63,
+    "fund_score": 17,
+    "tech_score": 43,
     "price": 71500,
     "company_name": "한국타이어앤테크놀로지",
-    "verdict": "Hold",
+    "verdict": "Avoid",
     "buy_price": 71500,
     "target_price": 76000.0,
     "stop_loss": 68785.2,
@@ -3080,12 +3080,12 @@
     "analyst_comment": "ROE 7.6%로 수익성 보통. MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 55으로 매수세 우위. 상승 추세 지속 중으로 추세 추종 매매가 유효."
   },
   "298040": {
-    "score": 60,
-    "fund_score": 37,
-    "tech_score": 18,
+    "score": 58,
+    "fund_score": 33,
+    "tech_score": 20,
     "price": 3017000,
     "company_name": "효성중공업",
-    "verdict": "Hold",
+    "verdict": "Avoid",
     "buy_price": 2985000.0,
     "target_price": 3873000.0,
     "stop_loss": 2776050.0,
@@ -3124,9 +3124,9 @@
     "analyst_comment": "ROE 21.1%로 수익성 최상위권. 매출 YoY +26% 성장세. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 55으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "009150": {
-    "score": 45,
-    "fund_score": 9,
-    "tech_score": 31,
+    "score": 47,
+    "fund_score": 8,
+    "tech_score": 34,
     "price": 1503000,
     "company_name": "삼성전기",
     "verdict": "Avoid",
