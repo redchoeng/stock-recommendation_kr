@@ -836,7 +836,7 @@
     "analyst_comment": "MA20>MA60 정배열 상태로 상승 추세 진행 중. RSI 68으로 매수세 우위. 상승 추세 지속 중으로 추세 추종 매매가 유효."
   },
   "086520": {
-    "score": 37,
+    "score": 31,
     "fund_score": 2,
     "tech_score": 30,
     "price": 95900,
@@ -848,8 +848,8 @@
     "strategy": "📈 추세추종(MA20↑)",
     "comment": "[Policy]K-배터리 정책수혜, MACD골든, 일목2/3, RSI:66",
     "contrarian_adjustment": 0,
-    "trading_bonus": 3,
-    "trading_tier": "Active",
+    "trading_bonus": -3,
+    "trading_tier": "Thin",
     "rotation_bonus": 2,
     "rotation_phase": "관심",
     "sector_name": "2차전지",
