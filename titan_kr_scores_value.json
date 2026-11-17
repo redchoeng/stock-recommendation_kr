@@ -968,8 +968,8 @@
     "analyst_comment": "ROE 6.7%로 수익성 보통. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 53으로 매수세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "032640": {
-    "score": 90,
-    "fund_score": 65,
+    "score": 85,
+    "fund_score": 60,
     "tech_score": 25,
     "price": 15580,
     "company_name": "LG유플러스",
@@ -990,7 +990,7 @@
     "revenue_growth_value": null,
     "peg_value": null,
     "fcf_margin_value": null,
-    "fcf_score": 5,
+    "fcf_score": 0,
     "dividend_yield_value": 4.36,
     "dividend_growth_score": 5,
     "valuation_method": "EV/EBITDA",
@@ -999,7 +999,7 @@
     "debt_equity_value": 62.219,
     "beta_value": 0.279,
     "beta_score": 5,
-    "fcf_yield_value": 13.1,
+    "fcf_yield_value": null,
     "rsi_value": 55.38695591188008,
     "mfi_value": 72.62546048616466,
     "atr_value": 639.2225014404894,
