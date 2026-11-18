@@ -2376,8 +2376,8 @@
     "analyst_comment": "ROE 9.6%로 수익성 보통. 매출 YoY +41% 고성장. 이동평균 수렴 구간으로 방향성 탐색 중. RSI 45으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "272210": {
-    "score": 21,
-    "fund_score": 16,
+    "score": 23,
+    "fund_score": 18,
     "tech_score": 2,
     "price": 49600,
     "company_name": "한화시스템",
@@ -2386,18 +2386,18 @@
     "target_price": 69078.33333333333,
     "stop_loss": 45410.0,
     "strategy": "🔄 반등대기(스윙저점)",
-    "comment": "[Policy]K-방산 수출호조, RSI:35, ⚠하락추세, 유동성:Active(+3)",
+    "comment": "OPM:5.7%, [Policy]K-방산 수출호조, RSI:35, ⚠하락추세",
     "contrarian_adjustment": 0,
     "trading_bonus": 3,
     "trading_tier": "Active",
     "rotation_bonus": 0,
     "rotation_phase": "중립",
     "sector_name": "방산",
-    "roe_value": 2.3810001,
-    "opm_value": 4.6290003,
-    "revenue_growth_value": 45.5,
+    "roe_value": 0.49799997,
+    "opm_value": 5.6770000000000005,
+    "revenue_growth_value": 30.099999999999998,
     "peg_value": null,
-    "fcf_margin_value": -8.8,
+    "fcf_margin_value": -3.0,
     "fcf_score": 0,
     "dividend_yield_value": null,
     "dividend_growth_score": 0,
@@ -2417,7 +2417,7 @@
     "ma20": 58615.0,
     "ma60": 69078.33333333333,
     "ma120": 74120.0,
-    "analyst_comment": "ROE 2.4%로 수익성 보통. 매출 YoY +46% 고성장. MA20<MA60 역배열로 약세 흐름. RSI 35으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
+    "analyst_comment": "ROE 0.5%로 수익성 보통. 매출 YoY +30% 고성장. MA20<MA60 역배열로 약세 흐름. RSI 35으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "064350": {
     "score": 36,
