@@ -1,6 +1,6 @@
 {
   "005930": {
-    "score": 56,
+    "score": 49,
     "fund_score": 47,
     "tech_score": 2,
     "price": 166900,
@@ -14,8 +14,8 @@
     "contrarian_adjustment": 0,
     "trading_bonus": 5,
     "trading_tier": "Hot",
-    "rotation_bonus": 2,
-    "rotation_phase": "관심",
+    "rotation_bonus": -5,
+    "rotation_phase": "소외 지속",
     "sector_name": "AI/반도체",
     "roe_value": 41.577,
     "opm_value": 46.132,
@@ -44,7 +44,7 @@
     "analyst_comment": "ROE 41.6%로 수익성 최상위권. 영업이익률 46.1%의 고마진 구조. 매출 YoY +127% 고성장. MA20<MA60 역배열로 약세 흐름. RSI 32으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "000660": {
-    "score": 47,
+    "score": 40,
     "fund_score": 38,
     "tech_score": 2,
     "price": 1014000,
@@ -58,8 +58,8 @@
     "contrarian_adjustment": 0,
     "trading_bonus": 5,
     "trading_tier": "Hot",
-    "rotation_bonus": 2,
-    "rotation_phase": "관심",
+    "rotation_bonus": -5,
+    "rotation_phase": "소외 지속",
     "sector_name": "AI/반도체",
     "roe_value": 92.541003,
     "opm_value": 74.5,
@@ -88,7 +88,7 @@
     "analyst_comment": "ROE 92.5%로 수익성 최상위권. 영업이익률 74.5%의 고마진 구조. 매출 YoY +328% 고성장. MA20<MA60 역배열로 약세 흐름. RSI 35으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "042700": {
-    "score": 42,
+    "score": 35,
     "fund_score": 31,
     "tech_score": 6,
     "price": 143000,
@@ -102,8 +102,8 @@
     "contrarian_adjustment": 0,
     "trading_bonus": 3,
     "trading_tier": "Active",
-    "rotation_bonus": 2,
-    "rotation_phase": "관심",
+    "rotation_bonus": -5,
+    "rotation_phase": "소외 지속",
     "sector_name": "AI/반도체",
     "roe_value": 26.595999999999997,
     "opm_value": 45.439997,
@@ -132,7 +132,7 @@
     "analyst_comment": "ROE 26.6%로 수익성 최상위권. 영업이익률 45.4%의 고마진 구조. MA20<MA60 역배열로 약세 흐름. RSI 35으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "403870": {
-    "score": 10,
+    "score": 3,
     "fund_score": 2,
     "tech_score": 9,
     "price": 37750,
@@ -146,8 +146,8 @@
     "contrarian_adjustment": 0,
     "trading_bonus": -3,
     "trading_tier": "Thin",
-    "rotation_bonus": 2,
-    "rotation_phase": "관심",
+    "rotation_bonus": -5,
+    "rotation_phase": "소외 지속",
     "sector_name": "AI/반도체",
     "roe_value": null,
     "opm_value": null,
@@ -176,7 +176,7 @@
     "analyst_comment": "MA20<MA60 역배열로 약세 흐름. RSI 44으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "058470": {
-    "score": 41,
+    "score": 34,
     "fund_score": 32,
     "tech_score": 4,
     "price": 44950,
@@ -190,8 +190,8 @@
     "contrarian_adjustment": 0,
     "trading_bonus": 3,
     "trading_tier": "Active",
-    "rotation_bonus": 2,
-    "rotation_phase": "관심",
+    "rotation_bonus": -5,
+    "rotation_phase": "소외 지속",
     "sector_name": "AI/반도체",
     "roe_value": 18.629,
     "opm_value": 33.476,
@@ -660,7 +660,7 @@
     "analyst_comment": "MA20<MA60 역배열로 약세 흐름. RSI 42으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "373220": {
-    "score": 29,
+    "score": 22,
     "fund_score": 17,
     "tech_score": 5,
     "price": 304500,
@@ -674,8 +674,8 @@
     "contrarian_adjustment": 0,
     "trading_bonus": 5,
     "trading_tier": "Hot",
-    "rotation_bonus": 2,
-    "rotation_phase": "관심",
+    "rotation_bonus": -5,
+    "rotation_phase": "소외 지속",
     "sector_name": "2차전지",
     "roe_value": -8.408999999999999,
     "opm_value": 1.8870000000000002,
@@ -704,7 +704,7 @@
     "analyst_comment": "매출 YoY +59% 고성장. MA20<MA60 역배열로 약세 흐름. RSI 37으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "006400": {
-    "score": 28,
+    "score": 21,
     "fund_score": 17,
     "tech_score": 4,
     "price": 409000,
@@ -718,8 +718,8 @@
     "contrarian_adjustment": 0,
     "trading_bonus": 5,
     "trading_tier": "Hot",
-    "rotation_bonus": 2,
-    "rotation_phase": "관심",
+    "rotation_bonus": -5,
+    "rotation_phase": "소외 지속",
     "sector_name": "2차전지",
     "roe_value": 3.971,
     "opm_value": -0.745,
@@ -792,7 +792,7 @@
     "analyst_comment": "매출 YoY +34% 고성장. MA20<MA60 역배열로 약세 흐름. RSI 39으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "247540": {
-    "score": 8,
+    "score": 1,
     "fund_score": 2,
     "tech_score": 7,
     "price": 83200,
@@ -806,8 +806,8 @@
     "contrarian_adjustment": 0,
     "trading_bonus": -3,
     "trading_tier": "Thin",
-    "rotation_bonus": 2,
-    "rotation_phase": "관심",
+    "rotation_bonus": -5,
+    "rotation_phase": "소외 지속",
     "sector_name": "2차전지",
     "roe_value": null,
     "opm_value": null,
@@ -836,7 +836,7 @@
     "analyst_comment": "MA20<MA60 역배열로 약세 흐름. RSI 43으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "086520": {
-    "score": 10,
+    "score": 3,
     "fund_score": 2,
     "tech_score": 3,
     "price": 65100,
@@ -850,8 +850,8 @@
     "contrarian_adjustment": 0,
     "trading_bonus": 3,
     "trading_tier": "Active",
-    "rotation_bonus": 2,
-    "rotation_phase": "관심",
+    "rotation_bonus": -5,
+    "rotation_phase": "소외 지속",
     "sector_name": "2차전지",
     "roe_value": null,
     "opm_value": null,
@@ -880,7 +880,7 @@
     "analyst_comment": "MA20<MA60 역배열로 약세 흐름. RSI 43으로 매도세 우위. 하락 추세로 반등 신호 확인 전까지 관망 권장."
   },
   "003670": {
-    "score": 14,
+    "score": 7,
     "fund_score": 2,
     "tech_score": 7,
     "price": 160800,
@@ -894,8 +894,8 @@
     "contrarian_adjustment": 0,
     "trading_bonus": 3,
     "trading_tier": "Active",
-    "rotation_bonus": 2,
-    "rotation_phase": "관심",
+    "rotation_bonus": -5,
+    "rotation_phase": "소외 지속",
     "sector_name": "2차전지",
     "roe_value": 1.2130001,
     "opm_value": 1.9270000999999999,
@@ -968,7 +968,7 @@
     "analyst_comment": "ROE 6.3%로 수익성 보통. 매출 YoY +11% 성장세. MA20<MA60 역배열로 약세 흐름. RSI 39으로 매도세 우위. 횡보 구간 하단 접근 중으로 지지선 확인 후 매수 검토."
   },
   "361610": {
-    "score": 7,
+    "score": 0,
     "fund_score": 0,
     "tech_score": 8,
     "price": 10640,
@@ -982,8 +982,8 @@
     "contrarian_adjustment": 0,
     "trading_bonus": -3,
     "trading_tier": "Thin",
-    "rotation_bonus": 2,
-    "rotation_phase": "관심",
+    "rotation_bonus": -5,
+    "rotation_phase": "소외 지속",
     "sector_name": "2차전지",
     "roe_value": -94.414,
     "opm_value": -157.159,
