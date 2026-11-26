@@ -1087,7 +1087,7 @@
     "debt_equity_value": 262.396,
     "beta_value": 0.809,
     "beta_score": 4,
-    "fcf_yield_value": -11.2,
+    "fcf_yield_value": null,
     "rsi_value": 36.76713289609435,
     "mfi_value": 35.526754281885474,
     "atr_value": 1237.4930342247867,
